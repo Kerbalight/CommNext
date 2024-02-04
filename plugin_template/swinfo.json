@@ -1,0 +1,23 @@
+{
+  "spec": "2.0",
+  "mod_id": "CommNext",
+  "author": "leonardfactory",
+  "name": "CommNext",
+  "description": "CommNet overhaul with signal occlusion and utilities",
+  "source": "https://github.com/Kerbalight/CommNext",
+  "version": "0.1.0",
+  "version_check": "https://raw.githubusercontent.com/Kerbalight/CommNext/main/plugin_template/swinfo.json",
+  "ksp2_version": {
+    "min": "0.2.0",
+    "max": "*"
+  },
+  "dependencies": [
+    {
+      "id": "com.github.x606.spacewarp",
+      "version": {
+        "min": "1.8.0",
+        "max": "*"
+      }
+    }
+  ]
+}
