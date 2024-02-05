@@ -1,11 +1,13 @@
 using System.Reflection;
 using BepInEx;
+using CommNext.Patches;
 using JetBrains.Annotations;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
 using CommNext.UI;
+using HarmonyLib;
 using UitkForKsp2.API;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -49,6 +51,8 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         //     isOpen => myFirstWindowController.IsWindowOpen = isOpen
         // );
         
+        // Patches
+        Harmony.CreateAndPatchAll(typeof(ComputeConnectionsJobPatches));
     }
 
     /// <summary>
