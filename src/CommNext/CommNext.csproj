@@ -16,10 +16,20 @@
         <!-- Add references to any other projects in your solution that you want to use in your mod here -->
         <ProjectReference Include="..\CommNext.Unity\CommNext.Unity.csproj" Private="false"/>
     </ItemGroup>
-    <ItemGroup>
-      <Reference Include="Assembly-CSharp">
-        <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program 2\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+    <!-- Use Assembly-CSharp from the game as a reference locally to enable debugging in Deploy and DeployAndRun -->
+    <Choose>
+        <When Condition="$(ConfigurationName) == Deploy Or $(ConfigurationName) == DeployAndRun">
+            <ItemGroup>
+                <Reference Include="Assembly-CSharp">
+                    <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+                </Reference>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1"/>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 </Project>
 
