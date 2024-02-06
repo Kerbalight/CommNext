@@ -15,6 +15,7 @@ public static class ComputeConnectionsJobPatches
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
     private static IGGuid _kscId;
     
+    // TODO Rewrite a new Job and replace this method completely
     [HarmonyPatch(typeof(ConnectionGraph), "RebuildConnectionGraph")]
     [HarmonyPrefix]
     public static void ComputeBodiesPositions(ConnectionGraph __instance)
@@ -168,6 +169,7 @@ public static class ComputeConnectionsJobPatches
         
         var game = GameManager.Instance.Game;
         var commNetManager = game.SessionManager.CommNetManager;
+        
         // for (var i = 0; i < length; ++i)
         // {
         //     // var start = __instance.Nodes[i].Position;

@@ -1,6 +1,8 @@
 using System.Reflection;
 using BepInEx;
+using CommNext.Managers;
 using CommNext.Patches;
+using CommNext.Rendering;
 using JetBrains.Annotations;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -51,8 +53,17 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         //     isOpen => myFirstWindowController.IsWindowOpen = isOpen
         // );
         
+        // Events
+        MessageListener.StartListening();
+        
         // Patches
+        Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
         Harmony.CreateAndPatchAll(typeof(ComputeConnectionsJobPatches));
+        
+        // Providers
+        var providers = new GameObject("CommNext_Providers");
+        providers.transform.parent = this.transform;
+        providers.AddComponent<ConnectionsRenderer>();
     }
 
     /// <summary>
