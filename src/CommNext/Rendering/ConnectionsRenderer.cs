@@ -30,6 +30,16 @@ public class ConnectionsRenderer : MonoBehaviour
         _updateTask = RunUpdateConnectionsTask();
         StartCoroutine(_updateTask);
     }
+
+    public void Initialize()
+    {
+        // TODO MapCore loading
+        foreach (var connection in _connections.Values)
+        {
+            Destroy(connection.gameObject);
+        }
+        _connections.Clear();
+    }
     
     
     private IEnumerator RunUpdateConnectionsTask()

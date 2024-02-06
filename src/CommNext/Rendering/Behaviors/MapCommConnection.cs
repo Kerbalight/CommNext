@@ -5,14 +5,15 @@ namespace CommNext.Rendering.Behaviors;
 
 public class MapCommConnection : MonoBehaviour
 {
-    private static readonly Material LineMaterial = new Material(Shader.Find("Sprites/Default"));
+    public static Material LineMaterial;
     
     public Map3DFocusItem SourceItem { get; set; }
     public Map3DFocusItem TargetItem { get; set; }
     
     private LineRenderer _lineRenderer;
     private bool _isConnected;
-    
+    private static readonly int MainColor = Shader.PropertyToID("_Color");
+
     /// <summary>
     /// Encodes the connection ID based on the source and target items,
     /// without considering the order of the items.
@@ -29,16 +30,16 @@ public class MapCommConnection : MonoBehaviour
         gameObject.layer = LayerMask.NameToLayer("Map");
         
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        _lineRenderer.positionCount = 2;
-        _lineRenderer.startWidth = 0.1f;
-        _lineRenderer.endWidth = 0.1f;
+        _lineRenderer.positionCount = 10;
+        _lineRenderer.startWidth = 0.05f;
+        _lineRenderer.endWidth = 0.05f;
         _lineRenderer.material = LineMaterial;
         // _lineRenderer.startColor = Color.green;
         // _lineRenderer.endColor = Color.green;
         var connectionGradient = new Gradient();
         connectionGradient.SetKeys(
             [new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.green, 1.0f)],
-            [new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.7f, 1.0f)]
+            [new GradientAlphaKey(0.2f, 1.0f), new GradientAlphaKey(1.0f, 0.0f)]
         );
         _lineRenderer.colorGradient = connectionGradient;
     }
@@ -53,6 +54,12 @@ public class MapCommConnection : MonoBehaviour
     public void Update()
     {
         if (!_isConnected) return;
-        _lineRenderer.SetPositions(new Vector3[] { SourceItem.transform.position, TargetItem.transform.position });
+        var positions = new Vector3[10];
+        for (var i = 0; i < 10; i++)
+        {
+            var t = i / (9f);
+            positions[i] = Vector3.Lerp(SourceItem.transform.position, TargetItem.transform.position, t);
+        }
+        _lineRenderer.SetPositions(positions);
     }
 }

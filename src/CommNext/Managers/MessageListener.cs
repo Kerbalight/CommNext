@@ -1,4 +1,5 @@
-﻿using KSP.Game;
+﻿using CommNext.Rendering;
+using KSP.Game;
 using KSP.Messages;
 
 namespace CommNext.Managers;
@@ -21,6 +22,8 @@ public static class MessageListener
         
         // Precompute some references
         CommunicationsManager.Instance.Initialize();
+        // Delete previous connections
+        ConnectionsRenderer.Instance.Initialize();
     }
 
     private static void OnMapInitialized(MessageCenterMessage _)

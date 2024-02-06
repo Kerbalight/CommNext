@@ -3,6 +3,7 @@ using BepInEx;
 using CommNext.Managers;
 using CommNext.Patches;
 using CommNext.Rendering;
+using CommNext.Rendering.Behaviors;
 using JetBrains.Annotations;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -64,6 +65,9 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         var providers = new GameObject("CommNext_Providers");
         providers.transform.parent = this.transform;
         providers.AddComponent<ConnectionsRenderer>();
+        
+        MapCommConnection.LineMaterial = AssetManager.GetAsset<Material>(
+            $"{CommNextPlugin.ModGuid}/commnext_ui/shaders/commconnectionmat.mat");
     }
 
     /// <summary>
