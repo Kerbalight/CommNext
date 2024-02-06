@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <!-- References -->
+    <PropertyGroup>
+      <Nullable>enable</Nullable>
+    </PropertyGroup>
     <ItemGroup Label="NuGet package references">
         <!-- Add references to any NuGet packages you want to use in your mod here -->
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
