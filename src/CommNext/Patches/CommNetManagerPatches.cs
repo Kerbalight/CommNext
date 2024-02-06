@@ -1,15 +1,17 @@
 ﻿using CommNext.Models;
+using HarmonyLib;
+using KSP.Game;
 using Unity.Collections;
 
 namespace CommNext.Patches;
 
-public class CommNetManagerPatches
+public static class CommNetManagerPatches
 {
-    public static NativeArray<CommNextBodyInfo> bodyInfos;
-    
-    public static void InitializeBodies()
+    [HarmonyPatch(typeof(CommNetManager), "OnUpdate")]
+    [HarmonyPostfix]
+    public static void OnUpdateShortenTime(CommNetManager __instance, ref float ____timerRemaining)
     {
-        // Harmony harmony = new Harmony("CommNext");
-        // harmony.PatchAll(Assembly.GetExecutingAssembly());
+        if (____timerRemaining > 0.2f)
+            ____timerRemaining = 0.2f;
     }
 }
