@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using BepInEx.Logging;
 using CommNext.Utils;
+using KSP.Networking.MP.Utils;
 using KSP.Sim;
 using Unity.Collections;
 using Unity.Jobs;
@@ -14,6 +16,8 @@ namespace CommNext.Compute;
 /// </summary>
 public struct GetNextConnectedNodesJob : IJob
 {
+    private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.GetNextConnectedNodesJob");
+    
     [ReadOnly]
     public int StartIndex;
     [ReadOnly]
@@ -26,12 +30,15 @@ public struct GetNextConnectedNodesJob : IJob
     public NativeArray<int> PrevIndices;
     
     // private static float _controlSourceRadiusModifier = 0.98f;
-    private static int _lastLoggedTime = 0;
+    private static long _lastLoggedTime = 0;
     
     public void Execute()
     {
         var sw = new Stopwatch();
         sw.Start();
+        var numOfBodyOcclusions = 0;
+        var numOfIntersections = 0;
+        
         var bodies = BodyInfos.Length;
         var length = Nodes.Length;
         var distances = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
@@ -103,6 +110,7 @@ public struct GetNextConnectedNodesJob : IJob
                 {
                     var bodyInfo = BodyInfos[bi];
                     var r = bodyInfo.radius;
+                    numOfBodyOcclusions++;
 
                     // if (sourceIndex == 0 && bodyInfo.name == "Kerbin")
                     // {
@@ -127,6 +135,7 @@ public struct GetNextConnectedNodesJob : IJob
                     
                     var discriminant = b * b - 4 * a * c;
                     if (discriminant < 0) continue;
+                    numOfIntersections++;
                         
                     var sqrtDiscriminant = math.sqrt(discriminant);
                     var t1 = (-b + sqrtDiscriminant) / (2 * a);
@@ -151,10 +160,10 @@ public struct GetNextConnectedNodesJob : IJob
         }
         
         sw.Stop();
-        if (Settings.EnableProfileLogs.Value && DateTime.UtcNow.Millisecond - _lastLoggedTime > 5_000)
+        if (Settings.EnableProfileLogs.Value && DateTime.Now.ToUnixTimestamp() - _lastLoggedTime > 4)
         {
-            UnityEngine.Debug.Log($"GetNextConnectedNodesJob.Execute took {sw.ElapsedMilliseconds}ms");
-            _lastLoggedTime = DateTime.UtcNow.Millisecond;
+            Logger.LogInfo($"Execute took {sw.ElapsedMilliseconds}ms (nodes={processedNodes.Length}, numBodyOcclusions={numOfBodyOcclusions}, numIntersections={numOfIntersections})");
+            _lastLoggedTime = DateTime.Now.ToUnixTimestamp();
         }
         
         queue.Dispose();
