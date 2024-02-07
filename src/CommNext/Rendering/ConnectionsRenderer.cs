@@ -47,19 +47,21 @@ public class ConnectionsRenderer : MonoBehaviour
         while (true)
         {
             // TODO Start/Stop tasks based on the state of the game
-            if (!MessageListener.IsInMapView) yield return new WaitForSeconds(1.0f);
-
-            if (!CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(out var nodes,
-                    out var prevIndexes) || nodes == null) yield return new WaitForSeconds(1.0f);
-
-            try
+            if (MessageListener.IsInMapView &&
+                CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(out var nodes,
+                    out var prevIndexes) &&
+                nodes != null)
             {
-                UpdateConnections(nodes!, prevIndexes);
+                try
+                {
+                    UpdateConnections(nodes!, prevIndexes);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Error updating connections: " + e);
+                }
             }
-            catch (Exception e)
-            {
-                Logger.LogError("Error updating connections: " + e);
-            }
+
             yield return new WaitForSeconds(0.5f);
         }
         // ReSharper disable once IteratorNeverReturns
