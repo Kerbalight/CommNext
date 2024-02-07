@@ -146,6 +146,16 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// If MapCommConnection Source or Target item are destroyed, we need to
+    /// remove the connection.
+    /// </summary>
+    public void OnMapItemDestroyed(MapCommConnection connection)
+    {
+       Destroy(connection.gameObject);
+       _connections.Remove(connection.Id);
+    }
+
     private static Map3DFocusItem? GetMapItem(ConnectionGraphNode sourceNode)
     {
         if (AllMapItems == null) return null;

@@ -11,6 +11,9 @@ public class MapCommConnection : MonoBehaviour
     public Map3DFocusItem TargetItem { get; set; }
     
     private LineRenderer _lineRenderer;
+    
+    public string Id { get; private set; }
+    
     private bool _isConnected;
     private static readonly int MainColor = Shader.PropertyToID("_Color");
 
@@ -48,12 +51,20 @@ public class MapCommConnection : MonoBehaviour
     {
         SourceItem = source;
         TargetItem = target;
+        Id = GetID(source, target);
         _isConnected = true;
     }
 
     public void Update()
     {
         if (!_isConnected) return;
+        
+        if (SourceItem == null || TargetItem == null)
+        {
+            ConnectionsRenderer.Instance.OnMapItemDestroyed(this);
+            return;
+        }
+        
         var positions = new Vector3[10];
         for (var i = 0; i < 10; i++)
         {
