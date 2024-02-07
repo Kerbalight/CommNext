@@ -38,7 +38,7 @@ public static class ConnectionGraphPatches
     [HarmonyPatch(typeof(ConnectionGraph), "RebuildConnectionGraph")]
     [HarmonyPrefix]
     // ReSharper disable InconsistentNaming
-    public static void RebuildNextConnectionGraph(ConnectionGraph __instance,
+    public static bool RebuildNextConnectionGraph(ConnectionGraph __instance,
         ref bool ____hasBuiltGraph, 
         ref bool ____isRunning, 
         ref List<ConnectionGraphNode> ____allNodes,
@@ -53,8 +53,8 @@ public static class ConnectionGraphPatches
     {
         if (__instance.IsRunning)
         {
-            Logger.LogError("Cannot rebuild MST. Job already in progress");
-            return;
+            Logger.LogError("Cannot rebuild CommNext MST. Job already in progress");
+            return false;
         }
 
         ____hasBuiltGraph = false;
@@ -98,6 +98,8 @@ public static class ConnectionGraphPatches
         }.Schedule<GetNextConnectedNodesJob>();
         ____isRunning = true;
         ____prevSourceIndex = sourceNodeIndex;
+
+        return false;
     }
 
     private static ExtraConnectionGraphNodeFlags GetExtraFlagsFrom(ConnectionGraphNode node)
