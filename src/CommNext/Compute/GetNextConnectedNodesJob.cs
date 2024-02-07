@@ -23,6 +23,8 @@ public struct GetNextConnectedNodesJob : IJob
     [WriteOnly]
     public NativeArray<int> PrevIndices;
     
+    // private static float _controlSourceRadiusModifier = 0.98f;
+    
     
     public void Execute()
     {
@@ -98,14 +100,17 @@ public struct GetNextConnectedNodesJob : IJob
                 for (var bi = 0; bi < bodies; ++bi)
                 {
                     var bodyInfo = BodyInfos[bi];
-                    
-                    if (sourceIndex == 0 && bodyInfo.name == "Kerbin") continue;
+                    var r = bodyInfo.radius;
+
+                    // if (sourceIndex == 0 && bodyInfo.name == "Kerbin")
+                    // {
+                    //     r *= _controlSourceRadiusModifier;
+                    // }
                     
                     // A = (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2
                     // B = 2 * [ (x2-x1)(x1-xS) + (y2-y1)(y1-yS) + (z2-z1)(z1-zS) ]
                     // C = xS^2 + yS^2 + zS^2 + x1^2 + y1^2 + z1^2 - 2 * (xS*x1 + yS*y1 + zS*z1) - r^2
                     var s = bodyInfo.position;
-                    var r = bodyInfo.radius;
                     var p1 = sourcePosition;
                     var p2 = targetPosition;
                     
@@ -145,19 +150,6 @@ public struct GetNextConnectedNodesJob : IJob
         
         sw.Stop();
         UnityEngine.Debug.Log($"ComputeConnectionsJobPatches.Execute took {sw.ElapsedMilliseconds}ms");
-        
-        // var game = GameManager.Instance.Game;
-        // var commNetManager = game.SessionManager.CommNetManager;
-        //
-        // for (var i = 0; i < length; ++i)
-        // {
-        //     // var start = Nodes[i].Position;
-        //     if (__instance.PrevIndices[i] < 0 || __instance.PrevIndices[i] >= __instance.Nodes.Length) continue;
-        //     var start = GameManager.Instance.Game.SpaceSimulation.FindSimObject(__instance.Nodes[i].Owner).transform.position;
-        //     Debug.DrawLine(__instance.Nodes[i].Position, __instance.Nodes[__instance.PrevIndices[i]].Position, Color.green, 10f);
-        //     __instance.Nodes[i].DistanceFromSource = distances[i];
-        //     __instance.Nodes[i].PrevIndex = __instance.PrevIndices[i];
-        // }
 
         queue.Dispose();
         processedNodes.Dispose();
