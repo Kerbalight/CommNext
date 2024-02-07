@@ -1,56 +1,35 @@
 ﻿using System.Diagnostics;
-using CommNext.Compute;
-using HarmonyLib;
-using KSP.Game;
 using KSP.Sim;
-using KSP.Sim.impl;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
-using Debug = UnityEngine.Debug;
 
-namespace CommNext.Patches;
+namespace CommNext.Compute;
 
-public static class ComputeConnectionsJobPatches
+/// <summary>
+/// Custom job to get the connected nodes of a CommNet graph.
+/// It takes in consideration Relays & Body Occlusion.
+/// </summary>
+public struct GetNextConnectedNodesJob : IJob
 {
-    private static NativeArray<CommNextBodyInfo> _bodyInfos;
-    private static IGGuid _kscId;
+    [ReadOnly]
+    public int StartIndex;
+    [ReadOnly]
+    public NativeArray<ConnectionGraph.ConnectionGraphJobNode> Nodes;
+    [ReadOnly]
+    public NativeArray<CommNextBodyInfo> BodyInfos;
+    [ReadOnly] 
+    public NativeArray<ExtraConnectionGraphJobNode> ExtraNodes;
+    [WriteOnly]
+    public NativeArray<int> PrevIndices;
     
-    // TODO Rewrite a new Job and replace this method completely
-    [HarmonyPatch(typeof(ConnectionGraph), "RebuildConnectionGraph")]
-    [HarmonyPrefix]
-    public static void ComputeBodiesPositions(ConnectionGraph __instance)
-    {
-        if (__instance.IsRunning) return;
-        
-        var game = GameManager.Instance.Game;
-
-        var celestialBodies = game.UniverseModel.GetAllCelestialBodies();
-        // Source = KSC
-        var sourceNode = game.SessionManager.CommNetManager.GetSourceNode();
-        var sourceTransform = (TransformModel) game.SpaceSimulation.FindSimObject(sourceNode.Owner).transform;
-        _kscId = sourceNode.Owner;
-        
-        _bodyInfos = new NativeArray<CommNextBodyInfo>(celestialBodies.Count, Allocator.Temp);
-        for (var i = 0; i < celestialBodies.Count; ++i)
-        {
-            var body = celestialBodies[i];
-            _bodyInfos[i] = new CommNextBodyInfo
-            {
-                position = sourceTransform.celestialFrame.ToLocalPosition(body.Position),
-                radius = body.radius,
-                name = body.bodyName
-            };
-        }
-    }
     
-    [HarmonyPatch(typeof(GetConnectedNodesJob), "Execute")]
-    [HarmonyPrefix]
-    public static bool Execute(ref GetConnectedNodesJob __instance)
+    public void Execute()
     {
         var sw = new Stopwatch();
         sw.Start();
-        var bodies = _bodyInfos.Length;
-        var length = __instance.Nodes.Length;
+        var bodies = BodyInfos.Length;
+        var length = Nodes.Length;
         var distances = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
         var processedNodes = new NativeArray<bool>(length, Allocator.Temp);
         // Queue of node indexes to be processed
@@ -58,11 +37,11 @@ public static class ComputeConnectionsJobPatches
         for (var i = 0; i < length; ++i)
         {
             distances[i] = double.MaxValue;
-            __instance.PrevIndices[i] = -1;
+            PrevIndices[i] = -1;
             queue.AddNoResize(i);
         }
 
-        distances[__instance.StartIndex] = 0.0;
+        distances[StartIndex] = 0.0;
         while (queue.Length > 0)
         {
             
@@ -83,34 +62,42 @@ public static class ComputeConnectionsJobPatches
             var sourceIndex = lowerIndex;
             queue.RemoveAtSwapBack(index);
             var sourceDistance = distances[sourceIndex];
-            var sourceSqRange = __instance.Nodes[sourceIndex].MaxRange * __instance.Nodes[sourceIndex].MaxRange;
+            var sourceSqRange = Nodes[sourceIndex].MaxRange * Nodes[sourceIndex].MaxRange;
             processedNodes[sourceIndex] = true;
             
-            if ((__instance.Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
+            if ((Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                 ConnectionGraphNodeFlags.None) continue;
             
             for (var targetIndex = 0; targetIndex < length; ++targetIndex)
             {
                 // Skip if source and target are the same, target is inactive, or target has already been processed
                 if (sourceIndex == targetIndex ||
-                    (__instance.Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
+                    (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                     ConnectionGraphNodeFlags.None || processedNodes[targetIndex]) continue;
                 
+                // Skip if both aren't relays
+                var canSourceRelay = (ExtraNodes[sourceIndex].Flags & ExtraConnectionGraphNodeFlags.IsRelay) != ExtraConnectionGraphNodeFlags.None ||
+                                     (Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) != ConnectionGraphNodeFlags.None;
+                var canTargetRelay = (ExtraNodes[targetIndex].Flags & ExtraConnectionGraphNodeFlags.IsRelay) != ExtraConnectionGraphNodeFlags.None ||
+                                     (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) != ConnectionGraphNodeFlags.None;
+                
+                if (!canSourceRelay && !canTargetRelay) continue;
+                
                 var distance = math.distancesq(
-                    __instance.Nodes[sourceIndex].Position,
-                    __instance.Nodes[targetIndex].Position);
+                    Nodes[sourceIndex].Position,
+                    Nodes[targetIndex].Position);
                 
                 // Skip if distance is greater than source's max range or target's max range
                 if (!(distance < sourceSqRange) ||
-                    !(distance < __instance.Nodes[targetIndex].MaxRange * __instance.Nodes[targetIndex].MaxRange)) continue;
+                    !(distance < Nodes[targetIndex].MaxRange * Nodes[targetIndex].MaxRange)) continue;
                 
                 // Skip if line intersects a celestial body
-                var sourcePosition = __instance.Nodes[sourceIndex].Position;
-                var targetPosition = __instance.Nodes[targetIndex].Position;
+                var sourcePosition = Nodes[sourceIndex].Position;
+                var targetPosition = Nodes[targetIndex].Position;
                 var isInLineOfSight = true;
                 for (var bi = 0; bi < bodies; ++bi)
                 {
-                    var bodyInfo = _bodyInfos[bi];
+                    var bodyInfo = BodyInfos[bi];
                     
                     if (sourceIndex == 0 && bodyInfo.name == "Kerbin") continue;
                     
@@ -152,19 +139,19 @@ public static class ComputeConnectionsJobPatches
                 if (!(bestDistance < distances[targetIndex])) continue;
                 
                 distances[targetIndex] = bestDistance;
-                __instance.PrevIndices[targetIndex] = sourceIndex;
+                PrevIndices[targetIndex] = sourceIndex;
             }
         }
         
         sw.Stop();
         UnityEngine.Debug.Log($"ComputeConnectionsJobPatches.Execute took {sw.ElapsedMilliseconds}ms");
         
-        var game = GameManager.Instance.Game;
-        var commNetManager = game.SessionManager.CommNetManager;
-        
+        // var game = GameManager.Instance.Game;
+        // var commNetManager = game.SessionManager.CommNetManager;
+        //
         // for (var i = 0; i < length; ++i)
         // {
-        //     // var start = __instance.Nodes[i].Position;
+        //     // var start = Nodes[i].Position;
         //     if (__instance.PrevIndices[i] < 0 || __instance.PrevIndices[i] >= __instance.Nodes.Length) continue;
         //     var start = GameManager.Instance.Game.SpaceSimulation.FindSimObject(__instance.Nodes[i].Owner).transform.position;
         //     Debug.DrawLine(__instance.Nodes[i].Position, __instance.Nodes[__instance.PrevIndices[i]].Position, Color.green, 10f);
@@ -175,6 +162,6 @@ public static class ComputeConnectionsJobPatches
         queue.Dispose();
         processedNodes.Dispose();
         distances.Dispose();
-        return false;
+        
     }
 }

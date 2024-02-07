@@ -15,14 +15,14 @@ public class ConnectionsRenderer : MonoBehaviour
 {
     private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionsRenderer");
     
-    public static ConnectionsRenderer Instance { get; private set; }
-    
+    public static ConnectionsRenderer Instance { get; private set; } = null!;
+
     private readonly Dictionary<string, MapCommConnection> _connections = new();
 
-    private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => MapCore.map3D.AllMapSelectableItems;
-    private static MapCore MapCore;
+    private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
+    private static MapCore _mapCore = null!;
     
-    private IEnumerator _updateTask;
+    private IEnumerator? _updateTask;
     
     private void Start()
     {
@@ -42,7 +42,7 @@ public class ConnectionsRenderer : MonoBehaviour
     }
     
     
-    private IEnumerator RunUpdateConnectionsTask()
+    private IEnumerator? RunUpdateConnectionsTask()
     {
         while (true)
         {
@@ -60,16 +60,17 @@ public class ConnectionsRenderer : MonoBehaviour
             {
                 Logger.LogError("Error updating connections: " + e);
             }
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.5f);
         }
         // ReSharper disable once IteratorNeverReturns
     }
 
     private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes)
     {
-        if (!GameManager.Instance.Game.Map.TryGetMapCore(out MapCore))
+        // TODO Add some events-based logic.
+        if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
         {
-            Logger.LogError("MapCore not found");
+            // Logger.LogError("MapCore not found");
             return;
         }
         
@@ -96,7 +97,7 @@ public class ConnectionsRenderer : MonoBehaviour
             else
             {
                 var connectionObject = new GameObject($"MapCommConnection_{connectionId}");
-                connectionObject.transform.SetParent(MapCore.map3D.transform);
+                connectionObject.transform.SetParent(_mapCore.map3D.transform);
                 connection = connectionObject.AddComponent<MapCommConnection>();
                 connection.Configure(sourceItem, targetItem);
                 _connections.Add(connectionId, connection);
@@ -121,7 +122,7 @@ public class ConnectionsRenderer : MonoBehaviour
         // Control Center is the source of all connections, but it's not a map item.
         if (sourceGuid == CommunicationsManager.CommNetManager.GetSourceNode().Owner)
         {
-            sourceGuid = MapCore.KSCGUID;
+            sourceGuid = _mapCore.KSCGUID;
         }
         return AllMapItems.GetValueOrDefault(sourceGuid);
     }

@@ -59,7 +59,7 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         
         // Patches
         Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
-        Harmony.CreateAndPatchAll(typeof(ComputeConnectionsJobPatches));
+        Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
         
         // Providers
         var providers = new GameObject("CommNext_Providers");
