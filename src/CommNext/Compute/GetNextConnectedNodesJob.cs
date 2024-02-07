@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
+using CommNext.Utils;
 using KSP.Sim;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace CommNext.Compute;
 
@@ -24,7 +26,7 @@ public struct GetNextConnectedNodesJob : IJob
     public NativeArray<int> PrevIndices;
     
     // private static float _controlSourceRadiusModifier = 0.98f;
-    
+    private static int _lastLoggedTime = 0;
     
     public void Execute()
     {
@@ -149,8 +151,12 @@ public struct GetNextConnectedNodesJob : IJob
         }
         
         sw.Stop();
-        UnityEngine.Debug.Log($"ComputeConnectionsJobPatches.Execute took {sw.ElapsedMilliseconds}ms");
-
+        if (Settings.EnableProfileLogs.Value && DateTime.UtcNow.Millisecond - _lastLoggedTime > 5_000)
+        {
+            UnityEngine.Debug.Log($"GetNextConnectedNodesJob.Execute took {sw.ElapsedMilliseconds}ms");
+            _lastLoggedTime = DateTime.UtcNow.Millisecond;
+        }
+        
         queue.Dispose();
         processedNodes.Dispose();
         distances.Dispose();

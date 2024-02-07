@@ -10,6 +10,7 @@ using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
 using CommNext.UI;
+using CommNext.Utils;
 using HarmonyLib;
 using UitkForKsp2.API;
 using UnityEngine;
@@ -60,6 +61,9 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         // Patches
         Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
         Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
+        
+        // Settings
+        Settings.SetupConfig();
         
         // Providers
         var providers = new GameObject("CommNext_Providers");
