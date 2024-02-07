@@ -1,0 +1,53 @@
+:root {
+    --black: rgb(0, 0, 0);
+    --purple-2: rgb(113, 117, 255);
+    --purple-3: rgb(98, 102, 242);
+    --purple-4: rgb(83, 86, 204);
+    --purple-5: rgb(68, 70, 166);
+    --purple-6: rgb(53, 55, 128);
+}
+
+.toolbar {
+    background-color: var(--black);
+    border-width: 1px;
+    border-bottom-width: 2px;
+    padding: 3px;
+    border-radius: 8px;
+    border-color: var(--purple-4);
+}
+
+.toolbar-label {
+    position: absolute;
+    left: 56%;
+    bottom: -6px;
+    translate: -50% 0;
+    color: var(--purple-2);
+    font-size: 8px;
+    -unity-font-definition: var(--font-title-small);
+    background-color: var(--black);
+    padding-bottom: 1px;
+}
+
+.toolbar-comm-icon {
+    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
+    -unity-background-scale-mode: initial;
+    background-size: 16px 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    height: 24px;
+    width: 24px;
+    border-width: 0;
+    background-color: var(--black);
+    -unity-background-image-tint-color: rgb(213, 222, 255);
+    transition: all 0.2s;
+}
+
+.toolbar-comm-icon:hover {
+    -unity-background-image-tint-color: rgb(128, 134, 153);
+}
+
+.toolbar-comm-icon.toggled {
+    -unity-background-image-tint-color: rgb(0, 255, 102);
+}

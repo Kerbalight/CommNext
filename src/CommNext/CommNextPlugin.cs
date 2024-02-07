@@ -70,6 +70,9 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         providers.transform.parent = this.transform;
         providers.AddComponent<ConnectionsRenderer>();
         
+        // UI
+        MainUIManager.Instance.Initialize();
+        
         // Load Assets
         MapCommConnection.LineMaterial = AssetManager.GetAsset<Material>(
             $"{CommNextPlugin.ModGuid}/commnext_ui/shaders/commconnectionmat.mat");

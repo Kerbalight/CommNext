@@ -7,6 +7,7 @@ using KSP.Game;
 using KSP.Map;
 using KSP.Sim;
 using KSP.Sim.impl;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace CommNext.Rendering;
@@ -23,24 +24,53 @@ public class ConnectionsRenderer : MonoBehaviour
     private static MapCore _mapCore = null!;
     
     private IEnumerator? _updateTask;
+
+    private bool _isEnabled = true;
+
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
+        {
+            _isEnabled = value;
+            switch (_isEnabled)
+            {
+                case true when _updateTask == null:
+                    _updateTask = RunUpdateConnectionsTask();
+                    StartCoroutine(_updateTask);
+                    break;
+                
+                case false when _updateTask != null:
+                    StopCoroutine(_updateTask);
+                    _updateTask = null;
+                
+                    ClearConnections();
+                    break;
+            }
+        }
+    }
     
     private void Start()
     {
         Instance = this;
-        _updateTask = RunUpdateConnectionsTask();
-        StartCoroutine(_updateTask);
     }
 
     public void Initialize()
     {
         // TODO MapCore loading
+        ClearConnections();
+        
+        IsEnabled = true;
+    }
+    
+    public void ClearConnections()
+    {
         foreach (var connection in _connections.Values)
         {
             Destroy(connection.gameObject);
         }
         _connections.Clear();
     }
-    
     
     private IEnumerator? RunUpdateConnectionsTask()
     {

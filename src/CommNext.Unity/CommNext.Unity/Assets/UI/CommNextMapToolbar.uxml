@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
+    <ui:VisualElement class="toolbar" style="flex-grow: 0; width: 80px; height: 40px; flex-direction: row; justify-content: center; align-self: stretch; align-items: center; border-left-width: 0.5px; border-right-width: 0.5px; border-top-width: 0.5px; border-bottom-width: 1.5px;">
+        <ui:Label tabindex="-1" text="COMMNEXT" display-tooltip-when-elided="true" name="Label" class="toolbar-label" style="position: absolute; translate: -50% 0; -unity-font-style: bold;" />
+        <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" name="lines-button" class="toolbar-button toolbar-comm-icon" />
+    </ui:VisualElement>
+</ui:UXML>

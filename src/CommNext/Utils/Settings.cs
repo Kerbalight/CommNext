@@ -9,7 +9,7 @@ public static class Settings
 
     // Debug
     public static ConfigEntry<bool> EnableProfileLogs { get; private set; } = null!;
-
+    
 
     public static void SetupConfig()
     {

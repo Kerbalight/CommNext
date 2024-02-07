@@ -39,7 +39,7 @@ public class MapCommConnection : MonoBehaviour
         var connectionGradient = new Gradient();
         connectionGradient.SetKeys(
             [new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.green, 1.0f)],
-            [new GradientAlphaKey(0.2f, 1.0f), new GradientAlphaKey(1.0f, 0.0f)]
+            [new GradientAlphaKey(0.15f, 1.0f), new GradientAlphaKey(0.8f, 0.0f)]
         );
         _lineRenderer.colorGradient = connectionGradient;
     }

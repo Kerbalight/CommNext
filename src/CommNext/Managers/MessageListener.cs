@@ -1,4 +1,5 @@
 ﻿using CommNext.Rendering;
+using CommNext.UI;
 using KSP.Game;
 using KSP.Messages;
 
@@ -12,7 +13,9 @@ public static class MessageListener
     {
         var messageCenter = GameManager.Instance.Game.Messages;
         messageCenter.PersistentSubscribe<MapInitializedMessage>(OnMapInitialized);
+        messageCenter.PersistentSubscribe<MapViewEnteredMessage>(OnMapViewEntered);
         messageCenter.PersistentSubscribe<MapViewLeftMessage>(OnMapViewLeft);
+        messageCenter.PersistentSubscribe<GameStateChangedMessage>(OnGameStateChanged);
         messageCenter.PersistentSubscribe<GameLoadFinishedMessage>(OnGameLoadFinished);
     }
     
@@ -30,10 +33,35 @@ public static class MessageListener
     {
         IsInMapView = true;
     }
+    
+    private static void OnMapViewEntered(MessageCenterMessage _)
+    {
+        IsInMapView = true;
+        MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = true;
+    }
+    
+    private static void OnGameStateChanged(MessageCenterMessage message)
+    {
+        var gameStateChangedMessage = (GameStateChangedMessage) message;
+        if (gameStateChangedMessage.CurrentState 
+            is GameState.TrackingStation 
+            or GameState.Map3DView 
+            or GameState.PlanetViewer)
+        {
+            IsInMapView = true;
+            MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = true;
+        }
+        else
+        {
+            IsInMapView = false;
+            MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = false;
+        }
+    }
 
     private static void OnMapViewLeft(MessageCenterMessage _)
     {
         IsInMapView = false;
+        MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = false;
     }
     
 }
