@@ -36,6 +36,7 @@ public class MapToolbarWindowController : MonoBehaviour
     // The elements of the window that we need to access
     private VisualElement _root = null!;
     private Button _linesButton = null!;
+    private Button _rulersButton = null!;
 
     private bool _isWindowOpen;
 
@@ -53,8 +54,11 @@ public class MapToolbarWindowController : MonoBehaviour
     
     private void UpdateButtonState()
     {
-        if (ConnectionsRenderer.Instance.IsEnabled) _linesButton.AddToClassList("toggled");
+        if (ConnectionsRenderer.Instance.IsConnectionsEnabled) _linesButton.AddToClassList("toggled");
         else _linesButton.RemoveFromClassList("toggled");
+        
+        if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
+        else _rulersButton.RemoveFromClassList("toggled");
     }
 
     /// <summary>
@@ -72,7 +76,14 @@ public class MapToolbarWindowController : MonoBehaviour
         _linesButton = _root.Q<Button>("lines-button");
         _linesButton.clicked += () =>
         {
-            ConnectionsRenderer.Instance.IsEnabled = !ConnectionsRenderer.Instance.IsEnabled;
+            ConnectionsRenderer.Instance.IsConnectionsEnabled = !ConnectionsRenderer.Instance.IsConnectionsEnabled;
+            UpdateButtonState();
+        };
+        
+        _rulersButton = _root.Q<Button>("rulers-button");
+        _rulersButton.clicked += () =>
+        {
+            ConnectionsRenderer.Instance.IsRulersEnabled = !ConnectionsRenderer.Instance.IsRulersEnabled;
             UpdateButtonState();
         };
 

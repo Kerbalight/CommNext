@@ -29,7 +29,6 @@
 }
 
 .toolbar-comm-icon {
-    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
     -unity-background-scale-mode: initial;
     background-size: 16px 16px;
     padding-left: 4px;
@@ -42,6 +41,10 @@
     background-color: var(--black);
     -unity-background-image-tint-color: rgb(213, 222, 255);
     transition: all 0.2s;
+}
+
+.toolbar-comm-icon--lines {
+    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
 }
 
 .toolbar-comm-icon:hover {

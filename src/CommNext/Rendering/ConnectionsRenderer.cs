@@ -3,6 +3,7 @@ using System.Reflection;
 using BepInEx.Logging;
 using CommNext.Managers;
 using CommNext.Rendering.Behaviors;
+using CommNext.Unity.Runtime;
 using KSP.Game;
 using KSP.Map;
 using KSP.Sim;
@@ -16,37 +17,40 @@ public class ConnectionsRenderer : MonoBehaviour
 {
     private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionsRenderer");
     
+    public static GameObject RulerSpherePrefab = null!;
+    
     public static ConnectionsRenderer Instance { get; private set; } = null!;
 
     private readonly Dictionary<string, MapCommConnection> _connections = new();
+    private readonly Dictionary<string, RulerSphereComponent> _rulers = new();
 
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
     
     private IEnumerator? _updateTask;
 
-    private bool _isEnabled = true;
+    private bool _isConnectionsEnabled = true;
+    private bool _isRulersEnabled = true;
 
-    public bool IsEnabled
+    public bool IsConnectionsEnabled
     {
-        get => _isEnabled;
+        get => _isConnectionsEnabled;
         set
         {
-            _isEnabled = value;
-            switch (_isEnabled)
-            {
-                case true when _updateTask == null:
-                    _updateTask = RunUpdateConnectionsTask();
-                    StartCoroutine(_updateTask);
-                    break;
-                
-                case false when _updateTask != null:
-                    StopCoroutine(_updateTask);
-                    _updateTask = null;
-                
-                    ClearConnections();
-                    break;
-            }
+            _isConnectionsEnabled = value;
+            ClearConnections();
+            ToggleUpdateTaskIfNeeded();
+        }
+    }
+    
+    public bool IsRulersEnabled
+    {
+        get => _isRulersEnabled;
+        set
+        {
+            _isRulersEnabled = value;
+            ClearRulers();
+            ToggleUpdateTaskIfNeeded();
         }
     }
     
@@ -55,12 +59,32 @@ public class ConnectionsRenderer : MonoBehaviour
         Instance = this;
     }
 
+    private void ToggleUpdateTaskIfNeeded()
+    {
+        switch (_isConnectionsEnabled || _isRulersEnabled)
+        {
+            case true when _updateTask == null:
+                _updateTask = RunUpdateTask();
+                StartCoroutine(_updateTask);
+                break;
+                
+            case false when _updateTask != null:
+                StopCoroutine(_updateTask);
+                _updateTask = null;
+                
+                ClearConnections();
+                ClearRulers();
+                break;
+        }
+    }
+
     public void Initialize()
     {
         // TODO MapCore loading
         ClearConnections();
+        ClearRulers();
         
-        IsEnabled = true;
+        IsConnectionsEnabled = true;
     }
     
     public void ClearConnections()
@@ -72,7 +96,16 @@ public class ConnectionsRenderer : MonoBehaviour
         _connections.Clear();
     }
     
-    private IEnumerator? RunUpdateConnectionsTask()
+    public void ClearRulers()
+    {
+        foreach (var ruler in _rulers.Values)
+        {
+            Destroy(ruler.gameObject);
+        }
+        _rulers.Clear();
+    }
+    
+    private IEnumerator? RunUpdateTask()
     {
         while (true)
         {
@@ -84,7 +117,8 @@ public class ConnectionsRenderer : MonoBehaviour
             {
                 try
                 {
-                    UpdateConnections(nodes!, prevIndexes);
+                    if (_isConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+                    if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
                 }
                 catch (Exception e)
                 {
@@ -144,6 +178,55 @@ public class ConnectionsRenderer : MonoBehaviour
             Destroy(connection.gameObject);
             _connections.Remove(connectionId);
         }
+    }
+
+    private void UpdateRulers(List<ConnectionGraphNode> nodes, int[] prevIndexes)
+    {
+        var keepIds = new List<string>();
+        for (var i=0; i < nodes.Count; i++)
+        {
+            var node = nodes[i];
+            if (prevIndexes[i] < 0 || prevIndexes[i] >= nodes.Count) continue;
+            if (node == null) continue;
+            if (node.MaxRange <= 0) continue;
+            var item = GetMapItem(node);
+            if (item == null) continue;
+            if (_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
+            {
+                keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
+            }
+            else
+            {
+                var rulerObject = Instantiate(RulerSpherePrefab, _mapCore.map3D.transform);
+                rulerObject.name = $"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}";
+                ruler = rulerObject.AddComponent<RulerSphereComponent>();
+                ruler.Track(item, node.MaxRange, null, OnRulerMissingNode);
+                _rulers.Add(item.AssociatedMapItem.SimGUID.ToString(), ruler);
+                
+                keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
+            }
+        }
+        
+        var removeIds = _rulers.Keys.Except(keepIds).ToList();
+        foreach (var rulerId in removeIds)
+        {
+            if (!_rulers.TryGetValue(rulerId, out var rulerComponent)) continue;
+            Destroy(rulerComponent.gameObject);
+            _rulers.Remove(rulerId);
+        }
+    }
+    
+    public double GetMap3dScaleInv()
+    {
+        return _mapCore.map3D.GetSpaceProvider().Map3DScaleInv;
+    }
+    
+    private void OnRulerMissingNode(RulerSphereComponent ruler)
+    {
+        var rulerId = ruler.gameObject.name.Replace("Ruler_", "");
+        if (!_rulers.TryGetValue(rulerId, out var rulerComponent)) return;
+        Destroy(rulerComponent.gameObject);
+        _rulers.Remove(rulerId);
     }
 
     /// <summary>
