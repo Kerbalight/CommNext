@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <!-- References -->
     <PropertyGroup>
-      <Nullable>enable</Nullable>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup Label="NuGet package references">
         <!-- Add references to any NuGet packages you want to use in your mod here -->
@@ -21,12 +21,12 @@
     </ItemGroup>
     <!-- Use Assembly-CSharp from the game as a reference locally to enable debugging in Deploy and DeployAndRun -->
     <ItemGroup Condition="$(ConfigurationName) != 'Release'">
-        <Reference Include="Assembly-CSharp">
+        <Reference Include="Assembly-CSharp" Publicize="true">
             <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
         </Reference>
     </ItemGroup>
     <ItemGroup Condition="$(ConfigurationName) == 'Release'">
-        <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1"/>
+        <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" PrivateAssets="false"/>
     </ItemGroup>
 </Project>
 
