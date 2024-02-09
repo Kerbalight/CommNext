@@ -2,6 +2,7 @@
 using System.Reflection;
 using BepInEx.Logging;
 using CommNext.Managers;
+using CommNext.Network;
 using CommNext.Rendering.Behaviors;
 using CommNext.Unity.Runtime;
 using KSP.Game;

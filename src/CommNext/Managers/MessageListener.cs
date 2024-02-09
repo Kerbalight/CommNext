@@ -1,4 +1,5 @@
-﻿using CommNext.Rendering;
+﻿using CommNext.Network;
+using CommNext.Rendering;
 using CommNext.UI;
 using KSP.Game;
 using KSP.Messages;
