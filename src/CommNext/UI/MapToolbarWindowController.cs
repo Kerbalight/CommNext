@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using CommNext.Rendering;
+using CommNext.UI.Screen;
 using KSP.Game;
 using KSP.Messages;
 using KSP.Sim.impl;
@@ -47,16 +48,16 @@ public class MapToolbarWindowController : MonoBehaviour
         {
             _isWindowOpen = value;
             _root.style.display = _isWindowOpen ? DisplayStyle.Flex : DisplayStyle.None;
-            
+
             if (_isWindowOpen) UpdateButtonState();
         }
     }
-    
+
     private void UpdateButtonState()
     {
         if (ConnectionsRenderer.Instance.IsConnectionsEnabled) _linesButton.AddToClassList("toggled");
         else _linesButton.RemoveFromClassList("toggled");
-        
+
         if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
         else _rulersButton.RemoveFromClassList("toggled");
     }
@@ -70,7 +71,10 @@ public class MapToolbarWindowController : MonoBehaviour
         _window = GetComponent<UIDocument>();
 
         _root = _window.rootVisualElement[0];
-        _root.SetDefaultPosition(size => new Vector2(Configuration.CurrentScreenWidth - size.x - 28, 300));
+        _root.SetDefaultPosition(size => new Vector2(
+            UIScreenUtils.GetReferenceScreenScaledWidth() - size.x - UIScreenUtils.GetScaledReferenceCoordinate(28f),
+            UIScreenUtils.GetScaledReferenceCoordinate(300f)
+        ));
 
         // Content
         _linesButton = _root.Q<Button>("lines-button");
@@ -79,7 +83,7 @@ public class MapToolbarWindowController : MonoBehaviour
             ConnectionsRenderer.Instance.IsConnectionsEnabled = !ConnectionsRenderer.Instance.IsConnectionsEnabled;
             UpdateButtonState();
         };
-        
+
         _rulersButton = _root.Q<Button>("rulers-button");
         _rulersButton.clicked += () =>
         {
