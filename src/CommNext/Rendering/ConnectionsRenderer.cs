@@ -15,23 +15,27 @@ namespace CommNext.Rendering;
 
 public class ConnectionsRenderer : MonoBehaviour
 {
-    private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionsRenderer");
-    
+    private static readonly ManualLogSource Logger =
+        BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionsRenderer");
+
     public static GameObject RulerSpherePrefab = null!;
-    
+
     public static ConnectionsRenderer Instance { get; private set; } = null!;
 
-    private readonly Dictionary<string, MapCommConnection> _connections = new();
-    private readonly Dictionary<string, RulerSphereComponent> _rulers = new();
+    private readonly Dictionary<string, MapConnectionComponent> _connections = new();
+    private readonly Dictionary<string, MapSphereRulerComponent> _rulers = new();
 
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
-    
+
     private IEnumerator? _updateTask;
 
     private bool _isConnectionsEnabled = true;
     private bool _isRulersEnabled = true;
 
+    /// <summary>
+    /// Connections are the lines between the nodes (vessels, ground stations, etc).
+    /// </summary>
     public bool IsConnectionsEnabled
     {
         get => _isConnectionsEnabled;
@@ -42,7 +46,11 @@ public class ConnectionsRenderer : MonoBehaviour
             ToggleUpdateTaskIfNeeded();
         }
     }
-    
+
+    /// <summary>
+    /// Rulers are the spheres that show the range of the nodes
+    /// (vessels, ground stations, etc).
+    /// </summary>
     public bool IsRulersEnabled
     {
         get => _isRulersEnabled;
@@ -53,7 +61,7 @@ public class ConnectionsRenderer : MonoBehaviour
             ToggleUpdateTaskIfNeeded();
         }
     }
-    
+
     private void Start()
     {
         Instance = this;
@@ -67,11 +75,11 @@ public class ConnectionsRenderer : MonoBehaviour
                 _updateTask = RunUpdateTask();
                 StartCoroutine(_updateTask);
                 break;
-                
+
             case false when _updateTask != null:
                 StopCoroutine(_updateTask);
                 _updateTask = null;
-                
+
                 ClearConnections();
                 ClearRulers();
                 break;
@@ -83,28 +91,22 @@ public class ConnectionsRenderer : MonoBehaviour
         // TODO MapCore loading
         ClearConnections();
         ClearRulers();
-        
+
         IsConnectionsEnabled = true;
     }
-    
+
     public void ClearConnections()
     {
-        foreach (var connection in _connections.Values)
-        {
-            Destroy(connection.gameObject);
-        }
+        foreach (var connection in _connections.Values) Destroy(connection.gameObject);
         _connections.Clear();
     }
-    
+
     public void ClearRulers()
     {
-        foreach (var ruler in _rulers.Values)
-        {
-            Destroy(ruler.gameObject);
-        }
+        foreach (var ruler in _rulers.Values) Destroy(ruler.gameObject);
         _rulers.Clear();
     }
-    
+
     private IEnumerator? RunUpdateTask()
     {
         while (true)
@@ -114,7 +116,6 @@ public class ConnectionsRenderer : MonoBehaviour
                 CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(out var nodes,
                     out var prevIndexes) &&
                 nodes != null)
-            {
                 try
                 {
                     if (_isConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
@@ -124,7 +125,6 @@ public class ConnectionsRenderer : MonoBehaviour
                 {
                     Logger.LogError("Error updating connections: " + e);
                 }
-            }
 
             yield return new WaitForSeconds(0.5f);
         }
@@ -135,27 +135,26 @@ public class ConnectionsRenderer : MonoBehaviour
     {
         // TODO Add some events-based logic.
         if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
-        {
             // Logger.LogError("MapCore not found");
             return;
-        }
-        
+
         List<string> keepIds = [];
-        
-        for (var i = 0; i < prevIndexes.Length; i++) {
+
+        for (var i = 0; i < prevIndexes.Length; i++)
+        {
             var sourceIndex = prevIndexes[i];
             var targetIndex = i;
             if (sourceIndex < 0 || sourceIndex >= nodes.Count) continue;
-            
+
             var sourceNode = nodes[sourceIndex];
             var targetNode = nodes[targetIndex];
             if (sourceNode == null || targetNode == null) continue;
-            
+
             var sourceItem = GetMapItem(sourceNode);
             var targetItem = GetMapItem(targetNode);
             if (sourceItem == null || targetItem == null) continue;
 
-            var connectionId = MapCommConnection.GetID(sourceItem, targetItem);
+            var connectionId = MapConnectionComponent.GetID(sourceItem, targetItem);
             if (_connections.TryGetValue(connectionId, out var connection))
             {
                 keepIds.Add(connectionId);
@@ -164,13 +163,13 @@ public class ConnectionsRenderer : MonoBehaviour
             {
                 var connectionObject = new GameObject($"MapCommConnection_{connectionId}");
                 connectionObject.transform.SetParent(_mapCore.map3D.transform);
-                connection = connectionObject.AddComponent<MapCommConnection>();
+                connection = connectionObject.AddComponent<MapConnectionComponent>();
                 connection.Configure(sourceItem, targetItem);
                 _connections.Add(connectionId, connection);
                 keepIds.Add(connectionId);
             }
         }
-        
+
         var removeIds = _connections.Keys.Except(keepIds).ToList();
         foreach (var connectionId in removeIds)
         {
@@ -182,8 +181,12 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private void UpdateRulers(List<ConnectionGraphNode> nodes, int[] prevIndexes)
     {
+        if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
+            // Logger.LogError("MapCore not found");
+            return;
+
         var keepIds = new List<string>();
-        for (var i=0; i < nodes.Count; i++)
+        for (var i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
             if (prevIndexes[i] < 0 || prevIndexes[i] >= nodes.Count) continue;
@@ -199,14 +202,14 @@ public class ConnectionsRenderer : MonoBehaviour
             {
                 var rulerObject = Instantiate(RulerSpherePrefab, _mapCore.map3D.transform);
                 rulerObject.name = $"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}";
-                ruler = rulerObject.AddComponent<RulerSphereComponent>();
-                ruler.Track(item, node.MaxRange, null, OnRulerMissingNode);
+                ruler = rulerObject.AddComponent<MapSphereRulerComponent>();
+                ruler.Track(item, node.MaxRange, null);
                 _rulers.Add(item.AssociatedMapItem.SimGUID.ToString(), ruler);
-                
+
                 keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
             }
         }
-        
+
         var removeIds = _rulers.Keys.Except(keepIds).ToList();
         foreach (var rulerId in removeIds)
         {
@@ -215,28 +218,28 @@ public class ConnectionsRenderer : MonoBehaviour
             _rulers.Remove(rulerId);
         }
     }
-    
+
     public double GetMap3dScaleInv()
     {
         return _mapCore.map3D.GetSpaceProvider().Map3DScaleInv;
     }
-    
-    private void OnRulerMissingNode(RulerSphereComponent ruler)
-    {
-        var rulerId = ruler.gameObject.name.Replace("Ruler_", "");
-        if (!_rulers.TryGetValue(rulerId, out var rulerComponent)) return;
-        Destroy(rulerComponent.gameObject);
-        _rulers.Remove(rulerId);
-    }
 
     /// <summary>
-    /// If MapCommConnection Source or Target item are destroyed, we need to
+    /// If MapConnectionComponent Source or Target item are destroyed, we need to
     /// remove the connection.
     /// </summary>
-    public void OnMapItemDestroyed(MapCommConnection connection)
+    public void OnMapConnectionDestroyed(MapConnectionComponent connection, bool destroyGameObject = true)
     {
-       Destroy(connection.gameObject);
-       _connections.Remove(connection.Id);
+        if (!_connections.ContainsKey(connection.Id)) return;
+        Destroy(connection.gameObject);
+        _connections.Remove(connection.Id);
+    }
+
+    public void OnMapSphereRulerDestroyed(MapSphereRulerComponent ruler, bool destroyGameObject = true)
+    {
+        if (!_rulers.ContainsKey(ruler.Id)) return;
+        Destroy(ruler.gameObject);
+        _rulers.Remove(ruler.Id);
     }
 
     private static Map3DFocusItem? GetMapItem(ConnectionGraphNode sourceNode)
@@ -246,9 +249,7 @@ public class ConnectionsRenderer : MonoBehaviour
         // Replace the source GUID with the KSC GUID. 
         // Control Center is the source of all connections, but it's not a map item.
         if (sourceGuid == CommunicationsManager.CommNetManager.GetSourceNode().Owner)
-        {
             sourceGuid = _mapCore.KSCGUID;
-        }
         return AllMapItems.GetValueOrDefault(sourceGuid);
     }
 }
