@@ -22,7 +22,7 @@
     {
       "id": "PatchManager",
       "version": {
-        "min": "0.9.3",
+        "min": "0.9.4",
         "max": "*"
       }
     }

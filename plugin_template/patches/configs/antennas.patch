@@ -1,0 +1,34 @@
+@use 'relay_mixins';
+@use 'constants';
+
+// We patch stock antennas ranges.
+
+// First we want to reset all pods
+:parts .Module_DataTransmitter .Module_CommandPod {
+    @include override-range($commnext-RANGE-POD)
+}
+
+// Specific antennas
+:parts #antenna_0v_16 {
+    @include override-range($commnext-RANGE-C16)
+}
+
+:parts #antenna_0v_16s {
+    @include override-range($commnext-RANGE-C16S)
+}
+
+:parts #antenna_1v_dish_hg5 {
+    @include override-range($commnext-RANGE-HG5)
+}
+
+:parts #antenna_1v_dish_hg55s {
+    @include override-range($commnext-RANGE-HG55S)
+}
+
+:parts #antenna_1v_parabolic_dts-m1 {
+    @include override-range($commnext-RANGE-DTS-M1)
+}
+
+:parts #antenna_1v_dish_88-88 {
+    @include override-range($commnext-RANGE-C88)
+}

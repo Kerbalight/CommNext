@@ -1,18 +1,40 @@
-@stage "CommNext:setup-relays";
-@use "relay_mixins";
-@use "constants";
+@use 'relay_mixins';
+@use 'constants';
 
+// Setup relays
+
+@stage "CommNext:SetupRelays"
 :parts #antenna_0v_dish_ra-2 {
-    @include override-range($commnext-RANGE-RA2);
-    @include add-next-relay-visuals();
+    @include override-range($commnext-RANGE-RA2)
+
+    +Module_NextRelay {
+        +Data_NextRelay {
+            
+        }
+    }
+    @include add-next-relay-visuals()
 }
 
+@stage "CommNext:SetupRelays"
 :parts #antenna_0v_dish_ra-15 {
-    @include override-range($commnext-RANGE-RA15);
-    @include add-next-relay-visuals();
+    @include override-range($commnext-RANGE-RA15)
+    
+    +Module_NextRelay {
+        +Data_NextRelay {
+            
+        }
+    }
+    @include add-next-relay-visuals()
 }
 
-:parts #antenna_0v_dish_ra-100 {
-    @include override-range($commnext-RANGE-RA100);
-    @include add-next-relay-visuals();
+@stage "CommNext:SetupRelays"
+:parts #antenna_1v_dish_ra-100 {
+    @include override-range($commnext-RANGE-RA100)
+    
+    +Module_NextRelay {
+        +Data_NextRelay {
+            
+        }
+    }
+    @include add-next-relay-visuals()
 }

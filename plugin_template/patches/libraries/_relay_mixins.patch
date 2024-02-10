@@ -1,7 +1,7 @@
 @mixin override-range($range) {
-    Module_DataTransmitter {
-        Data_Transmitter {
-            Range: $range;
+    * > Module_DataTransmitter {
+        * > Data_Transmitter {
+            CommunicationRange: $range;
         }
     }
 }
