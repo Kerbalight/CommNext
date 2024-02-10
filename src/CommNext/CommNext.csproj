@@ -28,6 +28,9 @@
     <!--    <ItemGroup Condition="$(ConfigurationName) == 'Release'">-->
     <!--        <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" PrivateAssets="false"/>-->
     <!--    </ItemGroup>-->
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="echo Pre-build [$(ConfigurationName)]"/>
+    </Target>
     <Choose>
         <When Condition="$(ConfigurationName) != 'Release'">
             <ItemGroup>
