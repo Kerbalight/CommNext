@@ -11,10 +11,11 @@ public static class CommNetManagerPatches
     // This is the time in seconds that the CommNetManager will wait
     // before rebuilding the graph.
     private const float RebuildGraphTimerSeconds = 0.2f;
-    
+
     private const string KerbinCommNetOriginName = "kerbin_CommNetOrigin";
     private const string KerbinSpaceCenterName = "kerbin_KSC_Object";
-    
+    public const int KSCMaxRange = 2_000_000_000; // 2Gm
+
     [HarmonyPatch(typeof(CommNetManager), "SetSourceNode", [typeof(ConnectionGraphNode)])]
     [HarmonyPostfix]
     // ReSharper disable once InconsistentNaming
@@ -29,10 +30,11 @@ public static class CommNetManagerPatches
             CommNextPlugin.Instance.SWLogger.LogWarning("KSC SimObject not found");
             return;
         }
-        
+
         simObj.transform.Position = kscSimObj.transform.Position;
+        newSourceNode.MaxRange = KSCMaxRange;
     }
-    
+
     [HarmonyPatch(typeof(CommNetManager), "OnUpdate")]
     [HarmonyPostfix]
     // ReSharper disable InconsistentNaming
