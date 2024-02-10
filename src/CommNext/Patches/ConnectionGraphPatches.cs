@@ -1,6 +1,9 @@
-﻿using BepInEx.Logging;
+﻿// #define DEBUG_SET_NAMES
+
+using BepInEx.Logging;
 using CommNext.Network;
 using CommNext.Network.Compute;
+using CommNext.Utils;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Logging;
@@ -84,11 +87,17 @@ public static class ConnectionGraphPatches
                 new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
 
             // Custom: Extra flags
-            _extraNodes[index] = new ExtraConnectionGraphJobNode(GetExtraFlagsFrom(nodes[index]));
+            _extraNodes[index] = new ExtraConnectionGraphJobNode(GetExtraFlagsFrom(nodes[index]))
+            {
+#if DEBUG_SET_NAMES
+                Name = GameManager.Instance.Game.UniverseModel.FindVesselComponent(nodes[index].Owner)?.Name
+#endif
+            };
         }
 
         ____jobHandle = new GetNextConnectedNodesJob()
         {
+            BestPath = Settings.BestPath.Value,
             Nodes = ____nodes,
             StartIndex = sourceNodeIndex,
             // Custom: Extra data

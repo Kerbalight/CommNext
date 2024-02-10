@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿// #define DEBUG_LOG_ENABLED
+
+using System.Diagnostics;
 using BepInEx.Logging;
 using CommNext.Utils;
 using KSP.Networking.MP.Utils;
@@ -18,6 +20,9 @@ public struct GetNextConnectedNodesJob : IJob
 {
     private static readonly ManualLogSource Logger =
         BepInEx.Logging.Logger.CreateLogSource("CommNext.GetNextConnectedNodesJob");
+
+    [ReadOnly]
+    public Settings.BestPathMode BestPath;
 
     [ReadOnly]
     public int StartIndex;
@@ -46,59 +51,85 @@ public struct GetNextConnectedNodesJob : IJob
 
         var bodies = BodyInfos.Length;
         var length = Nodes.Length;
-        var distances = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+        // We always visit the KSC first and expand the Dijkstra cloud from there.
+        // Even if the optimum is based on the nearest relay, we still need to visit nodes
+        // in order to compute the best path.
+        var sourceDistances = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+        // We use this to keep track of the best connection
+        var optimums = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+        // If a node has been processed, it's not necessary to compute the 
+        // connection again, since all the connections are already computed.
         var processedNodes = new NativeArray<bool>(length, Allocator.Temp);
+
         // Queue of node indexes to be processed
         var queue = new NativeList<int>(length, (AllocatorManager.AllocatorHandle)Allocator.Temp);
+
+        // We need to process relays first, since technically a connection through a relay
+        // with a lower distance is better than a direct connection with a higher distance.
+        // This doesn't _exclude_ direct connections, it still dipends on the `BestPathMode` setting,
+        // but without this KSC would always win since it's the first to be visited.
+        var remainingRelays = 0;
+
         for (var i = 0; i < length; ++i)
         {
-            distances[i] = double.MaxValue;
+            optimums[i] = double.MaxValue;
+            sourceDistances[i] = double.MaxValue;
+
+            if ((ExtraNodes[i].Flags & IsRelay) != None) remainingRelays++;
+
             PrevIndices[i] = -1;
             queue.AddNoResize(i);
         }
 
-        distances[StartIndex] = 0.0;
+        optimums[StartIndex] = 0.0;
+        sourceDistances[StartIndex] = 0.0;
         while (queue.Length > 0)
         {
-            var index = 0;
+            var queueIndex = 0;
             var lowerIndex = queue[0];
             var lowerValue = double.MaxValue;
             for (var j = 0; j < queue.Length; ++j)
             {
                 var otherIndex = queue[j];
-                if (distances[otherIndex] < lowerValue)
-                {
-                    lowerValue = distances[otherIndex];
-                    lowerIndex = otherIndex;
-                    index = j;
-                }
+                // Like an heap, we always process the node with the lowest distance first.
+                if (!(sourceDistances[otherIndex] < lowerValue)) continue;
+                // Relays first
+                if (remainingRelays > 0 && (ExtraNodes[otherIndex].Flags & IsRelay) == None) continue;
+
+                lowerValue = sourceDistances[otherIndex];
+                lowerIndex = otherIndex;
+                queueIndex = j;
             }
 
             var sourceIndex = lowerIndex;
-            queue.RemoveAtSwapBack(index);
-            var sourceDistance = distances[sourceIndex];
+            queue.RemoveAtSwapBack(queueIndex);
+            var sourceDistance = sourceDistances[sourceIndex];
             var sourceSqRange = Nodes[sourceIndex].MaxRange * Nodes[sourceIndex].MaxRange;
             processedNodes[sourceIndex] = true;
+            if ((ExtraNodes[sourceIndex].Flags & IsRelay) != None) remainingRelays--;
 
+            // Skip if source is inactive
             if ((Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                 ConnectionGraphNodeFlags.None) continue;
+
+            // If this node isn't a relay, we can't use it as a source. Its previousIndex will be
+            // set only by a valid relay when _that_ relay is being processed.
+            // In fact, we set the `prevIndexes[targetIndex]` when we find a valid path
+            var canSourceRelay = (ExtraNodes[sourceIndex].Flags & IsRelay) != None ||
+                                 (Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) !=
+                                 ConnectionGraphNodeFlags.None;
+            if (!canSourceRelay) continue;
 
             for (var targetIndex = 0; targetIndex < length; ++targetIndex)
             {
                 // Skip if source and target are the same, target is inactive, or target has already been processed
                 if (sourceIndex == targetIndex ||
                     (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
-                    ConnectionGraphNodeFlags.None || processedNodes[targetIndex]) continue;
-
-                // Skip if both aren't relays
-                var canSourceRelay = (ExtraNodes[sourceIndex].Flags & IsRelay) != None ||
-                                     (Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) !=
-                                     ConnectionGraphNodeFlags.None;
-                var canTargetRelay = (ExtraNodes[targetIndex].Flags & IsRelay) != None ||
-                                     (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) !=
-                                     ConnectionGraphNodeFlags.None;
-
-                if (!canSourceRelay) continue;
+                    ConnectionGraphNodeFlags.None ||
+                    processedNodes[targetIndex]) continue;
 
                 var distance = math.distancesq(
                     Nodes[sourceIndex].Position,
@@ -157,11 +188,17 @@ public struct GetNextConnectedNodesJob : IJob
                 if (!isInLineOfSight) continue;
 
                 // Calculate the new best distance
-                var bestDistance = sourceDistance + distance;
+                var optimum = BestPath == Settings.BestPathMode.NearestRelay
+                    ? distance
+                    : sourceDistance + distance;
 
-                if (!(bestDistance < distances[targetIndex])) continue;
-                
-                distances[targetIndex] = bestDistance;
+                if (!(optimum < optimums[targetIndex])) continue;
+#if DEBUG_LOG_ENABLED
+                Logger.LogDebug(
+                    $"New optimum found: {ExtraNodes[sourceIndex].Name} -> {ExtraNodes[targetIndex].Name} (distance={distance / 1_000_000}, sourceDistance={sourceDistance / 1_000_000}, optimum={optimum / 1_000_000})");
+#endif
+                optimums[targetIndex] = optimum;
+                sourceDistances[targetIndex] = sourceDistance + distance;
                 PrevIndices[targetIndex] = sourceIndex;
             }
         }
@@ -176,6 +213,6 @@ public struct GetNextConnectedNodesJob : IJob
 
         queue.Dispose();
         processedNodes.Dispose();
-        distances.Dispose();
+        optimums.Dispose();
     }
 }
