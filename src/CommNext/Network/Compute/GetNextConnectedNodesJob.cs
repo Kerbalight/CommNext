@@ -111,6 +111,12 @@ public struct GetNextConnectedNodesJob : IJob
             processedNodes[sourceIndex] = true;
             if ((ExtraNodes[sourceIndex].Flags & IsRelay) != None) remainingRelays--;
 
+            // We can ignore the node in this case since the source itself is not connected.
+            // In the future, this check could be excluded to get Isolated Sub-Graphs in
+            // the graph.
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (sourceDistance == double.MaxValue) continue;
+
             // Skip if source is inactive
             if ((Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                 ConnectionGraphNodeFlags.None) continue;
@@ -220,5 +226,6 @@ public struct GetNextConnectedNodesJob : IJob
         queue.Dispose();
         processedNodes.Dispose();
         optimums.Dispose();
+        sourceDistances.Dispose();
     }
 }
