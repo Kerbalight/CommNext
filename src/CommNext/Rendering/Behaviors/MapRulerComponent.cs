@@ -31,14 +31,18 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         sphereObject.name = "RulerSphere";
         sphereObject.transform.localPosition = Vector3.zero;
         var sphereComponent = sphereObject.AddComponent<MapSphereRulerComponent>();
-        sphereComponent.Configure(connectionNode.MaxRange, null);
+        sphereComponent.Configure(connectionNode.MaxRange,
+            networkNode.IsRelay ? null : Color.gray);
 
         // Simple relay placeholder
-        var placeholderObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
-        placeholderObject.name = "RulerPlaceholder";
-        placeholderObject.transform.localPosition = Vector3.zero;
-        _placeholder = placeholderObject.AddComponent<MapSphereRulerComponent>();
-        _placeholder.Configure(50_000, Color.gray);
+        if (networkNode.IsRelay)
+        {
+            var placeholderObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
+            placeholderObject.name = "RulerPlaceholder";
+            placeholderObject.transform.localPosition = Vector3.zero;
+            _placeholder = placeholderObject.AddComponent<MapSphereRulerComponent>();
+            _placeholder.Configure(50_000, Color.gray);
+        }
 
         _isTracking = true;
     }
@@ -52,10 +56,13 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             return;
         }
 
-        if (_networkNode?.HasEnoughResources != true)
-            _placeholder!.SetColor(Color.red);
-        else
-            _placeholder!.SetColor(Color.green);
+        if (_networkNode?.IsRelay == true)
+        {
+            if (_networkNode.HasEnoughResources != true)
+                _placeholder!.SetColor(Color.red);
+            else
+                _placeholder!.SetColor(Color.green);
+        }
 
         transform.position = _target.transform.position;
     }

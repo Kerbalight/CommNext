@@ -19,15 +19,16 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
 
     /// <summary>
     /// Encodes the connection ID based on the source and target items,
-    /// without considering the order of the items.
+    /// considering the order of the items.
     /// </summary>
     public static string GetID(Map3DFocusItem source, Map3DFocusItem target)
     {
         var sourceId = source.AssociatedMapItem.SimGUID.ToString();
         var targetId = target.AssociatedMapItem.SimGUID.ToString();
-        return string.Compare(sourceId, targetId, StringComparison.Ordinal) < 0
-            ? $"{sourceId}-{targetId}"
-            : $"{targetId}-{sourceId}";
+        return $"{sourceId}-{targetId}";
+        // return string.Compare(sourceId, targetId, StringComparison.Ordinal) < 0
+        //     ? $"{sourceId}-{targetId}"
+        //     : $"{targetId}-{sourceId}";
     }
 
     private void Start()
@@ -36,15 +37,15 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
 
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
         _lineRenderer.positionCount = 10;
-        _lineRenderer.startWidth = 0.05f;
-        _lineRenderer.endWidth = 0.05f;
+        _lineRenderer.startWidth = 0.045f;
+        _lineRenderer.endWidth = 0.04f;
         _lineRenderer.material = LineMaterial;
         // _lineRenderer.startColor = Color.green;
         // _lineRenderer.endColor = Color.green;
         var connectionGradient = new Gradient();
         connectionGradient.SetKeys(
             [new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.green, 1.0f)],
-            [new GradientAlphaKey(0.15f, 1.0f), new GradientAlphaKey(0.8f, 0.0f)]
+            [new GradientAlphaKey(0.9f, 0.0f), new GradientAlphaKey(0.1f, 1.0f)]
         );
         _lineRenderer.colorGradient = connectionGradient;
     }
