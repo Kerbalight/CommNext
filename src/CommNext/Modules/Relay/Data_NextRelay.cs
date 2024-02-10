@@ -35,7 +35,6 @@ public class Data_NextRelay : ModuleData
             // TODO Add image? Sprite is supported, should test it
             bandOptions.Add(band.Code, new DropdownItem() { key = band.Code, text = band.DisplayName });
         SetDropdownData(Band, bandOptions);
-
         Band.SetValue(NetworkBands.AllBands[0].Code);
     }
 

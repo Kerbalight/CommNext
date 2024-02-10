@@ -115,6 +115,9 @@ public struct GetNextConnectedNodesJob : IJob
             if ((Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                 ConnectionGraphNodeFlags.None) continue;
 
+            // Skip if source has not enough resources
+            if ((ExtraNodes[sourceIndex].Flags & HasEnoughResources) == None) continue;
+
             // If this node isn't a relay, we can't use it as a source. Its previousIndex will be
             // set only by a valid relay when _that_ relay is being processed.
             // In fact, we set the `prevIndexes[targetIndex]` when we find a valid path
@@ -130,6 +133,9 @@ public struct GetNextConnectedNodesJob : IJob
                     (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
                     ConnectionGraphNodeFlags.None ||
                     processedNodes[targetIndex]) continue;
+
+                // Skip if target has not enough resources
+                if ((ExtraNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
 
                 var distance = math.distancesq(
                     Nodes[sourceIndex].Position,

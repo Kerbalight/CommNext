@@ -10,6 +10,8 @@ public static class MessageListener
 {
     public static bool IsInMapView { get; private set; }
 
+    public static MessageCenter Messages => GameManager.Instance.Game.Messages;
+
     public static void StartListening()
     {
         var messageCenter = GameManager.Instance.Game.Messages;
@@ -19,11 +21,11 @@ public static class MessageListener
         messageCenter.PersistentSubscribe<GameStateChangedMessage>(OnGameStateChanged);
         messageCenter.PersistentSubscribe<GameLoadFinishedMessage>(OnGameLoadFinished);
     }
-    
+
     private static void OnGameLoadFinished(MessageCenterMessage _)
     {
         IsInMapView = false;
-        
+
         // Precompute some references
         CommunicationsManager.Instance.Initialize();
         // Delete previous connections
@@ -34,19 +36,19 @@ public static class MessageListener
     {
         IsInMapView = true;
     }
-    
+
     private static void OnMapViewEntered(MessageCenterMessage _)
     {
         IsInMapView = true;
         MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = true;
     }
-    
+
     private static void OnGameStateChanged(MessageCenterMessage message)
     {
-        var gameStateChangedMessage = (GameStateChangedMessage) message;
-        if (gameStateChangedMessage.CurrentState 
-            is GameState.TrackingStation 
-            or GameState.Map3DView 
+        var gameStateChangedMessage = (GameStateChangedMessage)message;
+        if (gameStateChangedMessage.CurrentState
+            is GameState.TrackingStation
+            or GameState.Map3DView
             or GameState.PlanetViewer)
         {
             IsInMapView = true;
@@ -64,5 +66,4 @@ public static class MessageListener
         IsInMapView = false;
         MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = false;
     }
-    
 }

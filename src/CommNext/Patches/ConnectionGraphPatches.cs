@@ -122,6 +122,8 @@ public static class ConnectionGraphPatches
         var flagsFrom = ExtraConnectionGraphNodeFlags.None;
         if (networkNode.IsRelay)
             flagsFrom |= ExtraConnectionGraphNodeFlags.IsRelay;
+        if (networkNode.HasEnoughResources)
+            flagsFrom |= ExtraConnectionGraphNodeFlags.HasEnoughResources;
 
         return flagsFrom;
     }

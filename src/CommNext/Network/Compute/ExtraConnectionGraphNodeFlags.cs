@@ -4,5 +4,6 @@
 public enum ExtraConnectionGraphNodeFlags
 {
     None = 0,
-    IsRelay = 1
+    IsRelay = 1,
+    HasEnoughResources = 2
 }

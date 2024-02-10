@@ -1,6 +1,8 @@
 ﻿using CommNext.Modules.Relay;
 using CommNext.Network;
 using HarmonyLib;
+using KSP.Game;
+using KSP.Sim.Definitions;
 using KSP.Sim.impl;
 
 namespace CommNext.Patches;
@@ -16,7 +18,9 @@ public static class TelemetryComponentPatches
     [HarmonyPrefix]
     public static void OnAdded(SimulationObjectModel simulationObject, double universalTime)
     {
+        var hasInfinitePower = GameManager.Instance.Game.SessionManager.IsDifficultyOptionEnabled("InfinitePower");
         var networkNode = new NetworkNode(simulationObject.GlobalId);
+        networkNode.UpdateResourcesFromVessel(simulationObject.Vessel);
         NetworkManager.Instance.RegisterNode(networkNode);
     }
 

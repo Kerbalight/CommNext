@@ -1,4 +1,8 @@
-﻿using KSP.Sim.impl;
+﻿using CommNext.Managers;
+using KSP.Game;
+using KSP.Messages;
+using KSP.Sim.Definitions;
+using KSP.Sim.impl;
 
 namespace CommNext.Network;
 
@@ -11,6 +15,7 @@ public class NetworkManager
     public void Initialize()
     {
         Nodes.Clear();
+        MessageListener.Messages.PersistentSubscribe<VesselControlStateChangedMessage>(OnVesselControlStateChanged);
     }
 
     public void RegisterNode(NetworkNode node)
@@ -21,5 +26,13 @@ public class NetworkManager
     public void UnregisterNode(IGGuid owner)
     {
         Nodes.Remove(owner);
+    }
+
+    private void OnVesselControlStateChanged(MessageCenterMessage message)
+    {
+        var controlMessage = (VesselControlStateChangedMessage)message;
+        var networkNode = Nodes[controlMessage.Vessel.GlobalId];
+
+        networkNode.UpdateResourcesFromVessel(controlMessage.Vessel);
     }
 }
