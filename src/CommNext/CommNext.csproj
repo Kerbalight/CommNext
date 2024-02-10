@@ -20,30 +20,13 @@
         <ProjectReference Include="..\CommNext.Unity\CommNext.Unity.csproj" Private="false"/>
     </ItemGroup>
     <!-- Use Assembly-CSharp from the game as a reference locally to enable debugging in Deploy and DeployAndRun -->
-    <!--    <ItemGroup Condition="$(ConfigurationName) != 'Release'">-->
-    <!--        <Reference Include="Assembly-CSharp" Publicize="true">-->
-    <!--            <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>-->
-    <!--        </Reference>-->
-    <!--    </ItemGroup>-->
-    <!--    <ItemGroup Condition="$(ConfigurationName) == 'Release'">-->
-    <!--        <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" PrivateAssets="false"/>-->
-    <!--    </ItemGroup>-->
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="echo Pre-build [$(ConfigurationName)]"/>
-    </Target>
-    <Choose>
-        <When Condition="$(ConfigurationName) != 'Release'">
-            <ItemGroup>
-                <Reference Include="Assembly-CSharp" Publicize="true">
-                    <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
-                </Reference>
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <ItemGroup>
-                <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" PrivateAssets="false"/>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
+    <ItemGroup Condition="$(ConfigurationName) != 'Release'">
+        <Reference Include="Assembly-CSharp" Publicize="true">
+            <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup Condition="$(ConfigurationName) == 'Release'">
+        <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" Publicize="true" PrivateAssets="false"/>
+    </ItemGroup>
 </Project>
 
