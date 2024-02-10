@@ -1,0 +1,6 @@
+// Was 36G, now 2G
+$commnext-RANGE-RA2: 2000000000.00;
+// Was 86G, now 15G
+$commnext-RANGE-RA15: 15000000000.00;
+// Was 130G, now 30G
+$commnext-RANGE-RA100: 30000000000.00;

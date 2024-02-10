@@ -1,0 +1,18 @@
+@mixin override-range($range) {
+    Module_DataTransmitter {
+        Data_Transmitter {
+            Range: $range;
+        }
+    }
+}
+
+@mixin add-next-relay-visuals() {
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_NextRelay",
+            ModuleDisplayName: "PartModules/NextRelay/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}

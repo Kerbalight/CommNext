@@ -1,47 +1,18 @@
-:parts #antenna_0v_dish_ra-2 {
-    +Module_NextRelay {
-        +Data_NextRelay {
+@stage "CommNext:setup-relays";
+@use "relay_mixins";
+@use "constants";
 
-        }
-    }
-    PAMModuleVisualsOverride +: [
-        {
-            PartComponentModuleName: "PartComponentModule_NextRelay",
-            ModuleDisplayName: "PartModules/NextRelay/Name",
-            ShowHeader: true,
-            ShowFooter: true
-        }
-    ];
+:parts #antenna_0v_dish_ra-2 {
+    @include override-range($commnext-RANGE-RA2);
+    @include add-next-relay-visuals();
 }
 
 :parts #antenna_0v_dish_ra-15 {
-    +Module_NextRelay {
-        +Data_NextRelay {
-            
-        }
-    }
-    PAMModuleVisualsOverride +: [
-        {
-            PartComponentModuleName: "PartComponentModule_NextRelay",
-            ModuleDisplayName: "PartModules/NextRelay/Name",
-            ShowHeader: true,
-            ShowFooter: true
-        }
-    ];
+    @include override-range($commnext-RANGE-RA15);
+    @include add-next-relay-visuals();
 }
 
 :parts #antenna_0v_dish_ra-100 {
-    +Module_NextRelay {
-        +Data_NextRelay {
-            
-        }
-    }
-    PAMModuleVisualsOverride +: [
-        {
-            PartComponentModuleName: "PartComponentModule_NextRelay",
-            ModuleDisplayName: "PartModules/NextRelay/Name",
-            ShowHeader: true,
-            ShowFooter: true
-        }
-    ];
+    @include override-range($commnext-RANGE-RA100);
+    @include add-next-relay-visuals();
 }
