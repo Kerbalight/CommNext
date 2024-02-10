@@ -104,8 +104,14 @@ public static class ConnectionGraphPatches
 
     private static ExtraConnectionGraphNodeFlags GetExtraFlagsFrom(ConnectionGraphNode node)
     {
+        if (!NetworkManager.Instance.Nodes.TryGetValue(node.Owner, out var networkNode))
+        {
+            Logger.LogWarning($"Network node not found for {node.Owner}");
+            return ExtraConnectionGraphNodeFlags.None;
+        }
+
         var flagsFrom = ExtraConnectionGraphNodeFlags.None;
-        if (true) // TODO We need custom module
+        if (networkNode.IsRelay)
             flagsFrom |= ExtraConnectionGraphNodeFlags.IsRelay;
 
         return flagsFrom;

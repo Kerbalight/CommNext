@@ -1,0 +1,47 @@
+:parts #antenna_0v_dish_ra-2 {
+    +Module_NextRelay {
+        +Data_NextRelay {
+
+        }
+    }
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_NextRelay",
+            ModuleDisplayName: "PartModules/NextRelay/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}
+
+:parts #antenna_0v_dish_ra-15 {
+    +Module_NextRelay {
+        +Data_NextRelay {
+            
+        }
+    }
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_NextRelay",
+            ModuleDisplayName: "PartModules/NextRelay/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}
+
+:parts #antenna_0v_dish_ra-100 {
+    +Module_NextRelay {
+        +Data_NextRelay {
+            
+        }
+    }
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_NextRelay",
+            ModuleDisplayName: "PartModules/NextRelay/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}

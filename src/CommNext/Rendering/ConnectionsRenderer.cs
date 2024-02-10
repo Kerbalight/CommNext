@@ -195,6 +195,11 @@ public class ConnectionsRenderer : MonoBehaviour
             if (node.MaxRange <= 0) continue;
             var item = GetMapItem(node);
             if (item == null) continue;
+
+            // We want to show only relays as rulers.
+            var networkNode = NetworkManager.Instance.Nodes.GetValueOrDefault(node.Owner);
+            if (networkNode is not { IsRelay: true }) continue;
+
             if (_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
             {
                 keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());

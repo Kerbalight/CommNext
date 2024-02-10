@@ -18,6 +18,13 @@
         "min": "1.8.0",
         "max": "*"
       }
+    },
+    {
+      "id": "PatchManager",
+      "version": {
+        "min": "0.9.3",
+        "max": "*"
+      }
     }
   ]
 }
