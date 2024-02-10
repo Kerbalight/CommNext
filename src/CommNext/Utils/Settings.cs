@@ -46,7 +46,8 @@ public static class Settings
             "Network",
             "Relays require power",
             true,
-            "If true, relays will require power to function."
+            "If true, relays will require power to function.\n" +
+            "It requires game to be reloaded to take effect."
         );
 
         // Debug
