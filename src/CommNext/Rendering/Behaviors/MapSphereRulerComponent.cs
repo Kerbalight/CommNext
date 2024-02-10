@@ -4,54 +4,45 @@ using UnityEngine;
 
 namespace CommNext.Rendering.Behaviors;
 
-public class MapSphereRulerComponent : MonoBehaviour, IMapComponent
+public class MapSphereRulerComponent : MonoBehaviour
 {
-    public string Id { get; set; } = null!;
-
     private double _range;
-    private bool _isTracking;
-
     private MeshRenderer _meshRenderer = null!;
-    private static readonly int ColorID = Shader.PropertyToID("_Color");
+    private Color? _lastColor;
+    private MaterialPropertyBlock _propertyBlock = null!;
 
-    private Map3DFocusItem? _target;
+    private static readonly int ColorID = Shader.PropertyToID("_Color");
 
     public void Start()
     {
         gameObject.layer = LayerMask.NameToLayer("Map");
     }
 
-    public void Track(Map3DFocusItem target, double range, Color? color)
+    public void Configure(double range, Color? color)
     {
-        Id = target.AssociatedMapItem.SimGUID.ToString();
-
         _meshRenderer = gameObject.GetComponent<MeshRenderer>();
-        if (color.HasValue) _meshRenderer.material.SetColor(ColorID, color.Value);
-
-        _range = range;
-        _target = target;
-        _isTracking = true;
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        if (!_isTracking) return;
-        if (_target == null)
+        _propertyBlock = new MaterialPropertyBlock();
+        _meshRenderer.SetPropertyBlock(_propertyBlock);
+        if (color.HasValue)
         {
-            ConnectionsRenderer.Instance.OnMapSphereRulerDestroyed(this);
-            return;
+            _lastColor = color;
+            _propertyBlock.SetColor(ColorID, color.Value);
         }
 
-        var radius = (float)(_range / ConnectionsRenderer.Instance.GetMap3dScaleInv());
-        var currentTransform = transform;
-        currentTransform.localScale = new Vector3(radius, radius, radius);
-        currentTransform.position = _target.transform.position;
+        _range = range;
     }
 
-    public void OnDestroy()
+    public void SetColor(Color color)
     {
-        if (!_isTracking) return;
-        ConnectionsRenderer.Instance.OnMapSphereRulerDestroyed(this, false);
+        if (_lastColor == color) return;
+        _lastColor = color;
+        _propertyBlock.SetColor(ColorID, color);
+        _meshRenderer.SetPropertyBlock(_propertyBlock); // TODO Needed?
+    }
+
+    private void Update()
+    {
+        var radius = (float)(_range / ConnectionsRenderer.Instance.GetMap3dScaleInv());
+        transform.localScale = new Vector3(radius, radius, radius);
     }
 }

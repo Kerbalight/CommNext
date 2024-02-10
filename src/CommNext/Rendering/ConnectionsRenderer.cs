@@ -24,7 +24,7 @@ public class ConnectionsRenderer : MonoBehaviour
     public static ConnectionsRenderer Instance { get; private set; } = null!;
 
     private readonly Dictionary<string, MapConnectionComponent> _connections = new();
-    private readonly Dictionary<string, MapSphereRulerComponent> _rulers = new();
+    private readonly Dictionary<string, MapRulerComponent> _rulers = new();
 
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
@@ -190,9 +190,9 @@ public class ConnectionsRenderer : MonoBehaviour
         for (var i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
-            if (prevIndexes[i] < 0 || prevIndexes[i] >= nodes.Count) continue;
             if (node == null) continue;
-            if (node.MaxRange <= 0) continue;
+            // if (prevIndexes[i] < 0 || prevIndexes[i] >= nodes.Count) continue;
+            // if (node.MaxRange <= 0) continue;
             var item = GetMapItem(node);
             if (item == null) continue;
 
@@ -206,13 +206,14 @@ public class ConnectionsRenderer : MonoBehaviour
             }
             else
             {
-                var rulerObject = Instantiate(RulerSpherePrefab, _mapCore.map3D.transform);
-                rulerObject.name = $"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}";
-                ruler = rulerObject.AddComponent<MapSphereRulerComponent>();
-                ruler.Track(item, node.MaxRange, null);
-                _rulers.Add(item.AssociatedMapItem.SimGUID.ToString(), ruler);
+                var rulerObject =
+                    new GameObject($"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}");
+                rulerObject.transform.SetParent(_mapCore.map3D.transform);
+                ruler = rulerObject.AddComponent<MapRulerComponent>();
+                ruler.Track(item, networkNode, node);
+                _rulers.Add(ruler.Id, ruler);
 
-                keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
+                keepIds.Add(ruler.Id);
             }
         }
 
@@ -237,14 +238,14 @@ public class ConnectionsRenderer : MonoBehaviour
     public void OnMapConnectionDestroyed(MapConnectionComponent connection, bool destroyGameObject = true)
     {
         if (!_connections.ContainsKey(connection.Id)) return;
-        Destroy(connection.gameObject);
+        if (destroyGameObject) Destroy(connection.gameObject);
         _connections.Remove(connection.Id);
     }
 
-    public void OnMapSphereRulerDestroyed(MapSphereRulerComponent ruler, bool destroyGameObject = true)
+    public void OnMapRulerDestroyed(MapRulerComponent ruler, bool destroyGameObject = true)
     {
         if (!_rulers.ContainsKey(ruler.Id)) return;
-        Destroy(ruler.gameObject);
+        if (destroyGameObject) Destroy(ruler.gameObject);
         _rulers.Remove(ruler.Id);
     }
 
