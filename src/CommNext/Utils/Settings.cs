@@ -35,7 +35,7 @@ public static class Settings
         BestPath = Plugin.Config.Bind(
             "Network",
             "Best path mode",
-            BestPathMode.ShortestKSC,
+            BestPathMode.NearestRelay,
             "How to compute the best path for the network. \n" +
             "Shortest to KSC: the best path is the one with lowest distance to KSC. \n" +
             "Nearest relay: the best path is the one with minimum distance between relays."
