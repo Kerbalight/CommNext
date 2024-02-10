@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
-using CommNext.Compute;
+using CommNext.Network;
+using CommNext.Network.Compute;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Logging;
@@ -19,7 +20,8 @@ namespace CommNext.Patches;
 /// </summary>
 public static class ConnectionGraphPatches
 {
-    private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionGraphPatches");
+    private static readonly ManualLogSource Logger =
+        BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionGraphPatches");
 
     private static GameInstance Game => GameManager.Instance.Game;
     private static IGGuid _kscId;
@@ -39,15 +41,15 @@ public static class ConnectionGraphPatches
     [HarmonyPrefix]
     // ReSharper disable InconsistentNaming
     public static bool RebuildNextConnectionGraph(ConnectionGraph __instance,
-        ref bool ____hasBuiltGraph, 
-        ref bool ____isRunning, 
+        ref bool ____hasBuiltGraph,
+        ref bool ____isRunning,
         ref List<ConnectionGraphNode> ____allNodes,
-        ref NativeArray<ConnectionGraph.ConnectionGraphJobNode> ____nodes, 
+        ref NativeArray<ConnectionGraph.ConnectionGraphJobNode> ____nodes,
         ref JobHandle ____jobHandle,
-        ref int ____allNodeCount, 
+        ref int ____allNodeCount,
         ref NativeArray<int> ____previousIndices,
         ref int ____prevSourceIndex,
-    // ReSharper restore InconsistentNaming
+        // ReSharper restore InconsistentNaming
         List<ConnectionGraphNode> nodes,
         int sourceNodeIndex)
     {
@@ -63,26 +65,24 @@ public static class ConnectionGraphPatches
         ____allNodeCount = nodes.Count;
         if (!____nodes.IsCreated || ____allNodeCount != ____nodes.Length)
         {
-            Traverse.Create(__instance).Method("ResizeCollections", [typeof(int)]).GetValue(____allNodeCount);
+            __instance.ResizeCollections(____allNodeCount);
             // Custom: resizing our custom array
             if (_extraNodes.IsCreated) _extraNodes.Dispose();
             _extraNodes = new NativeArray<ExtraConnectionGraphJobNode>(____allNodeCount, Allocator.Persistent);
         }
-        
+
         // Custom: We assume Bodies count never changes.
         if (!_bodyInfos.IsCreated)
-        {
             _bodyInfos = new NativeArray<CommNextBodyInfo>(Game.UniverseModel.GetAllCelestialBodies().Count,
                 Allocator.Persistent);
-        }
         UpdateComputedBodiesPositions(_bodyInfos);
 
-        var getFlagsFromMethod = Traverse.Create(__instance).Method("GetFlagsFrom", [typeof(ConnectionGraphNode)]);
         for (var index = 0; index < ____nodes.Length; ++index)
         {
-            var flagsFrom = getFlagsFromMethod.GetValue<ConnectionGraphNodeFlags>(nodes[index]);
-            ____nodes[index] = new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
-           
+            var flagsFrom = ConnectionGraph.GetFlagsFrom(nodes[index]);
+            ____nodes[index] =
+                new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
+
             // Custom: Extra flags
             _extraNodes[index] = new ExtraConnectionGraphJobNode(GetExtraFlagsFrom(nodes[index]));
         }
@@ -107,6 +107,7 @@ public static class ConnectionGraphPatches
         var flagsFrom = ExtraConnectionGraphNodeFlags.None;
         if (true) // TODO We need custom module
             flagsFrom |= ExtraConnectionGraphNodeFlags.IsRelay;
+
         return flagsFrom;
     }
 

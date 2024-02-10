@@ -1,6 +1,7 @@
 using System.Reflection;
 using BepInEx;
 using CommNext.Managers;
+using CommNext.Network;
 using CommNext.Patches;
 using CommNext.Rendering;
 using CommNext.Rendering.Behaviors;
@@ -46,7 +47,7 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
 
         // Load all the other assemblies used by this mod
         LoadAssemblies();
-       
+
         // // Register Flight AppBar button
         // Appbar.RegisterAppButton(
         //     ModName,
@@ -54,30 +55,33 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         //     AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
         //     isOpen => myFirstWindowController.IsWindowOpen = isOpen
         // );
-        
+
         // Events
         MessageListener.StartListening();
-        
+
+        // Managers
+        NetworkManager.Instance.Initialize();
+
         // Patches
         Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
         Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
         
         // Settings
         Settings.SetupConfig();
-        
+
         // Providers
         var providers = new GameObject("CommNext_Providers");
-        providers.transform.parent = this.transform;
+        providers.transform.parent = transform;
         providers.AddComponent<ConnectionsRenderer>();
-        
+
         // UI
         MainUIManager.Instance.Initialize();
-        
+
         // Load Assets
         ConnectionsRenderer.RulerSpherePrefab = AssetManager.GetAsset<GameObject>(
             $"{ModGuid}/commnext_ui/meshes/rulersphere.prefab");
         MapConnectionComponent.LineMaterial = AssetManager.GetAsset<Material>(
-            $"{CommNextPlugin.ModGuid}/commnext_ui/shaders/commconnectionmat.mat");
+            $"{ModGuid}/commnext_ui/shaders/commconnectionmat.mat");
     }
 
     /// <summary>

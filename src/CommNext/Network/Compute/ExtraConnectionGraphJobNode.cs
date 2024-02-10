@@ -1,7 +1,4 @@
-﻿using KSP.Sim;
-using Unity.Mathematics;
-
-namespace CommNext.Compute;
+﻿namespace CommNext.Network.Compute;
 
 public struct ExtraConnectionGraphJobNode
 {
@@ -9,6 +6,6 @@ public struct ExtraConnectionGraphJobNode
 
     public ExtraConnectionGraphJobNode(ExtraConnectionGraphNodeFlags flags)
     {
-        this.Flags = flags;
+        Flags = flags;
     }
 }

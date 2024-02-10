@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace CommNext.Compute;
+namespace CommNext.Network.Compute;
 
 public struct CommNextBodyInfo
 {
