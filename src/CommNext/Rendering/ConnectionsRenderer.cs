@@ -76,9 +76,10 @@ public class ConnectionsRenderer : MonoBehaviour
     {
         // We want to trigger them right away so that UI is updated
         // right after the UI click.
-        if (_isConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
+        // if (IsConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
+        var shouldBeRunning = IsConnectionsEnabled || _isRulersEnabled;
 
-        switch (_isConnectionsEnabled || _isRulersEnabled)
+        switch (shouldBeRunning)
         {
             case true when _updateTask == null:
                 Logger.LogInfo("Starting update task");
