@@ -227,7 +227,7 @@ public class ConnectionsRenderer : MonoBehaviour
                     new GameObject($"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}");
                 rulerObject.transform.SetParent(_mapCore.map3D.transform);
                 ruler = rulerObject.AddComponent<MapRulerComponent>();
-                ruler.Track(item, networkNode, node);
+                ruler.Track(item, prevIndexes[i] >= 0, networkNode, node);
                 _rulers.Add(ruler.Id, ruler);
             }
 
