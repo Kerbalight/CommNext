@@ -70,6 +70,10 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private void ToggleUpdateTaskIfNeeded()
     {
+        // We want to trigger them right away so that UI is updated
+        // right after the UI click.
+        if (_isConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
+
         switch (_isConnectionsEnabled || _isRulersEnabled)
         {
             case true when _updateTask == null:
@@ -112,24 +116,29 @@ public class ConnectionsRenderer : MonoBehaviour
     {
         while (true)
         {
-            // TODO Start/Stop tasks based on the state of the game
-            if (MessageListener.IsInMapView &&
-                CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(out var nodes,
-                    out var prevIndexes) &&
-                nodes != null)
-                try
-                {
-                    if (_isConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
-                    if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Error updating connections: " + e);
-                }
-
+            UpdateRenderings();
             yield return new WaitForSeconds(0.5f);
         }
         // ReSharper disable once IteratorNeverReturns
+    }
+
+    private void UpdateRenderings()
+    {
+        if (!MessageListener.IsInMapView ||
+            !CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(
+                out var nodes,
+                out var prevIndexes) ||
+            nodes == null) return;
+
+        try
+        {
+            if (_isConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+            if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError("Error updating connections: " + e);
+        }
     }
 
     private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes)
@@ -233,7 +242,7 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
-    public double GetMap3dScaleInv()
+    public static double GetMap3dScaleInv()
     {
         return _mapCore.map3D.GetSpaceProvider().Map3DScaleInv;
     }

@@ -75,6 +75,20 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
         _lineRenderer.SetPropertyBlock(_materialPropertyBlock);
 
         _isConnected = true;
+
+        UpdateLinePositions();
+    }
+
+    private void UpdateLinePositions()
+    {
+        var positions = new Vector3[10];
+        for (var i = 0; i < 10; i++)
+        {
+            var t = i / 9f;
+            positions[i] = Vector3.Lerp(SourceItem!.transform.position, TargetItem!.transform.position, t);
+        }
+
+        _lineRenderer.SetPositions(positions);
     }
 
     public void Update()
@@ -87,14 +101,7 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
             return;
         }
 
-        var positions = new Vector3[10];
-        for (var i = 0; i < 10; i++)
-        {
-            var t = i / 9f;
-            positions[i] = Vector3.Lerp(SourceItem.transform.position, TargetItem.transform.position, t);
-        }
-
-        _lineRenderer.SetPositions(positions);
+        UpdateLinePositions();
     }
 
     public void OnDestroy()

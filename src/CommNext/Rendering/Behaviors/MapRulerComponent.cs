@@ -36,8 +36,8 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         sphereComponent.Configure(connectionNode.MaxRange,
             networkNode.IsRelay ? null : Color.gray);
 
-        // Simple relay placeholder
 #if SHOW_RELAY_PLACEHOLDER
+        // Simple relay placeholder
         if (networkNode.IsRelay)
         {
             var placeholderObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
@@ -48,6 +48,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         }
 #endif
 
+        transform.position = target.transform.position;
         _isTracking = true;
     }
 

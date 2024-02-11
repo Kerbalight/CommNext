@@ -30,6 +30,7 @@ public class MapSphereRulerComponent : MonoBehaviour
         }
 
         _range = range;
+        ScaleByRange();
     }
 
     public void SetColor(Color color)
@@ -40,9 +41,14 @@ public class MapSphereRulerComponent : MonoBehaviour
         _meshRenderer.SetPropertyBlock(_propertyBlock); // TODO Needed?
     }
 
+    private void ScaleByRange()
+    {
+        var radius = (float)(_range / ConnectionsRenderer.GetMap3dScaleInv());
+        transform.localScale = new Vector3(radius, radius, radius);
+    }
+
     private void Update()
     {
-        var radius = (float)(_range / ConnectionsRenderer.Instance.GetMap3dScaleInv());
-        transform.localScale = new Vector3(radius, radius, radius);
+        ScaleByRange();
     }
 }
