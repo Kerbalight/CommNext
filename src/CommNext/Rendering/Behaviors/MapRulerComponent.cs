@@ -13,8 +13,10 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
     private Map3DFocusItem? _target;
 
     private NetworkNode? _networkNode;
-    private MapSphereRulerComponent? _placeholder;
 
+#if SHOW_RELAY_PLACEHOLDER
+    private MapSphereRulerComponent? _placeholder;
+#endif
     public void Start()
     {
         gameObject.layer = LayerMask.NameToLayer("Map");
@@ -35,6 +37,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             networkNode.IsRelay ? null : Color.gray);
 
         // Simple relay placeholder
+#if SHOW_RELAY_PLACEHOLDER
         if (networkNode.IsRelay)
         {
             var placeholderObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
@@ -43,6 +46,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             _placeholder = placeholderObject.AddComponent<MapSphereRulerComponent>();
             _placeholder.Configure(50_000, Color.gray);
         }
+#endif
 
         _isTracking = true;
     }
@@ -56,6 +60,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             return;
         }
 
+#if SHOW_RELAY_PLACEHOLDER
         if (_networkNode?.IsRelay == true)
         {
             if (_networkNode.HasEnoughResources != true)
@@ -63,6 +68,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             else
                 _placeholder!.SetColor(Color.green);
         }
+#endif
 
         transform.position = _target.transform.position;
     }

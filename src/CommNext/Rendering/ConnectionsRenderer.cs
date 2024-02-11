@@ -162,10 +162,17 @@ public class ConnectionsRenderer : MonoBehaviour
             }
             else
             {
+                var sourceNetworkNode = NetworkManager.Instance.Nodes[sourceNode.Owner];
+                var targetNetworkNode = NetworkManager.Instance.Nodes[targetNode.Owner];
+
                 var connectionObject = new GameObject($"MapCommConnection_{connectionId}");
                 connectionObject.transform.SetParent(_mapCore.map3D.transform);
                 connection = connectionObject.AddComponent<MapConnectionComponent>();
-                connection.Configure(sourceItem, targetItem);
+                connection.Configure(
+                    sourceItem, targetItem,
+                    sourceNetworkNode, targetNetworkNode,
+                    sourceNode, targetNode
+                );
                 _connections.Add(connectionId, connection);
                 keepIds.Add(connectionId);
             }
