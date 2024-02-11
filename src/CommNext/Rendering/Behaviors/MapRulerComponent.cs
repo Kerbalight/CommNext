@@ -78,6 +78,6 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
     public void OnDestroy()
     {
         if (!_isTracking) return;
-        ConnectionsRenderer.Instance.OnMapRulerDestroyed(this, false);
+        ConnectionsRenderer.Instance.OnMapRulerDestroyed(this);
     }
 }

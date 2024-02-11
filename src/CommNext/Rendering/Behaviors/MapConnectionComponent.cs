@@ -107,6 +107,6 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
     public void OnDestroy()
     {
         if (!_isConnected) return;
-        ConnectionsRenderer.Instance.OnMapConnectionDestroyed(this, false);
+        ConnectionsRenderer.Instance.OnMapConnectionDestroyed(this);
     }
 }
