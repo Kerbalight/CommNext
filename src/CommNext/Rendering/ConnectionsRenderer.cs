@@ -125,7 +125,7 @@ public class ConnectionsRenderer : MonoBehaviour
         while (true)
         {
             UpdateRenderings();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
         }
         // ReSharper disable once IteratorNeverReturns
     }
