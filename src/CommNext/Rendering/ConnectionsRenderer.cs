@@ -42,6 +42,7 @@ public class ConnectionsRenderer : MonoBehaviour
         get => _isConnectionsEnabled;
         set
         {
+            Logger.LogInfo("Setting IsConnectionsEnabled to " + value);
             _isConnectionsEnabled = value;
             ClearConnections();
             ToggleUpdateTaskIfNeeded();
@@ -57,6 +58,7 @@ public class ConnectionsRenderer : MonoBehaviour
         get => _isRulersEnabled;
         set
         {
+            Logger.LogInfo("Setting IsRulersEnabled to " + value);
             _isRulersEnabled = value;
             ClearRulers();
             ToggleUpdateTaskIfNeeded();
@@ -77,11 +79,13 @@ public class ConnectionsRenderer : MonoBehaviour
         switch (_isConnectionsEnabled || _isRulersEnabled)
         {
             case true when _updateTask == null:
+                Logger.LogInfo("Starting update task");
                 _updateTask = RunUpdateTask();
                 StartCoroutine(_updateTask);
                 break;
 
             case false when _updateTask != null:
+                Logger.LogInfo("Stopping update task");
                 StopCoroutine(_updateTask);
                 _updateTask = null;
 
@@ -93,6 +97,7 @@ public class ConnectionsRenderer : MonoBehaviour
 
     public void Initialize()
     {
+        Logger.LogInfo("Initializing ConnectionsRenderer");
         // TODO MapCore loading
         ClearConnections();
         ClearRulers();
@@ -216,11 +221,6 @@ public class ConnectionsRenderer : MonoBehaviour
             var networkNode = NetworkManager.Instance.Nodes.GetValueOrDefault(node.Owner);
             if (networkNode is not { IsRelay: true }) continue;
 
-            if (_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
-            {
-                keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
-            }
-            else
             if (!_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
             {
                 var rulerObject =
@@ -229,8 +229,6 @@ public class ConnectionsRenderer : MonoBehaviour
                 ruler = rulerObject.AddComponent<MapRulerComponent>();
                 ruler.Track(item, networkNode, node);
                 _rulers.Add(ruler.Id, ruler);
-
-                keepIds.Add(ruler.Id);
             }
 
             keepIds.Add(ruler.Id);

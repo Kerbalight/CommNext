@@ -72,13 +72,18 @@ public struct GetNextConnectedNodesJob : IJob
         // This doesn't _exclude_ direct connections, it still dipends on the `BestPathMode` setting,
         // but without this KSC would always win since it's the first to be visited.
         var remainingRelays = 0;
+        var totalRelays = 0;
 
         for (var i = 0; i < length; ++i)
         {
             optimums[i] = double.MaxValue;
             sourceDistances[i] = double.MaxValue;
 
-            if ((NetworkNodes[i].Flags & IsRelay) != None) remainingRelays++;
+            if ((NetworkNodes[i].Flags & IsRelay) != None)
+            {
+                remainingRelays++;
+                totalRelays++;
+            }
 
             PrevIndices[i] = -1;
             queue.AddNoResize(i);
@@ -218,8 +223,13 @@ public struct GetNextConnectedNodesJob : IJob
         sw.Stop();
         if (Settings.EnableProfileLogs.Value && DateTime.Now.ToUnixTimestamp() - _lastLoggedTime > 4)
         {
+            var connectedCount = 0;
+            for (var i = 0; i < length; i++)
+                if (PrevIndices[i] >= 0)
+                    connectedCount++;
+
             Logger.LogInfo(
-                $"Execute took {sw.ElapsedMilliseconds}ms (nodes={processedNodes.Length}, numBodyOcclusions={numOfBodyOcclusions}, numIntersections={numOfIntersections})");
+                $"Execute took {sw.ElapsedMilliseconds}ms (nodes={processedNodes.Length}, numBodyOcclusions={numOfBodyOcclusions}, numIntersections={numOfIntersections},connected={connectedCount}/{length},relays={totalRelays})");
             _lastLoggedTime = DateTime.Now.ToUnixTimestamp();
         }
 
