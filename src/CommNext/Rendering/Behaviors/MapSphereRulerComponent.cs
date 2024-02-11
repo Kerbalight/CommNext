@@ -27,6 +27,7 @@ public class MapSphereRulerComponent : MonoBehaviour
         {
             _lastColor = color;
             _propertyBlock.SetColor(ColorID, color.Value);
+            _meshRenderer.SetPropertyBlock(_propertyBlock); // This is Needed, otherwise the color won't be set
         }
 
         _range = range;
@@ -38,7 +39,7 @@ public class MapSphereRulerComponent : MonoBehaviour
         if (_lastColor == color) return;
         _lastColor = color;
         _propertyBlock.SetColor(ColorID, color);
-        _meshRenderer.SetPropertyBlock(_propertyBlock); // TODO Needed?
+        _meshRenderer.SetPropertyBlock(_propertyBlock); // This is Needed, otherwise the color won't be set
     }
 
     private void ScaleByRange()

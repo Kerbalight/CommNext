@@ -18,7 +18,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
     private MapSphereRulerComponent _sphereRulerComponent = null!;
 
     private static Color ConnectedColor = new(1.433962f, 0.8418202f, 0.1826273f, 0f);
-    private static Color DisconnectedColor = new(0.2924528f, 0.05931826f, 0.05931826f, 1f);
+    private static Color DisconnectedColor = new(0.06603771f, 0.01445956f, 0.01090245f, 1f);
 #if SHOW_RELAY_PLACEHOLDER
     private MapSphereRulerComponent? _placeholder;
 #endif
