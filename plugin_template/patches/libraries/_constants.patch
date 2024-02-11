@@ -3,8 +3,8 @@
 $commnext-RANGE-RA2: 2000000000.00;
 // Was 86G, now 15G
 $commnext-RANGE-RA15: 15000000000.00;
-// Was 130G, now 50G
-$commnext-RANGE-RA100: 50000000000.00;
+// Was 130G, now 100G
+$commnext-RANGE-RA100: 100000000000.00;
 
 // -Antennas
 // Stock command pod has 200000000.0 (200M) range. Make it 5K
@@ -19,5 +19,5 @@ $commnext-RANGE-HG5: 5000000.00;
 $commnext-RANGE-DTS-M1: 2000000000.00;
 // Stock HG-55 has 86000000000.0 (86G) range. Make it 15G
 $commnext-RANGE-HG55: 15000000000.00;
-// Stock C-88 has 130000000000.0 (130G) range. Make it 50G
-$commnext-RANGE-C88: 50000000000.00;
+// Stock C-88 has 130000000000.0 (130G) range. Make it 100G
+$commnext-RANGE-C88: 100000000000.00;
