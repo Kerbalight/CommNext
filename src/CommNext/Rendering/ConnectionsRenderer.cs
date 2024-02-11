@@ -221,6 +221,7 @@ public class ConnectionsRenderer : MonoBehaviour
                 keepIds.Add(item.AssociatedMapItem.SimGUID.ToString());
             }
             else
+            if (!_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
             {
                 var rulerObject =
                     new GameObject($"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}");
@@ -231,6 +232,9 @@ public class ConnectionsRenderer : MonoBehaviour
 
                 keepIds.Add(ruler.Id);
             }
+
+            keepIds.Add(ruler.Id);
+            ruler.IsConnected = prevIndexes[i] >= 0;
         }
 
         var removeIds = _rulers.Keys.Except(keepIds).ToList();

@@ -13,7 +13,12 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
     private Map3DFocusItem? _target;
 
     private NetworkNode? _networkNode;
+    public bool IsConnected { get; set; } = false;
 
+    private MapSphereRulerComponent _sphereRulerComponent = null!;
+
+    private static Color ConnectedColor = new(1.433962f, 0.8418202f, 0.1826273f, 0f);
+    private static Color DisconnectedColor = new(0.2924528f, 0.05931826f, 0.05931826f, 1f);
 #if SHOW_RELAY_PLACEHOLDER
     private MapSphereRulerComponent? _placeholder;
 #endif
@@ -32,9 +37,11 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         var sphereObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
         sphereObject.name = "RulerSphere";
         sphereObject.transform.localPosition = Vector3.zero;
-        var sphereComponent = sphereObject.AddComponent<MapSphereRulerComponent>();
-        sphereComponent.Configure(connectionNode.MaxRange,
-            networkNode.IsRelay ? null : Color.gray);
+        _sphereRulerComponent = sphereObject.AddComponent<MapSphereRulerComponent>();
+        _sphereRulerComponent.Configure(
+            connectionNode.MaxRange,
+            networkNode.IsRelay ? null : Color.gray
+        );
 
 #if SHOW_RELAY_PLACEHOLDER
         // Simple relay placeholder
@@ -61,15 +68,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             return;
         }
 
-#if SHOW_RELAY_PLACEHOLDER
-        if (_networkNode?.IsRelay == true)
-        {
-            if (_networkNode.HasEnoughResources != true)
-                _placeholder!.SetColor(Color.red);
-            else
-                _placeholder!.SetColor(Color.green);
-        }
-#endif
+        _sphereRulerComponent.SetColor(IsConnected ? ConnectedColor : DisconnectedColor);
 
         transform.position = _target.transform.position;
     }
