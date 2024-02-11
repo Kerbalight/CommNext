@@ -1,7 +1,7 @@
 ﻿namespace CommNext.Network.Compute;
 
 [Flags]
-public enum ExtraConnectionGraphNodeFlags
+public enum NetworkNodeFlags
 {
     None = 0,
     IsRelay = 1,

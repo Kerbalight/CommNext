@@ -32,7 +32,7 @@ public static class ConnectionGraphPatches
     // Since we have only one `ConnectionGraph` instance, we store
     // the additional infos here.
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
-    private static NativeArray<ExtraConnectionGraphJobNode> _extraNodes;
+    private static NativeArray<NetworkJobNode> _networkNodes;
 
     /// <summary>
     /// Here starts the fun! We're going to patch the RebuildConnectionGraph method to add
@@ -70,8 +70,8 @@ public static class ConnectionGraphPatches
         {
             __instance.ResizeCollections(____allNodeCount);
             // Custom: resizing our custom array
-            if (_extraNodes.IsCreated) _extraNodes.Dispose();
-            _extraNodes = new NativeArray<ExtraConnectionGraphJobNode>(____allNodeCount, Allocator.Persistent);
+            if (_networkNodes.IsCreated) _networkNodes.Dispose();
+            _networkNodes = new NativeArray<NetworkJobNode>(____allNodeCount, Allocator.Persistent);
         }
 
         // Custom: We assume Bodies count never changes.
@@ -87,7 +87,7 @@ public static class ConnectionGraphPatches
                 new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
 
             // Custom: Extra flags
-            _extraNodes[index] = new ExtraConnectionGraphJobNode(GetExtraFlagsFrom(nodes[index]))
+            _networkNodes[index] = new NetworkJobNode(GetNetworkFlagsFrom(nodes[index]))
             {
 #if DEBUG_SET_NAMES
                 Name = GameManager.Instance.Game.UniverseModel.FindVesselComponent(nodes[index].Owner)?.Name
@@ -102,7 +102,7 @@ public static class ConnectionGraphPatches
             StartIndex = sourceNodeIndex,
             // Custom: Extra data
             BodyInfos = _bodyInfos,
-            ExtraNodes = _extraNodes,
+            NetworkNodes = _networkNodes,
             PrevIndices = ____previousIndices
         }.Schedule<GetNextConnectedNodesJob>();
         ____isRunning = true;
@@ -111,19 +111,19 @@ public static class ConnectionGraphPatches
         return false;
     }
 
-    private static ExtraConnectionGraphNodeFlags GetExtraFlagsFrom(ConnectionGraphNode node)
+    private static NetworkNodeFlags GetNetworkFlagsFrom(ConnectionGraphNode node)
     {
         if (!NetworkManager.Instance.Nodes.TryGetValue(node.Owner, out var networkNode))
         {
             Logger.LogWarning($"Network node not found for {node.Owner}");
-            return ExtraConnectionGraphNodeFlags.None;
+            return NetworkNodeFlags.None;
         }
 
-        var flagsFrom = ExtraConnectionGraphNodeFlags.None;
+        var flagsFrom = NetworkNodeFlags.None;
         if (networkNode.IsRelay)
-            flagsFrom |= ExtraConnectionGraphNodeFlags.IsRelay;
+            flagsFrom |= NetworkNodeFlags.IsRelay;
         if (networkNode.HasEnoughResources)
-            flagsFrom |= ExtraConnectionGraphNodeFlags.HasEnoughResources;
+            flagsFrom |= NetworkNodeFlags.HasEnoughResources;
 
         return flagsFrom;
     }

@@ -8,7 +8,7 @@ using KSP.Sim;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using static CommNext.Network.Compute.ExtraConnectionGraphNodeFlags;
+using static CommNext.Network.Compute.NetworkNodeFlags;
 
 namespace CommNext.Network.Compute;
 
@@ -34,7 +34,7 @@ public struct GetNextConnectedNodesJob : IJob
     public NativeArray<CommNextBodyInfo> BodyInfos;
 
     [ReadOnly]
-    public NativeArray<ExtraConnectionGraphJobNode> ExtraNodes;
+    public NativeArray<NetworkJobNode> NetworkNodes;
 
     [WriteOnly]
     public NativeArray<int> PrevIndices;
@@ -78,7 +78,7 @@ public struct GetNextConnectedNodesJob : IJob
             optimums[i] = double.MaxValue;
             sourceDistances[i] = double.MaxValue;
 
-            if ((ExtraNodes[i].Flags & IsRelay) != None) remainingRelays++;
+            if ((NetworkNodes[i].Flags & IsRelay) != None) remainingRelays++;
 
             PrevIndices[i] = -1;
             queue.AddNoResize(i);
@@ -97,7 +97,7 @@ public struct GetNextConnectedNodesJob : IJob
                 // Like an heap, we always process the node with the lowest distance first.
                 if (!(sourceDistances[otherIndex] < lowerValue)) continue;
                 // Relays first
-                if (remainingRelays > 0 && (ExtraNodes[otherIndex].Flags & IsRelay) == None) continue;
+                if (remainingRelays > 0 && (NetworkNodes[otherIndex].Flags & IsRelay) == None) continue;
 
                 lowerValue = sourceDistances[otherIndex];
                 lowerIndex = otherIndex;
@@ -109,7 +109,7 @@ public struct GetNextConnectedNodesJob : IJob
             var sourceDistance = sourceDistances[sourceIndex];
             var sourceSqRange = Nodes[sourceIndex].MaxRange * Nodes[sourceIndex].MaxRange;
             processedNodes[sourceIndex] = true;
-            if ((ExtraNodes[sourceIndex].Flags & IsRelay) != None) remainingRelays--;
+            if ((NetworkNodes[sourceIndex].Flags & IsRelay) != None) remainingRelays--;
 
             // We can ignore the node in this case since the source itself is not connected.
             // In the future, this check could be excluded to get Isolated Sub-Graphs in
@@ -122,12 +122,12 @@ public struct GetNextConnectedNodesJob : IJob
                 ConnectionGraphNodeFlags.None) continue;
 
             // Skip if source has not enough resources
-            if ((ExtraNodes[sourceIndex].Flags & HasEnoughResources) == None) continue;
+            if ((NetworkNodes[sourceIndex].Flags & HasEnoughResources) == None) continue;
 
             // If this node isn't a relay, we can't use it as a source. Its previousIndex will be
             // set only by a valid relay when _that_ relay is being processed.
             // In fact, we set the `prevIndexes[targetIndex]` when we find a valid path
-            var canSourceRelay = (ExtraNodes[sourceIndex].Flags & IsRelay) != None ||
+            var canSourceRelay = (NetworkNodes[sourceIndex].Flags & IsRelay) != None ||
                                  (Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsControlSource) !=
                                  ConnectionGraphNodeFlags.None;
             if (!canSourceRelay) continue;
@@ -141,7 +141,7 @@ public struct GetNextConnectedNodesJob : IJob
                     processedNodes[targetIndex]) continue;
 
                 // Skip if target has not enough resources
-                if ((ExtraNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
+                if ((NetworkNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
 
                 var distance = math.distancesq(
                     Nodes[sourceIndex].Position,

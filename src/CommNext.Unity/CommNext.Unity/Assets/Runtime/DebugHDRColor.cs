@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -16,7 +17,9 @@ namespace CommNext.Unity.Editor
 
         public void OnValidate()
         {
-            Debug.Log($"Color1: {color1}, Color2: {color2}");
+            Debug.Log(
+                $"Color1: new Color({color1.r.ToString(CultureInfo.InvariantCulture)}f, {color1.g.ToString(CultureInfo.InvariantCulture)}f, {color1.b.ToString(CultureInfo.InvariantCulture)}f, {color1.a.ToString(CultureInfo.InvariantCulture)}f);\n" +
+                $"Color2: new Color({color2.r.ToString(CultureInfo.InvariantCulture)}f, {color2.g.ToString(CultureInfo.InvariantCulture)}f, {color2.b.ToString(CultureInfo.InvariantCulture)}f, {color2.a.ToString(CultureInfo.InvariantCulture)}f);");
         }
     }
 }

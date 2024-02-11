@@ -31,11 +31,10 @@ public class Data_NextRelay : ModuleData
     {
         // Setup the Dropdown for Band
         var bandOptions = new DropdownItemList();
-        foreach (var band in NetworkBands.AllBands)
+        foreach (var band in NetworkBands.Instance.AllBands)
             // TODO Add image? Sprite is supported, should test it
             bandOptions.Add(band.Code, new DropdownItem() { key = band.Code, text = band.DisplayName });
         SetDropdownData(Band, bandOptions);
-        Band.SetValue(NetworkBands.AllBands[0].Code);
     }
 
     public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(

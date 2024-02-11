@@ -12,6 +12,8 @@ public class NetworkNode
     public bool IsRelay { get; set; }
     public bool HasEnoughResources { get; set; }
 
+    public string Band { get; set; } = "X";
+
     public NetworkNode(IGGuid owner)
     {
         Owner = owner;
