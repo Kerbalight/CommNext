@@ -31,19 +31,21 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private IEnumerator? _updateTask;
 
-    private bool _isConnectionsEnabled = true;
+    private ConnectionsDisplayMode _connectionsDisplayMode = ConnectionsDisplayMode.Lines;
     private bool _isRulersEnabled = true;
+
+    public bool IsConnectionsEnabled => _connectionsDisplayMode != ConnectionsDisplayMode.None;
 
     /// <summary>
     /// Connections are the lines between the nodes (vessels, ground stations, etc).
     /// </summary>
-    public bool IsConnectionsEnabled
+    public ConnectionsDisplayMode ConnectionsDisplayMode
     {
-        get => _isConnectionsEnabled;
+        get => _connectionsDisplayMode;
         set
         {
-            Logger.LogInfo("Setting IsConnectionsEnabled to " + value);
-            _isConnectionsEnabled = value;
+            Logger.LogInfo("Setting ConnectionsDisplayMode " + value);
+            _connectionsDisplayMode = value;
             ClearConnections();
             ToggleUpdateTaskIfNeeded();
         }
@@ -102,7 +104,7 @@ public class ConnectionsRenderer : MonoBehaviour
         ClearConnections();
         ClearRulers();
 
-        IsConnectionsEnabled = true;
+        ConnectionsDisplayMode = ConnectionsDisplayMode.Lines;
     }
 
     public void ClearConnections()
@@ -137,7 +139,7 @@ public class ConnectionsRenderer : MonoBehaviour
 
         try
         {
-            if (_isConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+            if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
             if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
         }
         catch (Exception e)
@@ -153,6 +155,19 @@ public class ConnectionsRenderer : MonoBehaviour
             // Logger.LogError("MapCore not found");
             return;
 
+        HashSet<(int, int)>? activeVesselPath = null;
+
+        if (_connectionsDisplayMode == ConnectionsDisplayMode.Active
+            && GameManager.Instance.Game.ViewController.TryGetActiveSimVessel(out var activeVessel)
+            && !NetworkManager.TryGetNetworkPath(activeVessel.GlobalId, nodes, prevIndexes,
+                out activeVesselPath))
+        {
+            // We want to display only the path of the active vessel.
+            activeVesselPath = [];
+            Logger.LogWarning($"No active vessel path found for {activeVessel.GlobalId}");
+        }
+
+
         List<string> keepIds = [];
 
         for (var i = 0; i < prevIndexes.Length; i++)
@@ -164,6 +179,9 @@ public class ConnectionsRenderer : MonoBehaviour
             var sourceNode = nodes[sourceIndex];
             var targetNode = nodes[targetIndex];
             if (sourceNode == null || targetNode == null) continue;
+
+            // Highlight only the active vessel path.
+            if (activeVesselPath != null && !activeVesselPath.Contains((sourceIndex, targetIndex))) continue;
 
             var sourceItem = GetMapItem(sourceNode);
             var targetItem = GetMapItem(targetNode);
@@ -252,18 +270,22 @@ public class ConnectionsRenderer : MonoBehaviour
     /// <summary>
     /// If MapConnectionComponent Source or Target item are destroyed, we need to
     /// remove the connection.
+    /// 
+    /// In general, after the `OnDestroy` inside the IMapComponent, it's absolutely
+    /// necessary to call this method and to Destroy the GameObject.
     /// </summary>
-    public void OnMapConnectionDestroyed(MapConnectionComponent connection, bool destroyGameObject = true)
+    public void OnMapConnectionDestroyed(MapConnectionComponent connection)
     {
+        // This is wanted.
+        if (connection.gameObject != null) Destroy(connection.gameObject);
         if (!_connections.ContainsKey(connection.Id)) return;
-        if (destroyGameObject) Destroy(connection.gameObject);
         _connections.Remove(connection.Id);
     }
 
-    public void OnMapRulerDestroyed(MapRulerComponent ruler, bool destroyGameObject = true)
+    public void OnMapRulerDestroyed(MapRulerComponent ruler)
     {
+        if (ruler.gameObject != null) Destroy(ruler.gameObject);
         if (!_rulers.ContainsKey(ruler.Id)) return;
-        if (destroyGameObject) Destroy(ruler.gameObject);
         _rulers.Remove(ruler.Id);
     }
 

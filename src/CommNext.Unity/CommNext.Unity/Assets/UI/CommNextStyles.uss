@@ -43,12 +43,31 @@
     transition: all 0.2s;
 }
 
-.toolbar-comm-icon--lines {
+.toolbar-comm-icon--none {
+    -unity-background-image-tint-color: rgb(213, 222, 255);
     background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
 }
 
-.toolbar-comm-icon:hover {
+.toolbar-comm-icon--lines {
+    -unity-background-image-tint-color: rgb(0, 255, 102);
+    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
+}
+
+.toolbar-comm-icon--active {
+    -unity-background-image-tint-color: rgb(0, 255, 102);
+    background-image: url('project://database/Assets/Images/CommActiveIcon.png?fileID=21300000&guid=65ee5addc1a687148add89fab0312eee&type=3#CommActiveIcon');
+}
+
+.toolbar-comm-icon--none:hover {
     -unity-background-image-tint-color: rgb(128, 134, 153);
+}
+
+.toolbar-comm-icon--lines:hover {
+    -unity-background-image-tint-color: rgb(17, 152, 73);
+}
+
+.toolbar-comm-icon--active:hover {
+    -unity-background-image-tint-color: rgb(17, 152, 73);
 }
 
 .toolbar-comm-icon.toggled {

@@ -55,8 +55,17 @@ public class MapToolbarWindowController : MonoBehaviour
 
     private void UpdateButtonState()
     {
-        if (ConnectionsRenderer.Instance.IsConnectionsEnabled) _linesButton.AddToClassList("toggled");
-        else _linesButton.RemoveFromClassList("toggled");
+        _linesButton.RemoveFromClassList("toolbar-comm-icon--none");
+        _linesButton.RemoveFromClassList("toolbar-comm-icon--lines");
+        _linesButton.RemoveFromClassList("toolbar-comm-icon--active");
+        var selectedClassName = ConnectionsRenderer.Instance.ConnectionsDisplayMode switch
+        {
+            ConnectionsDisplayMode.None => "toolbar-comm-icon--none",
+            ConnectionsDisplayMode.Lines => "toolbar-comm-icon--lines",
+            ConnectionsDisplayMode.Active => "toolbar-comm-icon--active",
+            _ => "toolbar-comm-icon--none"
+        };
+        _linesButton.AddToClassList(selectedClassName);
 
         if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
         else _rulersButton.RemoveFromClassList("toggled");
@@ -80,7 +89,8 @@ public class MapToolbarWindowController : MonoBehaviour
         _linesButton = _root.Q<Button>("lines-button");
         _linesButton.clicked += () =>
         {
-            ConnectionsRenderer.Instance.IsConnectionsEnabled = !ConnectionsRenderer.Instance.IsConnectionsEnabled;
+            ConnectionsRenderer.Instance.ConnectionsDisplayMode =
+                ConnectionsRenderer.Instance.ConnectionsDisplayMode.Next();
             UpdateButtonState();
         };
 
