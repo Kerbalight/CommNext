@@ -1,10 +1,14 @@
 ﻿// #define DEBUG_LOG_ENABLED
 
 using System.Diagnostics;
+using System.Runtime;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using BepInEx.Logging;
 using CommNext.Utils;
 using KSP.Networking.MP.Utils;
 using KSP.Sim;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -206,7 +210,8 @@ public struct GetNextConnectedNodesJob : IJob
                             - 2 * (s.x * p1.x + s.y * p1.y + s.z * p1.z)
                             - r * r;
 
-                    var discriminant = b * b - 4 * a * c;
+                    var old_discriminant = b * b - 4 * a * c;
+                    var discriminant = KahanDiscriminant(a, b, c);
                     if (discriminant < 0) continue;
                     numOfIntersections++;
 
@@ -256,4 +261,20 @@ public struct GetNextConnectedNodesJob : IJob
         optimums.Dispose();
         sourceDistances.Dispose();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double KahanDiscriminant(double a, double b, double c)
+    {
+        var d = b * b - 4 * a * c;
+        if (3 * Math.Abs(d) >= b * b + 4 * a * c) return d;
+        var p = b * b;
+        var dp = FusedMultiplyAdd(b, b, -p);
+        var q = 4 * a * c;
+        var dq = FusedMultiplyAdd(4 * a, c, -q);
+        d = p - q + (dp - dq);
+        return d;
+    }
+
+    [DllImport("CommNext.Native.dll")]
+    private static extern double FusedMultiplyAdd(double x, double y, double z);
 }
