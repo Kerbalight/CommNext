@@ -20,14 +20,14 @@ public static class MessageListener
         messageCenter.PersistentSubscribe<MapViewLeftMessage>(OnMapViewLeft);
         messageCenter.PersistentSubscribe<GameStateChangedMessage>(OnGameStateChanged);
         messageCenter.PersistentSubscribe<GameLoadFinishedMessage>(OnGameLoadFinished);
+
+        NetworkManager.Instance.SetupListeners();
     }
 
     private static void OnGameLoadFinished(MessageCenterMessage _)
     {
         IsInMapView = false;
 
-        // Precompute some references
-        CommunicationsManager.Instance.Initialize();
         // Delete previous connections
         ConnectionsRenderer.Instance.Initialize();
     }

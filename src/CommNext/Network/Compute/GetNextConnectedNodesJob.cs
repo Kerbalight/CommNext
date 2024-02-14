@@ -174,11 +174,6 @@ public struct GetNextConnectedNodesJob : IJob
                     var r = bodyInfo.radius;
                     numOfBodyOcclusions++;
 
-                    // if (sourceIndex == 0 && bodyInfo.name == "Kerbin")
-                    // {
-                    //     r *= _controlSourceRadiusModifier;
-                    // }
-
                     // A = (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2
                     // B = 2 * [ (x2-x1)(x1-xS) + (y2-y1)(y1-yS) + (z2-z1)(z1-zS) ]
                     // C = xS^2 + yS^2 + zS^2 + x1^2 + y1^2 + z1^2 - 2 * (xS*x1 + yS*y1 + zS*z1) - r^2
@@ -186,6 +181,7 @@ public struct GetNextConnectedNodesJob : IJob
                     var p1 = sourcePosition - bodyInfo.position;
                     var p2 = targetPosition - bodyInfo.position;
 
+#if DEBUG_MAP_POSITIONS
                     var isTargetSat = (sourceIndex == 8 && targetIndex == 10) ||
                                       (sourceIndex == 10 && targetIndex == 8);
                     if (isTargetSat && bi == 11)
@@ -193,12 +189,8 @@ public struct GetNextConnectedNodesJob : IJob
                         DebugPositions[0] = p1;
                         DebugPositions[1] = p2;
                         DebugPositions[2] = s;
-
-                        // var p2BodySize = math.lengthsq(p2);
-                        // var p1BodySize = math.lengthsq(p1);
-
-                        // if (p1BodySize / (bodyInfo.radius * bodyInfo.radius) > 10 && p2BodySize >) { }
                     }
+#endif
 
                     var a = (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y) +
                             (p2.z - p1.z) * (p2.z - p1.z);
@@ -210,7 +202,6 @@ public struct GetNextConnectedNodesJob : IJob
                             - 2 * (s.x * p1.x + s.y * p1.y + s.z * p1.z)
                             - r * r;
 
-                    var old_discriminant = b * b - 4 * a * c;
                     var discriminant = KahanDiscriminant(a, b, c);
                     if (discriminant < 0) continue;
                     numOfIntersections++;
@@ -252,7 +243,7 @@ public struct GetNextConnectedNodesJob : IJob
                     connectedCount++;
 
             Logger.LogInfo(
-                $"Execute took {sw.ElapsedMilliseconds}ms (nodes={processedNodes.Length}, numBodyOcclusions={numOfBodyOcclusions}, numIntersections={numOfIntersections},connected={connectedCount}/{length},relays={totalRelays})");
+                $"Execute took {(double)sw.ElapsedTicks / Stopwatch.Frequency * 1000}ms (nodes={processedNodes.Length}, numBodyOcclusions={numOfBodyOcclusions}, numIntersections={numOfIntersections},connected={connectedCount}/{length},relays={totalRelays})");
             _lastLoggedTime = DateTime.Now.ToUnixTimestamp();
         }
 
@@ -262,8 +253,12 @@ public struct GetNextConnectedNodesJob : IJob
         sourceDistances.Dispose();
     }
 
+    /// <summary>
+    /// We want to compute the discriminant using Kahan summation to avoid
+    /// floating point errors.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double KahanDiscriminant(double a, double b, double c)
+    private static double KahanDiscriminant(double a, double b, double c)
     {
         var d = b * b - 4 * a * c;
         if (3 * Math.Abs(d) >= b * b + 4 * a * c) return d;

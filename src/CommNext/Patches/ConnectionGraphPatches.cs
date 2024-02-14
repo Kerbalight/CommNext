@@ -35,7 +35,10 @@ public static class ConnectionGraphPatches
     // the additional infos here.
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
     private static NativeArray<NetworkJobNode> _networkNodes;
+
+#if DEBUG_MAP_POSITIONS
     public static NativeArray<double3> debugPositions;
+#endif
 
     /// <summary>
     /// Here starts the fun! We're going to patch the RebuildConnectionGraph method to add
@@ -79,9 +82,14 @@ public static class ConnectionGraphPatches
 
         // Custom: We assume Bodies count never changes.
         if (!_bodyInfos.IsCreated)
-            _bodyInfos = new NativeArray<CommNextBodyInfo>(Game.UniverseModel.GetAllCelestialBodies().Count,
+        {
+            _bodyInfos = new NativeArray<CommNextBodyInfo>(
+                Game.UniverseModel.GetAllCelestialBodies().Count,
                 Allocator.Persistent);
-        debugPositions = new NativeArray<double3>(3, Allocator.Persistent);
+#if DEBUG_MAP_POSITIONS
+            debugPositions = new NativeArray<double3>(3, Allocator.Persistent);
+#endif
+        }
 
         UpdateComputedBodiesPositions(_bodyInfos);
 
@@ -104,7 +112,9 @@ public static class ConnectionGraphPatches
             // Custom: Extra data
             BodyInfos = _bodyInfos,
             NetworkNodes = _networkNodes,
+#if DEBUG_MAP_POSITIONS
             DebugPositions = debugPositions
+#endif
         }.Schedule<GetNextConnectedNodesJob>();
         ____isRunning = true;
         ____prevSourceIndex = sourceNodeIndex;

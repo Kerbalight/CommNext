@@ -138,7 +138,7 @@ public class ConnectionsRenderer : MonoBehaviour
     private void UpdateRenderings()
     {
         if (!MessageListener.IsInMapView ||
-            !CommunicationsManager.Instance.TryGetConnectionGraphNodesAndIndexes(
+            !NetworkManager.Instance.TryGetConnectionGraphNodesAndIndexes(
                 out var nodes,
                 out var prevIndexes) ||
             nodes == null) return;
@@ -161,56 +161,15 @@ public class ConnectionsRenderer : MonoBehaviour
             // Logger.LogError("MapCore not found");
             return;
 
-        var kscItem = AllMapItems.GetValueOrDefault(_mapCore.KSCGUID);
-        var deltaPos = new Vector3(1f, 0f, 0f);
-
-        if (_debugPositionsObject == null)
-        {
-            _debugPositionsObject = new GameObject();
-            _debugPositionsObject.name = "DebugPositions";
-            _debugPositionsObject.transform.SetParent(kscItem.transform);
-            _debugPositionsObject.layer = LayerMask.NameToLayer("Map");
-            _debugPositionsObject.transform.localPosition = Vector3.zero;
-            var lineRenderer = _debugPositionsObject.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.startColor = Color.red;
-            lineRenderer.endColor = Color.magenta;
-            lineRenderer.startWidth = 0.03f;
-            lineRenderer.endWidth = 0.03f;
-            lineRenderer.positionCount = 2;
-            lineRenderer.useWorldSpace = false;
-
-            _debugPositionsBodyObject = Instantiate(TestSpherePrefab, kscItem.transform);
-            _debugPositionsBodyObject.name = "DebugPositionsBody";
-            // _debugPositionsBodyObject.transform.SetParent(_mapCore.map3D.transform);
-            _debugPositionsBodyObject.layer = LayerMask.NameToLayer("Map");
-        }
-
-        var commNetOrigin = GameManager.Instance.Game.UniverseModel.FindCommNetOrigin();
-        var scaleInvFactor = 1_000_000f;
-
-        var source = ConnectionGraphPatches.debugPositions[0] / scaleInvFactor; // / GetMap3dScaleInv();
-        var target = ConnectionGraphPatches.debugPositions[1] / scaleInvFactor; // / GetMap3dScaleInv();
-        var body = ConnectionGraphPatches.debugPositions[2] / scaleInvFactor; // / GetMap3dScaleInv();
-
-        _debugPositionsObject.GetComponent<LineRenderer>().SetPositions(new[]
-        {
-            new Vector3((float)target.x, (float)target.y, (float)target.z),
-            new Vector3((float)source.x, (float)source.y, (float)source.z)
-        });
-
-
-        _debugPositionsBodyObject.transform.localPosition =
-            new Vector3((float)body.x, (float)body.y, (float)body.z);
-        _debugPositionsBodyObject.transform.localScale = new Vector3((float)(500000 / scaleInvFactor),
-            (float)(500000 / scaleInvFactor), (float)(500000 / scaleInvFactor));
-
+#if DEBUG_MAP_POSITIONS
+        UpdateDebugPositions();
+#endif
 
         HashSet<(int, int)>? activeVesselPath = null;
 
         if (_connectionsDisplayMode == ConnectionsDisplayMode.Active
             && GameManager.Instance.Game.ViewController.TryGetActiveSimVessel(out var activeVessel)
-            && !NetworkManager.TryGetNetworkPath(activeVessel.GlobalId, nodes, prevIndexes,
+            && !NetworkManager.Instance.TryGetNetworkPath(activeVessel.GlobalId, nodes, prevIndexes,
                 out activeVesselPath))
         {
             // We want to display only the path of the active vessel.
@@ -346,8 +305,55 @@ public class ConnectionsRenderer : MonoBehaviour
         var sourceGuid = sourceNode.Owner;
         // Replace the source GUID with the KSC GUID. 
         // Control Center is the source of all connections, but it's not a map item.
-        if (sourceGuid == CommunicationsManager.CommNetManager.GetSourceNode().Owner)
+        if (sourceGuid == NetworkManager.Instance.CommNetManager.GetSourceNode().Owner)
             sourceGuid = _mapCore.KSCGUID;
         return AllMapItems.GetValueOrDefault(sourceGuid);
     }
+
+#if DEBUG_MAP_POSITIONS
+    private void UpdateDebugPositions()
+    {
+        var kscItem = AllMapItems.GetValueOrDefault(_mapCore.KSCGUID);
+        if (_debugPositionsObject == null)
+        {
+            _debugPositionsObject = new GameObject();
+            _debugPositionsObject.name = "DebugPositions";
+            _debugPositionsObject.transform.SetParent(kscItem.transform);
+            _debugPositionsObject.layer = LayerMask.NameToLayer("Map");
+            _debugPositionsObject.transform.localPosition = Vector3.zero;
+            var lineRenderer = _debugPositionsObject.AddComponent<LineRenderer>();
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.magenta;
+            lineRenderer.startWidth = 0.03f;
+            lineRenderer.endWidth = 0.03f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.useWorldSpace = false;
+
+            _debugPositionsBodyObject = Instantiate(TestSpherePrefab, kscItem.transform);
+            _debugPositionsBodyObject.name = "DebugPositionsBody";
+            // _debugPositionsBodyObject.transform.SetParent(_mapCore.map3D.transform);
+            _debugPositionsBodyObject.layer = LayerMask.NameToLayer("Map");
+        }
+
+        var commNetOrigin = GameManager.Instance.Game.UniverseModel.FindCommNetOrigin();
+        var scaleInvFactor = 1_000_000f;
+
+        var source = ConnectionGraphPatches.debugPositions[0] / scaleInvFactor; // / GetMap3dScaleInv();
+        var target = ConnectionGraphPatches.debugPositions[1] / scaleInvFactor; // / GetMap3dScaleInv();
+        var body = ConnectionGraphPatches.debugPositions[2] / scaleInvFactor; // / GetMap3dScaleInv();
+
+        _debugPositionsObject.GetComponent<LineRenderer>().SetPositions(new[]
+        {
+            new Vector3((float)target.x, (float)target.y, (float)target.z),
+            new Vector3((float)source.x, (float)source.y, (float)source.z)
+        });
+
+
+        _debugPositionsBodyObject.transform.localPosition =
+            new Vector3((float)body.x, (float)body.y, (float)body.z);
+        _debugPositionsBodyObject.transform.localScale = new Vector3((float)(500000 / scaleInvFactor),
+            (float)(500000 / scaleInvFactor), (float)(500000 / scaleInvFactor));
+    }
+#endif
 }

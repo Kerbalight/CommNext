@@ -59,14 +59,6 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         // Events
         MessageListener.StartListening();
 
-        // Managers
-        NetworkManager.Instance.Initialize();
-
-        // Patches
-        Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
-        Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
-        Harmony.CreateAndPatchAll(typeof(TelemetryComponentPatches));
-
         // Settings
         Settings.SetupConfig();
 
@@ -74,6 +66,11 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         var providers = new GameObject("CommNext_Providers");
         providers.transform.parent = transform;
         providers.AddComponent<ConnectionsRenderer>();
+
+        // Patches
+        Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
+        Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
+        Harmony.CreateAndPatchAll(typeof(TelemetryComponentPatches));
 
         // UI
         MainUIManager.Instance.Initialize();
