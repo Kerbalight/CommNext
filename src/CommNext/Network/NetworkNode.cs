@@ -14,6 +14,11 @@ public class NetworkNode
 
     public string Band { get; set; } = "X";
 
+    /// <summary>
+    /// Used only for debugging purposes.
+    /// </summary>
+    public string DebugVesselName { get; private set; } = "N/A";
+
     public NetworkNode(IGGuid owner)
     {
         Owner = owner;
@@ -25,7 +30,7 @@ public class NetworkNode
     /// We just want to know if electricity is available, so even if the vessel
     /// is in "NoCommNet" status, we will consider it as having enough resources.
     /// </summary>
-    public void UpdateResourcesFromVessel(VesselComponent? vessel)
+    public void UpdateFromVessel(VesselComponent? vessel)
     {
         if (vessel == null)
         {
@@ -33,6 +38,7 @@ public class NetworkNode
             return;
         }
 
+        DebugVesselName = vessel.Name;
         HasEnoughResources = DifficultyUtils.HasInfinitePower ||
                              !Settings.RelaysRequirePower.Value ||
                              vessel.ControlStatus != VesselControlState.NoControl;

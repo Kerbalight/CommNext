@@ -81,6 +81,8 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         // Load Assets
         ConnectionsRenderer.RulerSpherePrefab = AssetManager.GetAsset<GameObject>(
             $"{ModGuid}/commnext_ui/meshes/rulersphere.prefab");
+        ConnectionsRenderer.TestSpherePrefab = AssetManager.GetAsset<GameObject>(
+            $"{ModGuid}/commnext_ui/meshes/testsphere.prefab");
         MapConnectionComponent.LineMaterial = AssetManager.GetAsset<Material>(
             $"{ModGuid}/commnext_ui/shaders/commconnectionmat.mat");
     }

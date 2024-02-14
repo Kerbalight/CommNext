@@ -34,7 +34,7 @@ public class NetworkManager
         var controlMessage = (VesselControlStateChangedMessage)message;
         var networkNode = Nodes[controlMessage.Vessel.GlobalId];
 
-        networkNode.UpdateResourcesFromVessel(controlMessage.Vessel);
+        networkNode.UpdateFromVessel(controlMessage.Vessel);
     }
 
     /// <summary>

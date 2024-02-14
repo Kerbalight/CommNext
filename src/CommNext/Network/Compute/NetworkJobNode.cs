@@ -2,7 +2,7 @@
 
 public struct NetworkJobNode
 {
-    public readonly NetworkNodeFlags Flags;
+    public NetworkNodeFlags Flags;
     public string? Name;
 
     public NetworkJobNode(NetworkNodeFlags flags)

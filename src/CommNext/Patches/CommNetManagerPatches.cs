@@ -2,12 +2,18 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Sim;
+using KSP.Sim.impl;
 using Unity.Collections;
 
 namespace CommNext.Patches;
 
 public static class CommNetManagerPatches
 {
+    public static SimulationObjectModel FindCommNetOrigin(this UniverseModel universeModel)
+    {
+        return universeModel.FindSimObjectByNameKey(KerbinCommNetOriginName);
+    }
+
     // This is the time in seconds that the CommNetManager will wait
     // before rebuilding the graph.
     private const float RebuildGraphTimerSeconds = 0.2f;

@@ -8,6 +8,7 @@ using KSP.Sim;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 using static CommNext.Network.Compute.NetworkNodeFlags;
 
 namespace CommNext.Network.Compute;
@@ -38,6 +39,9 @@ public struct GetNextConnectedNodesJob : IJob
 
     [WriteOnly]
     public NativeArray<int> PrevIndices;
+
+    [WriteOnly]
+    public NativeArray<double3> DebugPositions;
 
     // private static float _controlSourceRadiusModifier = 0.98f;
     private static long _lastLoggedTime = 0;
@@ -174,9 +178,23 @@ public struct GetNextConnectedNodesJob : IJob
                     // A = (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2
                     // B = 2 * [ (x2-x1)(x1-xS) + (y2-y1)(y1-yS) + (z2-z1)(z1-zS) ]
                     // C = xS^2 + yS^2 + zS^2 + x1^2 + y1^2 + z1^2 - 2 * (xS*x1 + yS*y1 + zS*z1) - r^2
-                    var s = bodyInfo.position;
-                    var p1 = sourcePosition;
-                    var p2 = targetPosition;
+                    var s = double3.zero;
+                    var p1 = sourcePosition - bodyInfo.position;
+                    var p2 = targetPosition - bodyInfo.position;
+
+                    var isTargetSat = (sourceIndex == 8 && targetIndex == 10) ||
+                                      (sourceIndex == 10 && targetIndex == 8);
+                    if (isTargetSat && bi == 11)
+                    {
+                        DebugPositions[0] = p1;
+                        DebugPositions[1] = p2;
+                        DebugPositions[2] = s;
+
+                        // var p2BodySize = math.lengthsq(p2);
+                        // var p1BodySize = math.lengthsq(p1);
+
+                        // if (p1BodySize / (bodyInfo.radius * bodyInfo.radius) > 10 && p2BodySize >) { }
+                    }
 
                     var a = (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y) +
                             (p2.z - p1.z) * (p2.z - p1.z);

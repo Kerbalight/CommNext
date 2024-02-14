@@ -11,6 +11,8 @@ using KSP.Sim;
 using KSP.Sim.impl;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace CommNext.Patches;
 
@@ -33,6 +35,7 @@ public static class ConnectionGraphPatches
     // the additional infos here.
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
     private static NativeArray<NetworkJobNode> _networkNodes;
+    public static NativeArray<double3> debugPositions;
 
     /// <summary>
     /// Here starts the fun! We're going to patch the RebuildConnectionGraph method to add
@@ -78,6 +81,8 @@ public static class ConnectionGraphPatches
         if (!_bodyInfos.IsCreated)
             _bodyInfos = new NativeArray<CommNextBodyInfo>(Game.UniverseModel.GetAllCelestialBodies().Count,
                 Allocator.Persistent);
+        debugPositions = new NativeArray<double3>(3, Allocator.Persistent);
+
         UpdateComputedBodiesPositions(_bodyInfos);
 
         for (var index = 0; index < ____nodes.Length; ++index)
@@ -87,12 +92,7 @@ public static class ConnectionGraphPatches
                 new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
 
             // Custom: Extra flags
-            _networkNodes[index] = new NetworkJobNode(GetNetworkFlagsFrom(nodes[index]))
-            {
-#if DEBUG_SET_NAMES
-                Name = GameManager.Instance.Game.UniverseModel.FindVesselComponent(nodes[index].Owner)?.Name
-#endif
-            };
+            _networkNodes[index] = GetNetworkNodeFrom(nodes[index]);
         }
 
         ____jobHandle = new GetNextConnectedNodesJob()
@@ -100,10 +100,11 @@ public static class ConnectionGraphPatches
             BestPath = Settings.BestPath.Value,
             Nodes = ____nodes,
             StartIndex = sourceNodeIndex,
+            PrevIndices = ____previousIndices,
             // Custom: Extra data
             BodyInfos = _bodyInfos,
             NetworkNodes = _networkNodes,
-            PrevIndices = ____previousIndices
+            DebugPositions = debugPositions
         }.Schedule<GetNextConnectedNodesJob>();
         ____isRunning = true;
         ____prevSourceIndex = sourceNodeIndex;
@@ -111,12 +112,14 @@ public static class ConnectionGraphPatches
         return false;
     }
 
-    private static NetworkNodeFlags GetNetworkFlagsFrom(ConnectionGraphNode node)
+    private static NetworkJobNode GetNetworkNodeFrom(ConnectionGraphNode node)
     {
+        var networkJobNode = new NetworkJobNode();
+
         if (!NetworkManager.Instance.Nodes.TryGetValue(node.Owner, out var networkNode))
         {
             Logger.LogWarning($"Network node not found for {node.Owner}");
-            return NetworkNodeFlags.None;
+            return networkJobNode;
         }
 
         var flagsFrom = NetworkNodeFlags.None;
@@ -125,7 +128,9 @@ public static class ConnectionGraphPatches
         if (networkNode.HasEnoughResources)
             flagsFrom |= NetworkNodeFlags.HasEnoughResources;
 
-        return flagsFrom;
+        networkJobNode.Flags = flagsFrom;
+        networkJobNode.Name = Settings.EnableProfileLogs.Value ? networkNode.DebugVesselName : string.Empty;
+        return networkJobNode;
     }
 
     /// <summary>
@@ -147,7 +152,7 @@ public static class ConnectionGraphPatches
             var body = celestialBodies[i];
             bodyInfos[i] = new CommNextBodyInfo
             {
-                position = sourceTransform.celestialFrame.ToLocalPosition(body.Position),
+                position = sourceTransform.celestialFrame.ToLocalPosition(body.transform.Position),
                 radius = body.radius,
                 name = body.bodyName
             };

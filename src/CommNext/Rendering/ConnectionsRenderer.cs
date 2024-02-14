@@ -3,6 +3,7 @@ using System.Reflection;
 using BepInEx.Logging;
 using CommNext.Managers;
 using CommNext.Network;
+using CommNext.Patches;
 using CommNext.Rendering.Behaviors;
 using CommNext.Unity.Runtime;
 using KSP.Game;
@@ -20,6 +21,7 @@ public class ConnectionsRenderer : MonoBehaviour
         BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionsRenderer");
 
     public static GameObject RulerSpherePrefab = null!;
+    public static GameObject TestSpherePrefab = null!;
 
     public static ConnectionsRenderer Instance { get; private set; } = null!;
 
@@ -28,6 +30,9 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
+
+    private GameObject _debugPositionsObject = null!;
+    private GameObject _debugPositionsBodyObject = null!;
 
     private IEnumerator? _updateTask;
 
@@ -155,6 +160,51 @@ public class ConnectionsRenderer : MonoBehaviour
         if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
             // Logger.LogError("MapCore not found");
             return;
+
+        var kscItem = AllMapItems.GetValueOrDefault(_mapCore.KSCGUID);
+        var deltaPos = new Vector3(1f, 0f, 0f);
+
+        if (_debugPositionsObject == null)
+        {
+            _debugPositionsObject = new GameObject();
+            _debugPositionsObject.name = "DebugPositions";
+            _debugPositionsObject.transform.SetParent(kscItem.transform);
+            _debugPositionsObject.layer = LayerMask.NameToLayer("Map");
+            _debugPositionsObject.transform.localPosition = Vector3.zero;
+            var lineRenderer = _debugPositionsObject.AddComponent<LineRenderer>();
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.magenta;
+            lineRenderer.startWidth = 0.03f;
+            lineRenderer.endWidth = 0.03f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.useWorldSpace = false;
+
+            _debugPositionsBodyObject = Instantiate(TestSpherePrefab, kscItem.transform);
+            _debugPositionsBodyObject.name = "DebugPositionsBody";
+            // _debugPositionsBodyObject.transform.SetParent(_mapCore.map3D.transform);
+            _debugPositionsBodyObject.layer = LayerMask.NameToLayer("Map");
+        }
+
+        var commNetOrigin = GameManager.Instance.Game.UniverseModel.FindCommNetOrigin();
+        var scaleInvFactor = 1_000_000f;
+
+        var source = ConnectionGraphPatches.debugPositions[0] / scaleInvFactor; // / GetMap3dScaleInv();
+        var target = ConnectionGraphPatches.debugPositions[1] / scaleInvFactor; // / GetMap3dScaleInv();
+        var body = ConnectionGraphPatches.debugPositions[2] / scaleInvFactor; // / GetMap3dScaleInv();
+
+        _debugPositionsObject.GetComponent<LineRenderer>().SetPositions(new[]
+        {
+            new Vector3((float)target.x, (float)target.y, (float)target.z),
+            new Vector3((float)source.x, (float)source.y, (float)source.z)
+        });
+
+
+        _debugPositionsBodyObject.transform.localPosition =
+            new Vector3((float)body.x, (float)body.y, (float)body.z);
+        _debugPositionsBodyObject.transform.localScale = new Vector3((float)(500000 / scaleInvFactor),
+            (float)(500000 / scaleInvFactor), (float)(500000 / scaleInvFactor));
+
 
         HashSet<(int, int)>? activeVesselPath = null;
 
