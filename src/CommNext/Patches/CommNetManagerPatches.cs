@@ -1,4 +1,5 @@
 ﻿using AwesomeTechnologies;
+using CommNext.Network;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Sim;
@@ -14,15 +15,15 @@ public static class CommNetManagerPatches
         return universeModel.FindSimObjectByNameKey(KerbinCommNetOriginName);
     }
 
-    // This is the time in seconds that the CommNetManager will wait
-    // before rebuilding the graph.
-    private const float RebuildGraphTimerSeconds = 0.2f;
-
     private const string KerbinCommNetOriginName = "kerbin_CommNetOrigin";
     private const string KerbinSpaceCenterName = "kerbin_KSC_Object";
     public const int KSCMaxRange = 2_000_000_000; // 2Gm
 
-    [HarmonyPatch(typeof(CommNetManager), "SetSourceNode", [typeof(ConnectionGraphNode)])]
+    /// <summary>
+    /// Fix KSCommNetOrigin position and max range. We place it right on KSC, with
+    /// a max range of 2Gm.
+    /// </summary>
+    [HarmonyPatch(typeof(CommNetManager), nameof(CommNetManager.SetSourceNode), [typeof(ConnectionGraphNode)])]
     [HarmonyPostfix]
     // ReSharper disable once InconsistentNaming
     public static void SetSourceNode(CommNetManager __instance, ref ConnectionGraphNode newSourceNode)
@@ -41,12 +42,33 @@ public static class CommNetManagerPatches
         newSourceNode.MaxRange = KSCMaxRange;
     }
 
-    [HarmonyPatch(typeof(CommNetManager), "OnUpdate")]
-    [HarmonyPostfix]
+    /// <summary>
+    /// We are skipping original `OnUpdate`, in favour of our `OnLateUpdate`.
+    /// See `NetworkManager.OnLateUpdate` for more info.
+    /// </summary>
+    [HarmonyPatch(typeof(CommNetManager), nameof(CommNetManager.OnUpdate))]
+    [HarmonyPrefix]
     // ReSharper disable InconsistentNaming
-    public static void OnUpdateShortenTime(CommNetManager __instance, ref float ____timerRemaining)
+    public static bool OnUpdateSkip(CommNetManager __instance)
     {
-        if (____timerRemaining > RebuildGraphTimerSeconds)
-            ____timerRemaining = RebuildGraphTimerSeconds;
+        return false;
+    }
+
+    /// <summary>
+    /// We want to keep in sync CommNetManager lifetime with our NetworkManager.
+    /// </summary>
+    /// <param name="__instance">Initialized CommNetManager</param>
+    [HarmonyPatch(typeof(CommNetManager), nameof(CommNetManager.Initialize))]
+    [HarmonyPostfix]
+    public static void Initialize(CommNetManager __instance)
+    {
+        NetworkManager.Instance.Initialize(__instance);
+    }
+
+    [HarmonyPatch(typeof(CommNetManager), nameof(CommNetManager.Shutdown))]
+    [HarmonyPostfix]
+    public static void Shutdown(CommNetManager __instance)
+    {
+        NetworkManager.Instance.Shutdown();
     }
 }
