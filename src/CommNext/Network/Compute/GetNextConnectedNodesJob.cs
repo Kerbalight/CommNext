@@ -10,6 +10,7 @@ using KSP.Networking.MP.Utils;
 using KSP.Sim;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -45,6 +46,9 @@ public struct GetNextConnectedNodesJob : IJob
     public NativeArray<int> PrevIndices;
 
     [WriteOnly]
+    public NativeArray<double> ConnectedNodes;
+
+    [WriteOnly]
     public NativeArray<double3> DebugPositions;
 
     // private static float _controlSourceRadiusModifier = 0.98f;
@@ -60,10 +64,17 @@ public struct GetNextConnectedNodesJob : IJob
         var bodies = BodyInfos.Length;
         var length = Nodes.Length;
 
+        unsafe
+        {
+            UnsafeUtility.MemClear(ConnectedNodes.GetUnsafePtr(), sizeof(double) * length * length);
+        }
+
+
         // We always visit the KSC first and expand the Dijkstra cloud from there.
         // Even if the optimum is based on the nearest relay, we still need to visit nodes
         // in order to compute the best path.
-        var sourceDistances = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+        var sourceDistances =
+            new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
         // We use this to keep track of the best connection
         var optimums = new NativeArray<double>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
@@ -153,9 +164,6 @@ public struct GetNextConnectedNodesJob : IJob
                     ConnectionGraphNodeFlags.None ||
                     processedNodes[targetIndex]) continue;
 
-                // Skip if target has not enough resources
-                if ((NetworkNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
-
                 var distance = math.distancesq(
                     Nodes[sourceIndex].Position,
                     Nodes[targetIndex].Position);
@@ -163,6 +171,15 @@ public struct GetNextConnectedNodesJob : IJob
                 // Skip if distance is greater than source's max range or target's max range
                 if (!(distance < sourceSqRange) ||
                     !(distance < Nodes[targetIndex].MaxRange * Nodes[targetIndex].MaxRange)) continue;
+
+                // -- From here, we can assume that the target is in range of the source.
+
+                // Minus distance (yes i know make this an int, use flags, whatever..)
+                ConnectedNodes[targetIndex * length + sourceIndex] = -distance;
+
+                // Skip if target has not enough resources
+                if ((NetworkNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
+
 
                 // Skip if line intersects a celestial body
                 var sourcePosition = Nodes[sourceIndex].Position;
@@ -222,6 +239,8 @@ public struct GetNextConnectedNodesJob : IJob
                 var optimum = BestPath == Settings.BestPathMode.NearestRelay
                     ? distance
                     : sourceDistance + distance;
+
+                ConnectedNodes[targetIndex * length + sourceIndex] = distance;
 
                 if (!(optimum < optimums[targetIndex])) continue;
 #if DEBUG_LOG_ENABLED

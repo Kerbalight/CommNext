@@ -36,6 +36,28 @@ public static class ConnectionGraphPatches
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
     private static NativeArray<NetworkJobNode> _networkNodes;
 
+    /// <summary>
+    /// We want to store the connections between nodes, so we can use an
+    /// array of doubles; this is a multi-dimensional array, represented
+    /// with (i * N) + j, where N is the number of nodes.
+    /// 
+    /// This is needed to pass the connections to the Job and avoid
+    /// allocating memory every time.
+    ///
+    /// Right now size is not an issue, since KSP2 by itself doesn't allow
+    /// for a lot of background vessels. Even with 1.000 vessels, we're
+    /// talking about 1.000.000 doubles, which is 8MB.
+    ///
+    /// In the future, if this is not sustainable, we can use two
+    /// NativeArray, one of doubles (the distances) and one of ints (the
+    /// nodes indices), with a fixed size (e.g. the first 100 connections),
+    /// so that this could be linear in the number of nodes, or just
+    /// use `NativeParallelMultiHashMap`
+    /// </summary>
+    private static NativeArray<double> _connectedNodes;
+
+    public static NativeArray<double> ConnectedNodes => _connectedNodes;
+
 #if DEBUG_MAP_POSITIONS
     public static NativeArray<double3> debugPositions;
 #endif
@@ -78,6 +100,9 @@ public static class ConnectionGraphPatches
             // Custom: resizing our custom array
             if (_networkNodes.IsCreated) _networkNodes.Dispose();
             _networkNodes = new NativeArray<NetworkJobNode>(____allNodeCount, Allocator.Persistent);
+
+            if (_connectedNodes.IsCreated) _connectedNodes.Dispose();
+            _connectedNodes = new NativeArray<double>(____allNodeCount * ____allNodeCount, Allocator.Persistent);
         }
 
         // Custom: We assume Bodies count never changes.
@@ -112,6 +137,7 @@ public static class ConnectionGraphPatches
             // Custom: Extra data
             BodyInfos = _bodyInfos,
             NetworkNodes = _networkNodes,
+            ConnectedNodes = _connectedNodes
 #if DEBUG_MAP_POSITIONS
             DebugPositions = debugPositions
 #endif

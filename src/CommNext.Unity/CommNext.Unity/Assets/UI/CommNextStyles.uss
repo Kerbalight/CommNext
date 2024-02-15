@@ -5,7 +5,61 @@
     --purple-4: rgb(83, 86, 204);
     --purple-5: rgb(68, 70, 166);
     --purple-6: rgb(53, 55, 128);
+    --red: rgb(255, 91, 72);
+    --dark-red: rgb(133, 13, 0);
+    --orange: rgb(231, 111, 84);
+    --yellow: rgb(231, 202, 118);
+    --background-lightgray-4: rgb(122, 133, 153);
+    --blue-3-translucent: rgba(105, 109, 255, 0.5);
+    --blue-5-translucent: rgba(83, 86, 204, 0.5);
+    --lightgray-2: rgb(132, 140, 157);
+    --lightgray-3: rgb(85, 88, 102);
+    --gray-1: rgb(71, 74, 86);
+    --gray-2: rgb(46, 53, 64);
+    --gray-3: rgb(46, 53, 64);
+    --gray-4: rgb(33, 38, 46);
+    --gray-5: rgb(29, 32, 41);
+    --gray-6: rgb(25, 31, 37);
+    --gray-7: rgb(25, 28, 34);
+    --input-bg: var(--gray-7);
+    --button-bg: var(--gray-6);
+    --blue-1: rgb(134, 144, 255);
+    --blue-3: rgb(105, 109, 255);
+    --blue-4: rgb(92, 96, 222);
+    --blue-5: rgb(83, 86, 204);
+    --darkblue-3: rgb(0, 22, 50);
+    --hover-bg: var(--darkblue-3);
+    --darkblue-4: rgb(13, 13, 22);
+    --led-green: rgb(0, 255, 102);
+    --text-color: rgb(192, 199, 213);
 }
+
+#close-button {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url('project://database/Assets/Images/ICO-Close-med.png?fileID=21300000&guid=8b200b055c776ea4aac4c129975de712&type=3#ICO-Close-med');
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    max-height: 12px;
+    max-width: 12px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    margin-right: 4px;
+    -unity-background-image-tint-color: var(--background-lightgray-4);
+}
+
+/** ==== Toolbar ==== **/
 
 .toolbar {
     background-color: var(--black);
@@ -72,4 +126,53 @@
 
 .toolbar-comm-icon.toggled {
     -unity-background-image-tint-color: rgb(0, 255, 102);
+}
+
+/** ==== App ==== **/
+
+.app-comm-icon {
+    -unity-background-image-tint-color: var(--text-color);
+    flex-grow: 0;
+    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
+    -unity-background-scale-mode: scale-to-fit;
+    flex-shrink: 0;
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/** ==== Common ==== **/
+
+.vertical-separator {
+    background-image: url('project://database/Assets/Images/VerticalSep.png?fileID=21300000&guid=d820e38cb74e70a4780e43a9419ef4c0&type=3#VerticalSep');
+    background-repeat: repeat-y;
+    background-size: contain;
+    -unity-background-image-tint-color: var(--gray-1);
+    margin-left: 8px;
+    margin-right: 8px;
+    width: 2px;
+    flex-grow: 0;
+}
+
+/** ==== Container ==== **/
+
+.row__spacer {
+    padding: 4px 4px 2px 2px;
+}
+
+.row__container {
+    background-color: var(--gray-3);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.relay__icon {
+    -unity-background-image-tint-color: var(--text-color);
+    flex-grow: 0;
+    background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
+    -unity-background-scale-mode: scale-to-fit;
+    flex-shrink: 0;
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
 }

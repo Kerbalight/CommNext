@@ -38,6 +38,11 @@ public class MapToolbarWindowController : MonoBehaviour
     private VisualElement _root = null!;
     private Button _linesButton = null!;
     private Button _rulersButton = null!;
+    private Button _vesselReportButton = null!;
+    public VisualElement Root => _root;
+
+    public float Width => _root.resolvedStyle.width;
+    public float Height => _root.resolvedStyle.height;
 
     private bool _isWindowOpen;
 
@@ -99,6 +104,18 @@ public class MapToolbarWindowController : MonoBehaviour
         {
             ConnectionsRenderer.Instance.IsRulersEnabled = !ConnectionsRenderer.Instance.IsRulersEnabled;
             UpdateButtonState();
+        };
+
+        _vesselReportButton = _root.Q<Button>("vessel-report-button");
+        _vesselReportButton.clicked += () =>
+        {
+            if (!GameManager.Instance.Game.ViewController.TryGetActiveSimVessel(out var vessel))
+            {
+                Logger.LogWarning("No active vessel found");
+                return;
+            }
+
+            MainUIManager.Instance.VesselReportWindow!.OpenForVessel(vessel);
         };
 
         IsWindowOpen = false;

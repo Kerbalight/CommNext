@@ -140,7 +140,8 @@ public class ConnectionsRenderer : MonoBehaviour
         if (!MessageListener.IsInMapView ||
             !NetworkManager.Instance.TryGetConnectionGraphNodesAndIndexes(
                 out var nodes,
-                out var prevIndexes) ||
+                out var prevIndexes,
+                out var connectedNodes) ||
             nodes == null) return;
 
         try

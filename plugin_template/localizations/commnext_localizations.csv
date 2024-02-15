@@ -2,3 +2,4 @@ Key,Type,Desc,English,Italian,German,French,Spanish,Japanese,Korean,Polish,Russi
 PartModules/NextRelay/Band,Text,,Band,Banda,,,,,,,,频段,,
 PartModules/NextRelay/Name,Text,,Signal Relay,Ripetitore di Segnale,,,,,,,,信号中继,,
 PartModules/NextRelay/RelayDescription,Text,,This antenna behaves as a relay,,,,,,,,,这款天线能够中继信号,,
+CommNext/UI/ConnectionDetails,Text,,Distance: {meters},Distanza: {meters},Entfernung: {meters},Distance: {meters},Distancia: {meters},距离：{meters},거리: {meters},Odległość: {meters},Расстояние: {meters},距離：{meters},距離：{meters}

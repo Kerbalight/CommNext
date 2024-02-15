@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
+    <ui:VisualElement name="root" class="root" style="flex-grow: 1; width: 400px; height: 400px;">
+        <ui:VisualElement name="toolbar" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center; justify-content: space-between;">
+            <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center;">
+                <ui:VisualElement class="app-comm-icon" style="flex-direction: row;" />
+                <ui:Label tabindex="-1" text="Vessel Name" display-tooltip-when-elided="true" name="name-label" style="margin-left: 2px;" />
+            </ui:VisualElement>
+            <ui:Button display-tooltip-when-elided="true" name="close-button" enable-rich-text="true" />
+        </ui:VisualElement>
+        <ui:ScrollView scroll-deceleration-rate="0,135" elasticity="0,1" name="connections-list" />
+    </ui:VisualElement>
+</ui:UXML>

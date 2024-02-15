@@ -1,9 +1,11 @@
 ﻿using CommNext.Managers;
+using CommNext.Patches;
 using KSP.Game;
 using KSP.Messages;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using KSP.Sim.impl;
+using Unity.Collections;
 using UnityEngine;
 
 namespace CommNext.Network;
@@ -121,13 +123,18 @@ public class NetworkManager : ILateUpdate
     /// Returns the results of the latest built graph, made by the
     /// `ConnectionGraph` job.
     /// </summary>
-    public bool TryGetConnectionGraphNodesAndIndexes(out List<ConnectionGraphNode>? nodes, out int[] prevIndexes)
+    public bool TryGetConnectionGraphNodesAndIndexes(
+        out List<ConnectionGraphNode>? nodes,
+        out int[] prevIndexes,
+        out NativeArray<double>? connectedNodes)
     {
         var connectionGraph = _commNetManager?._connectionGraph;
-        if (connectionGraph == null || connectionGraph.IsRunning)
+        if (connectionGraph == null || connectionGraph.IsRunning ||
+            ConnectionGraphPatches.ConnectedNodes is not { IsCreated: true })
         {
             nodes = null;
             prevIndexes = Array.Empty<int>();
+            connectedNodes = null;
             return false;
         }
 
@@ -138,7 +145,56 @@ public class NetworkManager : ILateUpdate
             ? Array.Empty<int>()
             : prevIndexesNative.ToArray<int>();
 
+        connectedNodes = ConnectionGraphPatches.ConnectedNodes;
+
         return true;
+    }
+
+    public List<NetworkConnection> GetNodeConnections(NetworkNode networkNode)
+    {
+        var connections = new List<NetworkConnection>();
+        var connectedNodes = ConnectionGraphPatches.ConnectedNodes;
+        var allNodes = _commNetManager!._connectionGraph._allNodes;
+        var length = allNodes.Count;
+
+        var nodeIndex = -1;
+        for (var index = 0; index < length; index++)
+        {
+            if (allNodes[index].Owner != networkNode.Owner) continue;
+            nodeIndex = index;
+            break;
+        }
+
+        for (var i = 0; i < length; i++)
+        {
+            var sourceDistance = connectedNodes[i * length + nodeIndex];
+            if (sourceDistance != 0)
+            {
+                var targetNode = allNodes[i];
+                var targetNetworkNode = Nodes[targetNode.Owner];
+                connections.Add(
+                    new NetworkConnection(
+                        networkNode, targetNetworkNode,
+                        allNodes[nodeIndex], targetNode,
+                        sourceDistance
+                    ));
+            }
+
+            var targetDistance = connectedNodes[nodeIndex * length + i];
+            if (targetDistance != 0)
+            {
+                var sourceNode = allNodes[i];
+                var sourceNetworkNode = Nodes[sourceNode.Owner];
+                connections.Add(
+                    new NetworkConnection(
+                        sourceNetworkNode, networkNode,
+                        sourceNode, allNodes[nodeIndex],
+                        targetDistance
+                    ));
+            }
+        }
+
+        return connections;
     }
 
     /// <summary>
