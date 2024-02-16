@@ -34,6 +34,7 @@ public static class ConnectionGraphPatches
     // Since we have only one `ConnectionGraph` instance, we store
     // the additional infos here.
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
+
     private static NativeArray<NetworkJobNode> _networkNodes;
 
     /// <summary>
@@ -54,9 +55,9 @@ public static class ConnectionGraphPatches
     /// so that this could be linear in the number of nodes, or just
     /// use `NativeParallelMultiHashMap`
     /// </summary>
-    private static NativeArray<double> _connectedNodes;
+    private static NativeArray<NetworkJobConnection> _connections;
 
-    public static NativeArray<double> ConnectedNodes => _connectedNodes;
+    public static NativeArray<NetworkJobConnection> Connections => _connections;
 
 #if DEBUG_MAP_POSITIONS
     public static NativeArray<double3> debugPositions;
@@ -101,8 +102,9 @@ public static class ConnectionGraphPatches
             if (_networkNodes.IsCreated) _networkNodes.Dispose();
             _networkNodes = new NativeArray<NetworkJobNode>(____allNodeCount, Allocator.Persistent);
 
-            if (_connectedNodes.IsCreated) _connectedNodes.Dispose();
-            _connectedNodes = new NativeArray<double>(____allNodeCount * ____allNodeCount, Allocator.Persistent);
+            if (_connections.IsCreated) _connections.Dispose();
+            _connections =
+                new NativeArray<NetworkJobConnection>(____allNodeCount * ____allNodeCount, Allocator.Persistent);
         }
 
         // Custom: We assume Bodies count never changes.
@@ -137,7 +139,7 @@ public static class ConnectionGraphPatches
             // Custom: Extra data
             BodyInfos = _bodyInfos,
             NetworkNodes = _networkNodes,
-            ConnectedNodes = _connectedNodes
+            Connections = _connections
 #if DEBUG_MAP_POSITIONS
             DebugPositions = debugPositions
 #endif

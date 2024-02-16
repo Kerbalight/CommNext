@@ -2,8 +2,10 @@
 using CommNext.Network;
 using CommNext.Rendering;
 using CommNext.UI.Components;
+using CommNext.UI.Logic;
 using CommNext.UI.Screen;
 using CommNext.UI.Utils;
+using CommNext.Unity.Runtime.Controls;
 using KSP.Sim.impl;
 using UitkForKsp2.API;
 using UnityEngine;
@@ -35,13 +37,17 @@ public class VesselReportWindowController : MonoBehaviour
     private VisualElement _root = null!;
     private Label _nameLabel = null!;
     private ScrollView _connectionsList = null!;
+    private DropdownField _filterDropdown = null!;
+    private DropdownField _sortDropdown = null!;
+    private SortDirectionButton _sortDirectionButton = null!;
+    private ConnectionsQuery _query = new();
 
     private bool _isWindowOpen;
 
     private VesselComponent? _vessel;
 
     // Refresh
-    private const float RefreshRate = 1f; // 1 second
+    private const float RefreshRate = 0.2f; // 0.2 second
     private float _lastRefresh = 0f;
 
     public bool IsWindowOpen
@@ -95,6 +101,12 @@ public class VesselReportWindowController : MonoBehaviour
         // Content
         _nameLabel = _root.Q<Label>("name-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
+        _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
+        _sortDropdown = _root.Q<DropdownField>("sort-dropdown");
+        _sortDirectionButton = _root.Q<SortDirectionButton>("sort-direction-button");
+        _query.BindFilter(_filterDropdown);
+        _query.BindSort(_sortDropdown);
+        _query.BindDirection(_sortDirectionButton);
 
         // Get the close button from the window
         var closeButton = _root.Q<Button>("close-button");
@@ -107,10 +119,17 @@ public class VesselReportWindowController : MonoBehaviour
     {
         if (_vessel == null) return;
 
-        var networkNode = NetworkManager.Instance.Nodes[_vessel.GlobalId];
+        if (!NetworkManager.Instance.Nodes.TryGetValue(_vessel.GlobalId, out var networkNode))
+        {
+            Logger.LogInfo("Vessel has no network node, closing window.");
+            IsWindowOpen = false;
+            return;
+        }
+
         _nameLabel.text = _vessel!.Name;
 
-        var connections = NetworkManager.Instance.GetNodeConnections(networkNode);
+        var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
+        _query.ApplySort(networkNode, connections);
         var connectionElements = _connectionsList.Children().ToList();
 
         // Some basic pooling

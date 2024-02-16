@@ -1,4 +1,5 @@
 ﻿using CommNext.Managers;
+using CommNext.Network.Compute;
 using CommNext.Patches;
 using KSP.Game;
 using KSP.Messages;
@@ -126,15 +127,15 @@ public class NetworkManager : ILateUpdate
     public bool TryGetConnectionGraphNodesAndIndexes(
         out List<ConnectionGraphNode>? nodes,
         out int[] prevIndexes,
-        out NativeArray<double>? connectedNodes)
+        out NativeArray<NetworkJobConnection>? connections)
     {
         var connectionGraph = _commNetManager?._connectionGraph;
         if (connectionGraph == null || connectionGraph.IsRunning ||
-            ConnectionGraphPatches.ConnectedNodes is not { IsCreated: true })
+            ConnectionGraphPatches.Connections is not { IsCreated: true })
         {
             nodes = null;
             prevIndexes = Array.Empty<int>();
-            connectedNodes = null;
+            connections = null;
             return false;
         }
 
@@ -145,16 +146,28 @@ public class NetworkManager : ILateUpdate
             ? Array.Empty<int>()
             : prevIndexesNative.ToArray<int>();
 
-        connectedNodes = ConnectionGraphPatches.ConnectedNodes;
+        // TODO Maybe we should return a copy of the connections array?
+        connections = ConnectionGraphPatches.Connections;
 
         return true;
     }
 
-    public List<NetworkConnection> GetNodeConnections(NetworkNode networkNode)
+    /// <summary>
+    /// Returns the connections of the given network node.
+    /// Connections are all the _possible_ lines in _range_ between the
+    /// network node and the other nodes.
+    ///
+    /// Given that, the connection may still be occluded by the bodies
+    /// or without enough power to be established.
+    /// </summary>
+    public List<NetworkConnection> GetNodeConnections(
+        NetworkNode networkNode,
+        VesselNodesFilter nodesFilter = VesselNodesFilter.InRange)
     {
         var connections = new List<NetworkConnection>();
-        var connectedNodes = ConnectionGraphPatches.ConnectedNodes;
+        var jobConnections = ConnectionGraphPatches.Connections;
         var allNodes = _commNetManager!._connectionGraph._allNodes;
+        var previousIndices = _commNetManager!._connectionGraph._previousIndices;
         var length = allNodes.Count;
 
         var nodeIndex = -1;
@@ -167,8 +180,20 @@ public class NetworkManager : ILateUpdate
 
         for (var i = 0; i < length; i++)
         {
-            var sourceDistance = connectedNodes[i * length + nodeIndex];
-            if (sourceDistance != 0)
+            var outboundConnection = jobConnections[i * length + nodeIndex];
+            var inboundConnection = jobConnections[nodeIndex * length + i];
+            var isConnected = outboundConnection.IsConnected || inboundConnection.IsConnected;
+
+            var shouldAdd = nodesFilter switch
+            {
+                VesselNodesFilter.All => true,
+                VesselNodesFilter.InRange => outboundConnection.IsInRange || inboundConnection.IsInRange,
+                VesselNodesFilter.Connected => isConnected,
+                _ => false
+            };
+
+            var shouldAddOutbound = isConnected ? outboundConnection.IsConnected : false;
+            if (shouldAdd && shouldAddOutbound)
             {
                 var targetNode = allNodes[i];
                 var targetNetworkNode = Nodes[targetNode.Owner];
@@ -176,12 +201,13 @@ public class NetworkManager : ILateUpdate
                     new NetworkConnection(
                         networkNode, targetNetworkNode,
                         allNodes[nodeIndex], targetNode,
-                        sourceDistance
+                        outboundConnection,
+                        previousIndices[i] == nodeIndex
                     ));
             }
 
-            var targetDistance = connectedNodes[nodeIndex * length + i];
-            if (targetDistance != 0)
+            var shouldAddInbound = isConnected ? inboundConnection.IsConnected : true;
+            if (shouldAdd && shouldAddInbound)
             {
                 var sourceNode = allNodes[i];
                 var sourceNetworkNode = Nodes[sourceNode.Owner];
@@ -189,7 +215,8 @@ public class NetworkManager : ILateUpdate
                     new NetworkConnection(
                         sourceNetworkNode, networkNode,
                         sourceNode, allNodes[nodeIndex],
-                        targetDistance
+                        inboundConnection,
+                        previousIndices[nodeIndex] == i
                     ));
             }
         }

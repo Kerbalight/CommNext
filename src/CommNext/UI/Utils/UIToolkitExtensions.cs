@@ -72,4 +72,33 @@ public static class UIToolkitExtensions
                 inputAction.Enable();
         }
     }
+
+    /// <summary>
+    /// Toggles between the classes provided, based on the toggle value.
+    /// </summary>
+    public static void ToggleClassesIf(this VisualElement element, bool toggle,
+        IEnumerable<string> classesIf,
+        IEnumerable<string> classesOtherwise
+    )
+    {
+        foreach (var name in classesOtherwise)
+            if (toggle)
+                element.RemoveFromClassList(name);
+            else
+                element.AddToClassList(name);
+
+        foreach (var name in classesIf)
+            if (toggle)
+                element.AddToClassList(name);
+            else
+                element.RemoveFromClassList(name);
+    }
+
+    /// <summary>
+    /// Creates a colored string for UI.
+    /// </summary>
+    public static string UIColored(this string text, string color)
+    {
+        return $"<color={color}>{text}</color>";
+    }
 }

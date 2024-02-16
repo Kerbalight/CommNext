@@ -2,4 +2,25 @@ Key,Type,Desc,English,Italian,German,French,Spanish,Japanese,Korean,Polish,Russi
 PartModules/NextRelay/Band,Text,,Band,Banda,,,,,,,,频段,,
 PartModules/NextRelay/Name,Text,,Signal Relay,Ripetitore di Segnale,,,,,,,,信号中继,,
 PartModules/NextRelay/RelayDescription,Text,,This antenna behaves as a relay,,,,,,,,,这款天线能够中继信号,,
-CommNext/UI/ConnectionDetails,Text,,Distance: {meters},Distanza: {meters},Entfernung: {meters},Distance: {meters},Distancia: {meters},距离：{meters},거리: {meters},Odległość: {meters},Расстояние: {meters},距離：{meters},距離：{meters}
+CommNext/UI/DistanceLabel,Text,,Distance {0},Distanza {0},Entfernung {0},Distance {0},Distancia {0},距离 {0},거리 {0},Odległość {0},Расстояние {0},距离 {0},Distância {0},距离 {0}
+CommNext/UI/Powered,Text,,Powered,Alimentato,Betrieben,Alimenté,Alimentado,供电,전원 공급됨,Zasilany,Питание,供电,Alimentado,供电
+CommNext/UI/SignalStrength,Text,,Signal Strength,Intensità del Segnale,Signalstärke,Force du Signal,Potencia de la Señal,信号强度,신호 세기,Siła Sygnału,Уровень сигнала,信号强度,Força do Sinal,信号强度
+CommNext/UI/SignalStrengthLow,Text,,Low,Basso,Niedrig,Bas,Bajo,低,낮음,Niski,Низкий,低,Baixo,低
+CommNext/UI/SignalStrengthHigh,Text,,High,Alto,Hoch,Haut,Alto,高,높음,Wysoki,Высокий,高,Alto,高
+CommNext/UI/SignalStrengthNone,Text,,None,Nessuno,Keiner,Aucun,Ninguno,无,없음,Brak,Нет,无,Nenhum,无
+CommNext/UI/Yes,Text,,Yes,Sì,Ja,Oui,Sí,是,예,Tak,Да,是,Sim,是
+CommNext/UI/No,Text,,No,No,Nein,Non,No,否,아니요,Nie,Нет,否,Não,否
+CommNext/UI/Relay,Text,,Relay,Ripetitore,Relais,Relais,Relé,中继,릴레이,Przekaźnik,Реле,中继,Relé,中继
+CommNext/UI/Occluded,Text,,Occluded,Occluso,Verdeckt,Occulté,Oculto,遮挡,가려짐,Zasłonięty,Скрыто,遮挡,Oculto,遮挡
+CommNext/UI/OccludedBy,Text,,Occluded by {0},Occluso da {0},Verdeckt durch {0},Occulté par {0},Oculto por {0},被{0}遮挡,가려짐: {0},Zasłonięty przez {0},Скрыто {0},被{0}遮挡,Oculto por {0},被{0}遮挡
+CommNext/UI/ConnectionInbound,Text,,Inbound,In entrata,Eingehend,Entrant,Entrante,入站,입방향,Przychodzące,Входящий,入站,Entrada,入站
+CommNext/UI/ConnectionOutbound,Text,,Outbound,In uscita,Ausgehend,Sortant,Saliente,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
+CommNext/UI/In,Text,In (direction),In,In,In,In,In,入站,입방향,Przychodzące,Входящий,入站,Entrada,入站
+CommNext/UI/Out,Text,Out (direction),Out,Out,Out,Out,Out,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
+CommNext/UI/FilterConnected,Text,Filter only connected vessels,Connected,Connesse,Verbunden,Connecté,Conectado,已连接,연결된,Podłączone,Подключенные,已连接,Conectado,已连接
+CommNext/UI/FilterInRange,Text,Filter only in range vessels,In Range,Nel Raggio,Im Bereich,À Portée,En Rango,在范围内,범위 내,Zasięg,В радиусе,在范围内,Alcance,在范围内
+CommNext/UI/FilterAll,Text,Filter all vessels,All,Tutti,Alle,Tous,Todos,全部,모두,Wszystkie,Все,全部,Todos,全部
+CommNext/UI/SortByDistance,Text,Sort by distance,Distance,Distanza,Entfernung,Distance,Distancia,距离,거리,Odległość,Расстояние,距离,Distância,距离
+CommNext/UI/SortByBand,Text,Sort by band,Band,Banda,Band,Bande,Banda,频段,대역,Przepustka,Диапазон,频段,Banda,频段
+CommNext/UI/SortBySignalStrength,Text,Sort by signal strength,Signal Strength,Intensità del Segnale,Signalstärke,Force du Signal,Potencia de la Señal,信号强度,신호 세기,Siła Sygnału,Уровень сигнала,信号强度,Força do Sinal,信号强度
+CommNext/UI/SortByName,Text,Sort by vessel name,Name,Nome,Name,Nom,Nombre,名称,Nazwa,Имя,名称,Nome,名称,名称

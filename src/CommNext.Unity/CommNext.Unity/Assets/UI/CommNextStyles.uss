@@ -32,6 +32,8 @@
     --darkblue-4: rgb(13, 13, 22);
     --led-green: rgb(0, 255, 102);
     --text-color: rgb(192, 199, 213);
+    --inbound: rgb(108, 140, 255);
+    --outbound: rgb(181, 88, 220);
 }
 
 #close-button {
@@ -58,8 +60,6 @@
     margin-right: 4px;
     -unity-background-image-tint-color: var(--background-lightgray-4);
 }
-
-/** ==== Toolbar ==== **/
 
 .toolbar {
     background-color: var(--black);
@@ -128,8 +128,6 @@
     -unity-background-image-tint-color: rgb(0, 255, 102);
 }
 
-/** ==== App ==== **/
-
 .app-comm-icon {
     -unity-background-image-tint-color: var(--text-color);
     flex-grow: 0;
@@ -141,10 +139,8 @@
     height: 16px;
 }
 
-/** ==== Common ==== **/
-
 .vertical-separator {
-    background-image: url('project://database/Assets/Images/VerticalSep.png?fileID=21300000&guid=d820e38cb74e70a4780e43a9419ef4c0&type=3#VerticalSep');
+    background-image: url('project://database/Assets/Images/VerticalSep.png?fileID=21300000&guid=e91918924d828b64e86311613dd09ccd&type=3#VerticalSep');
     background-repeat: repeat-y;
     background-size: contain;
     -unity-background-image-tint-color: var(--gray-1);
@@ -154,8 +150,6 @@
     flex-grow: 0;
 }
 
-/** ==== Container ==== **/
-
 .row__spacer {
     padding: 4px 4px 2px 2px;
 }
@@ -164,6 +158,20 @@
     background-color: var(--gray-3);
     padding: 8px;
     border-radius: 8px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.icon__small {
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: var(--text-color);
 }
 
 .relay__icon {
@@ -175,4 +183,196 @@
     background-size: 16px 16px;
     width: 16px;
     height: 16px;
+}
+
+.icon--inbound {
+    rotate: 180deg;
+}
+
+.icon--outbound {
+    rotate: 0;
+}
+
+.icon--no-power {
+    -unity-background-image-tint-color: var(--red);
+}
+
+.direction__tag {
+    flex-grow: 0;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.direction__tag--outbound {
+    color: var(--outbound);
+}
+
+.direction__tag--outbound .unity-label {
+    color: var(--outbound);
+}
+
+.direction__tag--outbound #direction-icon {
+    rotate: 0;
+    -unity-background-image-tint-color: var(--outbound);
+}
+
+.direction__tag--inbound {
+    color: var(--inbound);
+}
+
+.direction__tag--inbound .unity-label {
+    color: var(--inbound);
+}
+
+.direction__tag--inbound #direction-icon {
+    rotate: 180deg;
+    -unity-background-image-tint-color: var(--inbound);
+}
+
+.signal_strength {
+    width: 16px;
+    height: 16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.signal-strength__background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-image: url('project://database/Assets/Images/SignalStrengthBg.png?fileID=21300000&guid=e33496f3b460e394f84e116dcf9a4203&type=3#SignalStrengthBg');
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.13);
+}
+
+.signal-strength__signal {
+}
+
+.signal-strength__signal--full {
+    background-image: url('project://database/Assets/Images/SignalStrength4.png?fileID=21300000&guid=197f31b442449ec48b358768139badca&type=3#SignalStrength4');
+    -unity-background-image-tint-color: rgb(0, 226, 78);
+}
+
+.signal-strength__signal--strong {
+    background-image: url('project://database/Assets/Images/SignalStrength3.png?fileID=21300000&guid=1cbf82601519c5648a362cd167bcc519&type=3#SignalStrength3');
+    -unity-background-image-tint-color: rgb(89, 226, 0);
+}
+
+.signal-strength__signal--moderate {
+    background-image: url('project://database/Assets/Images/SignalStrength2.png?fileID=21300000&guid=21b3be094d9c0194f9466d0af95c4979&type=3#SignalStrength2');
+    -unity-background-image-tint-color: rgb(226, 203, 0);
+}
+
+.signal-strength__signal--weak {
+    background-image: url('project://database/Assets/Images/SignalStrength1.png?fileID=21300000&guid=3042d8b4d72c29f4fbb126a674ee0f9a&type=3#SignalStrength1');
+    -unity-background-image-tint-color: rgb(226, 53, 0);
+}
+
+.text-field.unity-text-field > .unity-base-text-field__input {
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: var(--lightgray-3);
+}
+
+.text-field.unity-text-field.text-field--inline > .unity-text-field__input {
+    margin-top: 0;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.unity-popup-field.dropdown-field {
+    height: 32px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.unity-popup-field.dropdown-field .unity-base-popup-field__input {
+    border-radius: 6px;
+    border-width: 1px;
+    margin-left: 0;
+    border-color: var(--lightgray-3);
+    color: var(--text-color);
+    padding: 7px;
+}
+
+.unity-popup-field.dropdown-field.dropdown-field--inline .unity-popup-field__label {
+    display: none;
+}
+
+.unity-popup-field.dropdown-field .unity-popup-field__label {
+    width: 80px;
+    min-width: 80px;
+}
+
+.unity-popup-field.dropdown-field:hover .unity-base-popup-field__input {
+    background-color: var(--hover-bg);
+}
+
+.unity-popup-field.dropdown-field:active .unity-base-popup-field__input {
+    background-color: var(--hover-bg);
+}
+
+.unity-popup-field.dropdown-field .unity-base-popup-field__arrow {
+    -unity-background-image-tint-color: var(--lightgray-3);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('project://database/Assets/Images/ArrowIcon.png?fileID=21300000&guid=a3c56fd867749934ca19f280b5589d6d&type=3#ArrowIcon');
+}
+
+.unity-popup-field.dropdown-field .unity-base-popup-field__input > .unity-text-element {
+    -unity-text-align: middle-left;
+    text-overflow: ellipsis;
+}
+
+.unity-base-dropdown__container-outer {
+    width: 260px;
+}
+
+.unity-base-dropdown__container-inner {
+    width: 260px;
+}
+
+.font-mono-label {
+    -unity-font-definition: var(--font-medium);
+}
+
+.font-normal {
+    -unity-font-style: normal;
+}
+
+.font-pixel-title {
+    -unity-font-definition: var(--font-title-big);
+}
+
+.font-pixel-subtitle {
+    -unity-font-definition: var(--font-title-small);
+}
+
+.button-sort-direction {
+    height: 32px;
+    width: 32px;
+    background-size: 16px 16px;
+    background-position: center center;
+    border-width: 1px;
+    border-color: var(--lightgray-3);
+    -unity-background-image-tint-color: var(--text-color);
+    rotate: 0;
+    background-color: var(--input-bg);
+    background-image: url('project://database/Assets/Images/ArrowIcon.png?fileID=21300000&guid=a3c56fd867749934ca19f280b5589d6d&type=3#ArrowIcon');
+}
+
+.button-sort-direction--ascending {
+    rotate: 180deg;
+}
+
+.button-sort-direction--descending {
+    rotate: 0deg;
 }

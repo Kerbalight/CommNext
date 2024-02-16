@@ -1,12 +1,24 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
     <ui:VisualElement class="row__spacer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
-        <ui:VisualElement class="row__container" style="flex-grow: 1; flex-direction: row; align-items: center;">
-            <ui:VisualElement name="icon" class="relay__icon" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);" />
+        <ui:VisualElement class="row__container" style="flex-grow: 1; flex-direction: row; align-items: center; padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px; flex-shrink: 0;">
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);">
+                <ui:VisualElement name="connection-icon" class="relay__icon" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);" />
+            </ui:VisualElement>
             <ui:VisualElement class="vertical-separator" style="flex-grow: 0; height: 100%;" />
-            <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
-                <ui:Label tabindex="-1" text="Relay Name" display-tooltip-when-elided="true" name="name-label" style="font-size: 13px;" />
-                <ui:Label tabindex="-1" text="Distance: &lt;color=#E7CA76&gt;360Gm&lt;/color&gt;" display-tooltip-when-elided="true" name="details-label" style="font-size: 12px; color: rgb(114, 121, 135); padding-top: 2px;" />
+            <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-shrink: 0;">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-start; align-items: center; margin-left: 2px;">
+                        <CommNext.Unity.Runtime.Controls.SignalStrengthIcon strength="Full" name="signal-strength-icon" style="margin-top: 0; justify-content: flex-start; align-self: center; margin-right: 3px; margin-bottom: 2px;" />
+                        <ui:Label tabindex="-1" text="Relay Name" display-tooltip-when-elided="true" name="name-label" style="font-size: 13px;" />
+                        <ui:VisualElement name="power-icon" class="icon__small icon--no-power" style="flex-grow: 0; background-color: rgba(207, 79, 79, 0); background-image: url(&apos;project://database/Assets/Images/PowerIcon.png?fileID=21300000&amp;guid=c50a10f38dd04714b94be75e717f92de&amp;type=3#PowerIcon&apos;); border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; visibility: visible; display: flex;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="direction-tag" class="direction__tag--inbound direction__tag" style="background-color: rgb(36, 41, 51);">
+                        <ui:Label tabindex="-1" text="In" display-tooltip-when-elided="true" name="direction-label" style="padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; font-size: 10px; margin-right: -2px;" />
+                        <ui:VisualElement name="direction-icon" class="icon__small" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Images/ConnectRightIcon.png?fileID=21300000&amp;guid=2ceefa7e3f586bc4b83af51995713511&amp;type=3#ConnectRightIcon&apos;);" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label tabindex="-1" text="Distance: &lt;color=#E7CA76&gt;360Gm&lt;/color&gt;" display-tooltip-when-elided="true" name="details-label" style="font-size: 12px; color: rgb(114, 121, 135); padding-top: 0;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

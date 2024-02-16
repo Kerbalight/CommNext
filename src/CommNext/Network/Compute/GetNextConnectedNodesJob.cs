@@ -46,7 +46,7 @@ public struct GetNextConnectedNodesJob : IJob
     public NativeArray<int> PrevIndices;
 
     [WriteOnly]
-    public NativeArray<double> ConnectedNodes;
+    public NativeArray<NetworkJobConnection> Connections;
 
     [WriteOnly]
     public NativeArray<double3> DebugPositions;
@@ -66,7 +66,8 @@ public struct GetNextConnectedNodesJob : IJob
 
         unsafe
         {
-            UnsafeUtility.MemClear(ConnectedNodes.GetUnsafePtr(), sizeof(double) * length * length);
+            UnsafeUtility.MemClear(Connections.GetUnsafePtr(),
+                sizeof(NetworkJobConnection) * length * length);
         }
 
 
@@ -139,7 +140,7 @@ public struct GetNextConnectedNodesJob : IJob
             // In the future, this check could be excluded to get Isolated Sub-Graphs in
             // the graph.
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (sourceDistance == double.MaxValue) continue;
+            // if (sourceDistance == double.MaxValue) continue;
 
             // Skip if source is inactive
             if ((Nodes[sourceIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
@@ -161,8 +162,7 @@ public struct GetNextConnectedNodesJob : IJob
                 // Skip if source and target are the same, target is inactive, or target has already been processed
                 if (sourceIndex == targetIndex ||
                     (Nodes[targetIndex].Flags & ConnectionGraphNodeFlags.IsActive) ==
-                    ConnectionGraphNodeFlags.None ||
-                    processedNodes[targetIndex]) continue;
+                    ConnectionGraphNodeFlags.None) continue;
 
                 var distance = math.distancesq(
                     Nodes[sourceIndex].Position,
@@ -174,18 +174,23 @@ public struct GetNextConnectedNodesJob : IJob
 
                 // -- From here, we can assume that the target is in range of the source.
 
-                // Minus distance (yes i know make this an int, use flags, whatever..)
-                ConnectedNodes[targetIndex * length + sourceIndex] = -distance;
+                var connectionIndex = targetIndex * length + sourceIndex;
+                Connections[connectionIndex] = Connections[connectionIndex] with { IsInRange = true };
+
+                // We arrived here only to set the ConnectedNodes array, so we can skip the rest.
+                // We already processed the inverse connection.
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (sourceDistance == double.MaxValue) continue;
+                if (processedNodes[targetIndex]) continue;
 
                 // Skip if target has not enough resources
                 if ((NetworkNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
-
 
                 // Skip if line intersects a celestial body
                 var sourcePosition = Nodes[sourceIndex].Position;
                 var targetPosition = Nodes[targetIndex].Position;
                 var isInLineOfSight = true;
-                for (var bi = 0; bi < bodies; ++bi)
+                for (short bi = 0; bi < bodies; ++bi)
                 {
                     var bodyInfo = BodyInfos[bi];
                     var r = bodyInfo.radius;
@@ -230,6 +235,11 @@ public struct GetNextConnectedNodesJob : IJob
                     if (t1 is < 0 or > 1 && t2 is < 0 or > 1) continue;
 
                     isInLineOfSight = false;
+                    Connections[connectionIndex] = Connections[connectionIndex] with
+                    {
+                        IsOccluded = true,
+                        OccludingBody = bi
+                    };
                     break;
                 }
 
@@ -240,7 +250,7 @@ public struct GetNextConnectedNodesJob : IJob
                     ? distance
                     : sourceDistance + distance;
 
-                ConnectedNodes[targetIndex * length + sourceIndex] = distance;
+                Connections[connectionIndex] = Connections[connectionIndex] with { IsConnected = true };
 
                 if (!(optimum < optimums[targetIndex])) continue;
 #if DEBUG_LOG_ENABLED
