@@ -22,6 +22,11 @@ public static class LocalizedStrings
     public static LocalizedString SortBySignalStrength = "CommNext/UI/SortBySignalStrength";
     public static LocalizedString SortByName = "CommNext/UI/SortByName";
     public static LocalizedString KSCCommNet = "CommNext/Simulation/KSCCommNet";
+    public static LocalizedString ConnectionsDisplayModeNone = "CommNext/UI/ConnectionsDisplayModeNone";
+    public static LocalizedString ConnectionsDisplayModeLines = "CommNext/UI/ConnectionsDisplayModeLines";
+    public static LocalizedString ConnectionsDisplayModeActive = "CommNext/UI/ConnectionsDisplayModeActive";
+    public static LocalizedString RulersTooltip = "CommNext/UI/RulersTooltip";
+    public static LocalizedString VesselReportTooltip = "CommNext/UI/VesselReportTooltip";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";

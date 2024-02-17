@@ -1,4 +1,5 @@
 ﻿using BepInEx.Logging;
+using CommNext.UI.Tooltip;
 using SpaceWarp.API.Assets;
 using UitkForKsp2.API;
 using UnityEngine.UIElements;
@@ -17,6 +18,9 @@ public class MainUIManager
     public VesselReportWindowController? VesselReportWindow { get; set; }
     private UIDocument _vesselReportDocument = null!;
 
+    public TooltipWindowController TooltipWindow { get; set; } = null!;
+    private UIDocument _tooltipDocument = null!;
+
     public void Initialize()
     {
         Logger.LogInfo("Initializing UI");
@@ -32,5 +36,11 @@ public class MainUIManager
             AssetManager.GetAsset<VisualTreeAsset>(
                 $"{CommNextPlugin.ModGuid}/commnext_ui/ui/vesselreportwindow.uxml"));
         VesselReportWindow = _vesselReportDocument.gameObject.AddComponent<VesselReportWindowController>();
+
+        // Tooltip window (should be created last)
+        _tooltipDocument = Window.Create(TooltipWindowController.WindowOptions,
+            AssetManager.GetAsset<VisualTreeAsset>(
+                $"{CommNextPlugin.ModGuid}/commnext_ui/ui/tooltipwindow.uxml"));
+        TooltipWindow = _tooltipDocument.gameObject.AddComponent<TooltipWindowController>();
     }
 }

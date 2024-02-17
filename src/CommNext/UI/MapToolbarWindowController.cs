@@ -1,6 +1,8 @@
 using BepInEx.Logging;
 using CommNext.Rendering;
 using CommNext.UI.Screen;
+using CommNext.UI.Tooltip;
+using CommNext.UI.Utils;
 using KSP.Game;
 using KSP.Messages;
 using KSP.Sim.impl;
@@ -37,6 +39,7 @@ public class MapToolbarWindowController : MonoBehaviour
     // The elements of the window that we need to access
     private VisualElement _root = null!;
     private Button _linesButton = null!;
+    private TooltipManipulator _linesTooltip = null!;
     private Button _rulersButton = null!;
     private Button _vesselReportButton = null!;
     public VisualElement Root => _root;
@@ -72,6 +75,14 @@ public class MapToolbarWindowController : MonoBehaviour
         };
         _linesButton.AddToClassList(selectedClassName);
 
+        _linesTooltip.TooltipText = ConnectionsRenderer.Instance.ConnectionsDisplayMode switch
+        {
+            ConnectionsDisplayMode.None => LocalizedStrings.ConnectionsDisplayModeNone,
+            ConnectionsDisplayMode.Lines => LocalizedStrings.ConnectionsDisplayModeLines,
+            ConnectionsDisplayMode.Active => LocalizedStrings.ConnectionsDisplayModeActive,
+            _ => "N/A"
+        };
+
         if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
         else _rulersButton.RemoveFromClassList("toggled");
 
@@ -95,6 +106,8 @@ public class MapToolbarWindowController : MonoBehaviour
 
         // Content
         _linesButton = _root.Q<Button>("lines-button");
+        _linesTooltip = new TooltipManipulator("All active connections");
+        _linesButton.AddManipulator(_linesTooltip);
         _linesButton.clicked += () =>
         {
             ConnectionsRenderer.Instance.ConnectionsDisplayMode =
@@ -103,6 +116,7 @@ public class MapToolbarWindowController : MonoBehaviour
         };
 
         _rulersButton = _root.Q<Button>("rulers-button");
+        _rulersButton.AddManipulator(new TooltipManipulator(LocalizedStrings.RulersTooltip));
         _rulersButton.clicked += () =>
         {
             ConnectionsRenderer.Instance.IsRulersEnabled = !ConnectionsRenderer.Instance.IsRulersEnabled;
@@ -110,6 +124,7 @@ public class MapToolbarWindowController : MonoBehaviour
         };
 
         _vesselReportButton = _root.Q<Button>("vessel-report-button");
+        _vesselReportButton.AddManipulator(new TooltipManipulator(LocalizedStrings.VesselReportTooltip));
         _vesselReportButton.clicked += () =>
         {
             // If the vessel report window is already open, close it

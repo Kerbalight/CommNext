@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: cb84f4cd3ee046b40bd44f5edd30e15e
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: commnext_ui.bundle
+  assetBundleVariant: 
+  script: {fileID: 13804, guid: 0000000000000000e000000000000000, type: 0}
