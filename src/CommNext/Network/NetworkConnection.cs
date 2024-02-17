@@ -4,6 +4,11 @@ using Unity.Mathematics;
 
 namespace CommNext.Network;
 
+/// <summary>
+/// Represents a connection between two nodes in the network.
+/// It's a wrapper around the `NetworkJobConnection` struct, it's used
+/// only to represent the connections in the UI.
+/// </summary>
 public class NetworkConnection
 {
     public double DistanceSquared { get; private set; }

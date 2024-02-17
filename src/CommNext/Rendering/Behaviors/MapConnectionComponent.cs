@@ -17,7 +17,7 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
     private LineRenderer _lineRenderer = null!;
 
     private bool _isReportConnection;
-    public NetworkConnection? _networkConnection;
+    private NetworkConnection? _networkConnection;
     private bool _isSource;
 
     public string Id { get; set; } = null!;
@@ -48,9 +48,6 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
         var sourceId = source.AssociatedMapItem.SimGUID.ToString();
         var targetId = target.AssociatedMapItem.SimGUID.ToString();
         return $"{sourceId}-{targetId}";
-        // return string.Compare(sourceId, targetId, StringComparison.Ordinal) < 0
-        //     ? $"{sourceId}-{targetId}"
-        //     : $"{targetId}-{sourceId}";
     }
 
     private void Start()
@@ -83,6 +80,9 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
         _isConnected = true;
     }
 
+    /// <summary>
+    /// Highlights a link between two NetworkNodes on the map.
+    /// </summary>
     public void Configure(Map3DFocusItem source, Map3DFocusItem target,
         NetworkNode sourceNetworkNode, NetworkNode targetNetworkNode,
         ConnectionGraphNode sourceNode, ConnectionGraphNode targetNode)
