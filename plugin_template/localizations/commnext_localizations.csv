@@ -30,3 +30,6 @@ CommNext/UI/ConnectionsDisplayModeLines,Text,Connections display mode: Lines,All
 CommNext/UI/ConnectionsDisplayModeActive,Text,Connections display mode: Active,Active vessel path,Percorso del veicolo attivo,Aktiver Schiffspfad,Chemin du vaisseau actif,Ruta de la nave activa,活动船只路径,활성 선박 경로,Aktywna ścieżka statku,Активный путь судна,活动船只路径,Caminho da nave ativa,活动船只路径
 CommNext/UI/RulersTooltip,Text,Show sphere rulers tooltip,Show sphere rulers,Mostra righelli sferici,Sphärenlineale anzeigen,Afficher les règles de la sphère,Mostrar reglas de la esfera,显示球体标尺,구체 규칙 보기,Pokaż linijki sferyczne,Показать шаровые линейки,显示球体标尺,Mostrar réguas de esfera,显示球体标尺
 CommNext/UI/VesselReportTooltip,Text,,Show vessel report,Mostra report del veicolo,Schiffbericht anzeigen,Afficher le rapport du vaisseau,Mostrar informe de la nave,显示船只报告,선박 보고서 보기,Pokaż raport statku,Показать отчет о судне,显示船只报告,Mostrar relatório da nave,显示船只报告
+CommNext/UI/FilterLabel,Text,,Filter,Filtra,Filter,Filtre,Filtrar,过滤,필터,Filter,Filtr,过滤,Filtro,过滤
+CommNext/UI/SortLabel,Text,,Sort,Ordina,Sortieren,Trier,Ordenar,排序,정렬,Sortuj,Сортировать,排序,Ordenar,排序
+CommNext/UI/NoPower,Text,,No power,Nessuna alimentazione,Keine Stromversorgung,Aucune alimentation,Sin alimentación,无电源,전원 없음,Brak zasilania,Нет питания,无电源,Sem energia,无电源

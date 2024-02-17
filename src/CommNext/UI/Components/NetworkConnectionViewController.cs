@@ -1,5 +1,6 @@
 ﻿using CommNext.Managers;
 using CommNext.Network;
+using CommNext.UI.Tooltip;
 using CommNext.UI.Utils;
 using CommNext.Unity.Runtime.Controls;
 using I2.Loc;
@@ -22,6 +23,7 @@ public class NetworkConnectionViewController : UIToolkitElement
     private Label _directionLabel;
     private VisualElement _powerIcon;
     private SignalStrengthIcon _signalStrengthIcon;
+    private TooltipManipulator _signalStrengthTooltip;
 
 
     private static Color ActiveColor => new(0f, 1f, 0.4f, 1f);
@@ -36,7 +38,10 @@ public class NetworkConnectionViewController : UIToolkitElement
         _detailsLabel = _root.Q<Label>("details-label");
         _directionLabel = _root.Q<Label>("direction-label");
         _powerIcon = _root.Q<VisualElement>("power-icon");
+        _powerIcon.AddTooltip(LocalizedStrings.NoPower);
         _signalStrengthIcon = _root.Q<SignalStrengthIcon>("signal-strength-icon");
+        _signalStrengthTooltip = new TooltipManipulator("");
+        _signalStrengthIcon.AddManipulator(_signalStrengthTooltip);
     }
 
     public void Bind(NetworkNode currentNode, NetworkConnection connection)
@@ -69,7 +74,9 @@ public class NetworkConnectionViewController : UIToolkitElement
 
         _detailsLabel.text = distanceText + occludedText;
 
-        _signalStrengthIcon.SetStrengthPercentage(connection.SignalStrength());
+        var signalStrength = connection.SignalStrength();
+        _signalStrengthIcon.SetStrengthPercentage(signalStrength);
+        _signalStrengthTooltip.TooltipText = signalStrength.ToString("P0");
 
         _connectionIcon.style.unityBackgroundImageTintColor = connection.IsConnected ? ActiveColor : InactiveColor;
     }

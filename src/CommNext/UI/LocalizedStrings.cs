@@ -27,6 +27,9 @@ public static class LocalizedStrings
     public static LocalizedString ConnectionsDisplayModeActive = "CommNext/UI/ConnectionsDisplayModeActive";
     public static LocalizedString RulersTooltip = "CommNext/UI/RulersTooltip";
     public static LocalizedString VesselReportTooltip = "CommNext/UI/VesselReportTooltip";
+    public static LocalizedString FilterLabel = "CommNext/UI/FilterLabel";
+    public static LocalizedString SortLabel = "CommNext/UI/SortLabel";
+    public static LocalizedString NoPower = "CommNext/UI/NoPower";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";
