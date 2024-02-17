@@ -47,5 +47,7 @@ public static class TelemetryComponentPatches
         }
 
         networkNode.IsRelay = isRelay;
+
+        networkNode.UpdateFromVessel(__instance.SimulationObject.Vessel);
     }
 }
