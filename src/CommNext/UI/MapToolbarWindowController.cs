@@ -112,6 +112,14 @@ public class MapToolbarWindowController : MonoBehaviour
         _vesselReportButton = _root.Q<Button>("vessel-report-button");
         _vesselReportButton.clicked += () =>
         {
+            // If the vessel report window is already open, close it
+            if (MainUIManager.Instance.VesselReportWindow!.IsWindowOpen)
+            {
+                MainUIManager.Instance.VesselReportWindow.IsWindowOpen = false;
+                return;
+            }
+
+            // Else, open it for the active vessel
             if (!GameManager.Instance.Game.ViewController.TryGetActiveSimVessel(out var vessel))
             {
                 Logger.LogWarning("No active vessel found");

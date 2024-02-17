@@ -81,9 +81,7 @@ public class VesselReportWindowController : MonoBehaviour
             }
             else
             {
-                _vessel = null;
-                var instance = ConnectionsRenderer.Instance;
-                if (instance != null) instance.ReportVessel = null;
+                Vessel = null;
             }
 
             MainUIManager.Instance.MapToolbarWindow!.UpdateButtonState();
