@@ -61,6 +61,10 @@
     -unity-background-image-tint-color: var(--background-lightgray-4);
 }
 
+#close-button:hover {
+    -unity-background-image-tint-color: var(--dark-red);
+}
+
 .toolbar {
     background-color: var(--black);
     border-width: 1px;
