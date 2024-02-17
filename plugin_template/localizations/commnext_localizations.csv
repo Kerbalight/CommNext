@@ -24,3 +24,4 @@ CommNext/UI/SortByDistance,Text,Sort by distance,Distance,Distanza,Entfernung,Di
 CommNext/UI/SortByBand,Text,Sort by band,Band,Banda,Band,Bande,Banda,频段,대역,Przepustka,Диапазон,频段,Banda,频段
 CommNext/UI/SortBySignalStrength,Text,Sort by signal strength,Signal Strength,Intensità del Segnale,Signalstärke,Force du Signal,Potencia de la Señal,信号强度,신호 세기,Siła Sygnału,Уровень сигнала,信号强度,Força do Sinal,信号强度
 CommNext/UI/SortByName,Text,Sort by vessel name,Name,Nome,Name,Nom,Nombre,名称,Nazwa,Имя,名称,Nome,名称,名称
+CommNext/Simulation/KSCCommNet,Text,Name for the KSC CommNet displayed in network nodes list,KSC Ground Control,Controllo a Terra KSC,KSC-Bodenkontrolle,Contrôle au sol KSC,Control de Tierra KSC,KSC地面控制,KSC 지상 제어,KSC Kontrola Ziemi,Контрольный центр KSC,KSC地面控制,Controle de Solo KSC,KSC地面控制

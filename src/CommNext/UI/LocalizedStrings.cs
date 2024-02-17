@@ -21,6 +21,7 @@ public static class LocalizedStrings
     public static LocalizedString SortByBand = "CommNext/UI/SortByBand";
     public static LocalizedString SortBySignalStrength = "CommNext/UI/SortBySignalStrength";
     public static LocalizedString SortByName = "CommNext/UI/SortByName";
+    public static LocalizedString KSCCommNet = "CommNext/Simulation/KSCCommNet";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";

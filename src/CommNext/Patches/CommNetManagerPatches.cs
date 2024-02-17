@@ -1,5 +1,6 @@
 ﻿using AwesomeTechnologies;
 using CommNext.Network;
+using CommNext.UI;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Sim;
@@ -40,6 +41,8 @@ public static class CommNetManagerPatches
 
         simObj.transform.Position = kscSimObj.transform.Position;
         newSourceNode.MaxRange = KSCMaxRange;
+
+        NetworkManager.Instance.Nodes[newSourceNode.Owner].DebugVesselName = LocalizedStrings.KSCCommNet;
     }
 
     /// <summary>

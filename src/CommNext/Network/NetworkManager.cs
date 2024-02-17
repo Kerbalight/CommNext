@@ -178,11 +178,31 @@ public class NetworkManager : ILateUpdate
             break;
         }
 
+        // If the node has a connection in general, we want to highlight
+        // the _Outbound_ connections (since we are connected, we are interested
+        // in providing link to other sats), otherwise, we want to highlight the
+        // _Inbound_ connections (which are not valid, since the node is 
+        // not connected).
+        var hasNodeCommNetConnection = previousIndices[nodeIndex] != -1;
+
         for (var i = 0; i < length; i++)
         {
             var outboundConnection = jobConnections[i * length + nodeIndex];
             var inboundConnection = jobConnections[nodeIndex * length + i];
             var isConnected = outboundConnection.IsConnected || inboundConnection.IsConnected;
+
+            // Keep the occlusion state in sync
+            if (outboundConnection.IsOccluded && !inboundConnection.IsOccluded)
+            {
+                inboundConnection.IsOccluded = true;
+                inboundConnection.OccludingBody = outboundConnection.OccludingBody;
+            }
+
+            if (inboundConnection.IsOccluded && !outboundConnection.IsOccluded)
+            {
+                outboundConnection.IsOccluded = true;
+                outboundConnection.OccludingBody = inboundConnection.OccludingBody;
+            }
 
             var shouldAdd = nodesFilter switch
             {
@@ -192,7 +212,9 @@ public class NetworkManager : ILateUpdate
                 _ => false
             };
 
-            var shouldAddOutbound = isConnected ? outboundConnection.IsConnected : false;
+            // If we are connected, we want to highlight the _Outbound_ connections
+            // (since we are connected, we are interested in providing link to other sats).
+            var shouldAddOutbound = isConnected ? outboundConnection.IsConnected : hasNodeCommNetConnection;
             if (shouldAdd && shouldAddOutbound)
             {
                 var targetNode = allNodes[i];
@@ -206,7 +228,10 @@ public class NetworkManager : ILateUpdate
                     ));
             }
 
-            var shouldAddInbound = isConnected ? inboundConnection.IsConnected : true;
+            // If we are not connected, we want to highlight the _Inbound_ connections
+            // (which are not valid, since the node is not connected).
+            // If this connection is present add it as well.
+            var shouldAddInbound = isConnected ? inboundConnection.IsConnected : !hasNodeCommNetConnection;
             if (shouldAdd && shouldAddInbound)
             {
                 var sourceNode = allNodes[i];

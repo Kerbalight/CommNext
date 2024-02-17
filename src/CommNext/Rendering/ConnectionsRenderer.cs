@@ -5,6 +5,7 @@ using CommNext.Managers;
 using CommNext.Network;
 using CommNext.Patches;
 using CommNext.Rendering.Behaviors;
+using CommNext.UI;
 using CommNext.Unity.Runtime;
 using KSP.Game;
 using KSP.Map;
@@ -27,6 +28,7 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private readonly Dictionary<string, MapConnectionComponent> _connections = new();
     private readonly Dictionary<string, MapRulerComponent> _rulers = new();
+    private readonly Dictionary<string, MapConnectionComponent> _reportConnections = new();
 
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
@@ -72,6 +74,18 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
+    private VesselComponent? _reportVessel;
+
+    public VesselComponent? ReportVessel
+    {
+        get => _reportVessel;
+        set
+        {
+            ClearReportConnections();
+            _reportVessel = value;
+        }
+    }
+
     private void Start()
     {
         Instance = this;
@@ -82,7 +96,7 @@ public class ConnectionsRenderer : MonoBehaviour
         // We want to trigger them right away so that UI is updated
         // right after the UI click.
         // if (IsConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
-        var shouldBeRunning = IsConnectionsEnabled || _isRulersEnabled;
+        var shouldBeRunning = IsConnectionsEnabled || _isRulersEnabled || ReportVessel != null;
 
         switch (shouldBeRunning)
         {
@@ -98,6 +112,7 @@ public class ConnectionsRenderer : MonoBehaviour
                 _updateTask = null;
 
                 ClearConnections();
+                ClearReportConnections();
                 ClearRulers();
                 break;
         }
@@ -108,6 +123,7 @@ public class ConnectionsRenderer : MonoBehaviour
         Logger.LogInfo("Initializing ConnectionsRenderer");
         // TODO MapCore loading
         ClearConnections();
+        ClearReportConnections();
         ClearRulers();
 
         ConnectionsDisplayMode = ConnectionsDisplayMode.Lines;
@@ -117,6 +133,12 @@ public class ConnectionsRenderer : MonoBehaviour
     {
         foreach (var connection in _connections.Values) Destroy(connection.gameObject);
         _connections.Clear();
+    }
+
+    public void ClearReportConnections()
+    {
+        foreach (var connection in _reportConnections.Values) Destroy(connection.gameObject);
+        _reportConnections.Clear();
     }
 
     public void ClearRulers()
@@ -147,6 +169,7 @@ public class ConnectionsRenderer : MonoBehaviour
         try
         {
             if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+            if (ReportVessel != null) UpdateReportConnections();
             if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
         }
         catch (Exception e)
@@ -230,6 +253,55 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
+    private void UpdateReportConnections()
+    {
+        if (ReportVessel == null) return;
+        if (!NetworkManager.Instance.Nodes.TryGetValue(ReportVessel.GlobalId, out var vesselNode))
+        {
+            Logger.LogWarning($"Vessel node not found for {ReportVessel.GlobalId}. Untracking.");
+            ReportVessel = null;
+            return;
+        }
+
+        // I don't like this.
+        var vesselConnections = MainUIManager.Instance.VesselReportWindow!.ReportVesselConnections;
+
+        var keepIds = new List<string>();
+        foreach (var connection in vesselConnections)
+        {
+            var sourceItem = GetMapItem(connection.SourceNode);
+            var targetItem = GetMapItem(connection.TargetNode);
+            if (sourceItem == null || targetItem == null) continue;
+
+            var connectionId = MapConnectionComponent.GetID(sourceItem, targetItem);
+            if (!_reportConnections.TryGetValue(connectionId, out var connectionComponent))
+            {
+                var connectionObject = new GameObject($"MapCommReportConnection_{connectionId}");
+                connectionObject.transform.SetParent(_mapCore.map3D.transform);
+                connectionComponent = connectionObject.AddComponent<MapConnectionComponent>();
+                connectionComponent.ConfigureForReport(
+                    sourceItem, targetItem,
+                    connection, vesselNode
+                );
+                _reportConnections.Add(connectionId, connectionComponent);
+            }
+            else
+            {
+                connectionComponent.SetNetworkConnection(connection);
+            }
+
+            keepIds.Add(connectionId);
+        }
+
+        var removeIds = _reportConnections.Keys.Except(keepIds).ToList();
+        foreach (var connectionId in removeIds)
+        {
+            var connection = _reportConnections[connectionId];
+            Destroy(connection.gameObject);
+            _reportConnections.Remove(connectionId);
+        }
+    }
+
     private void UpdateRulers(List<ConnectionGraphNode> nodes, int[] prevIndexes)
     {
         if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
@@ -291,6 +363,14 @@ public class ConnectionsRenderer : MonoBehaviour
         if (connection.gameObject != null) Destroy(connection.gameObject);
         if (!_connections.ContainsKey(connection.Id)) return;
         _connections.Remove(connection.Id);
+    }
+
+    public void OnMapReportConnectionDestroyed(MapConnectionComponent connection)
+    {
+        // This is wanted.
+        if (connection.gameObject != null) Destroy(connection.gameObject);
+        if (!_reportConnections.ContainsKey(connection.Id)) return;
+        _reportConnections.Remove(connection.Id);
     }
 
     public void OnMapRulerDestroyed(MapRulerComponent ruler)

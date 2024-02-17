@@ -32,7 +32,7 @@
     --darkblue-4: rgb(13, 13, 22);
     --led-green: rgb(0, 255, 102);
     --text-color: rgb(192, 199, 213);
-    --inbound: rgb(108, 140, 255);
+    --inbound: rgb(142, 167, 255);
     --outbound: rgb(181, 88, 220);
 }
 

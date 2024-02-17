@@ -16,6 +16,8 @@ public class ConnectionsQuery
         Name
     }
 
+    public event Action? Changed;
+
     public VesselNodesFilter Filter = VesselNodesFilter.InRange;
     public ConnectionsSort Sort = ConnectionsSort.Distance;
     public SortDirection Direction = SortDirection.Descending;
@@ -43,6 +45,7 @@ public class ConnectionsQuery
         dropdownField.RegisterValueChangedCallback(evt =>
         {
             Filter = AllFilters.Find(f => f.Item2 == evt.newValue).Item1;
+            Changed?.Invoke();
         });
     }
 
@@ -53,6 +56,7 @@ public class ConnectionsQuery
         dropdownField.RegisterValueChangedCallback(evt =>
         {
             Sort = AllSorts.Find(f => f.Item2 == evt.newValue).Item1;
+            Changed?.Invoke();
         });
     }
 
@@ -60,6 +64,7 @@ public class ConnectionsQuery
     {
         button.direction = Direction;
         button.directionChanged += direction => { Direction = direction; };
+        Changed?.Invoke();
     }
 
     private static readonly List<(VesselNodesFilter, string)> AllFilters =

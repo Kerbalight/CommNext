@@ -40,7 +40,13 @@ public class VesselReportWindowController : MonoBehaviour
     private DropdownField _filterDropdown = null!;
     private DropdownField _sortDropdown = null!;
     private SortDirectionButton _sortDirectionButton = null!;
-    private ConnectionsQuery _query = new();
+    private readonly ConnectionsQuery _query = new();
+
+    /// <summary>
+    /// We cache here the connections of the vessel to avoid unnecessary allocations
+    /// in the ConnectionsRenderer.
+    /// </summary>
+    public List<NetworkConnection> ReportVesselConnections = [];
 
     private bool _isWindowOpen;
 
@@ -62,6 +68,12 @@ public class VesselReportWindowController : MonoBehaviour
                 _lastRefresh = 0f;
                 BuildUI();
             }
+            else
+            {
+                _vessel = null;
+                var instance = ConnectionsRenderer.Instance;
+                if (instance != null) instance.ReportVessel = null;
+            }
         }
     }
 
@@ -69,6 +81,7 @@ public class VesselReportWindowController : MonoBehaviour
     {
         _vessel = vessel;
         AlignWindowToToolbar();
+        ConnectionsRenderer.Instance.ReportVessel = vessel;
         IsWindowOpen = true;
     }
 
@@ -107,6 +120,7 @@ public class VesselReportWindowController : MonoBehaviour
         _query.BindFilter(_filterDropdown);
         _query.BindSort(_sortDropdown);
         _query.BindDirection(_sortDirectionButton);
+        _query.Changed += BuildUI;
 
         // Get the close button from the window
         var closeButton = _root.Q<Button>("close-button");
@@ -130,6 +144,10 @@ public class VesselReportWindowController : MonoBehaviour
 
         var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
         _query.ApplySort(networkNode, connections);
+
+        // Cache the connections for MapView
+        ReportVesselConnections = connections;
+
         var connectionElements = _connectionsList.Children().ToList();
 
         // Some basic pooling

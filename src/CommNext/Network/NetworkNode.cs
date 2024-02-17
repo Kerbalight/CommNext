@@ -17,7 +17,7 @@ public class NetworkNode
     /// <summary>
     /// Used only for debugging purposes.
     /// </summary>
-    public string DebugVesselName { get; private set; } = "N/A";
+    public string DebugVesselName { get; set; } = "N/A";
 
     public NetworkNode(IGGuid owner)
     {
