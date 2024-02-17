@@ -132,7 +132,7 @@ public static class ConnectionGraphPatches
 
         ____jobHandle = new GetNextConnectedNodesJob()
         {
-            BestPath = Settings.BestPath.Value,
+            BestPath = PluginSettings.BestPath.Value,
             Nodes = ____nodes,
             StartIndex = sourceNodeIndex,
             PrevIndices = ____previousIndices,
@@ -167,7 +167,7 @@ public static class ConnectionGraphPatches
             flagsFrom |= NetworkNodeFlags.HasEnoughResources;
 
         networkJobNode.Flags = flagsFrom;
-        networkJobNode.Name = Settings.EnableProfileLogs.Value ? networkNode.DebugVesselName : string.Empty;
+        networkJobNode.Name = PluginSettings.EnableProfileLogs.Value ? networkNode.DebugVesselName : string.Empty;
         return networkJobNode;
     }
 

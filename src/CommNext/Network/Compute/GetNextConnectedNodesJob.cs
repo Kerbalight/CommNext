@@ -28,7 +28,7 @@ public struct GetNextConnectedNodesJob : IJob
         BepInEx.Logging.Logger.CreateLogSource("CommNext.GetNextConnectedNodesJob");
 
     [ReadOnly]
-    public Settings.BestPathMode BestPath;
+    public PluginSettings.BestPathMode BestPath;
 
     [ReadOnly]
     public int StartIndex;
@@ -246,7 +246,7 @@ public struct GetNextConnectedNodesJob : IJob
                 if (!isInLineOfSight) continue;
 
                 // Calculate the new best distance
-                var optimum = BestPath == Settings.BestPathMode.NearestRelay
+                var optimum = BestPath == PluginSettings.BestPathMode.NearestRelay
                     ? distance
                     : sourceDistance + distance;
 
@@ -264,7 +264,7 @@ public struct GetNextConnectedNodesJob : IJob
         }
 
         sw.Stop();
-        if (Settings.EnableProfileLogs.Value && DateTime.Now.ToUnixTimestamp() - _lastLoggedTime > 4)
+        if (PluginSettings.EnableProfileLogs.Value && DateTime.Now.ToUnixTimestamp() - _lastLoggedTime > 4)
         {
             var connectedCount = 0;
             for (var i = 0; i < length; i++)

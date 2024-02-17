@@ -1,6 +1,7 @@
 ﻿using AwesomeTechnologies;
 using CommNext.Network;
 using CommNext.UI;
+using CommNext.Utils;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Sim;
@@ -18,7 +19,7 @@ public static class CommNetManagerPatches
 
     private const string KerbinCommNetOriginName = "kerbin_CommNetOrigin";
     private const string KerbinSpaceCenterName = "kerbin_KSC_Object";
-    public const int KSCMaxRange = 2_000_000_000; // 2Gm
+    private const int KSCFallbackMaxRange = 2_000_000_000; // 2Gm
 
     /// <summary>
     /// Fix KSCommNetOrigin position and max range. We place it right on KSC, with
@@ -40,7 +41,13 @@ public static class CommNetManagerPatches
         }
 
         simObj.transform.Position = kscSimObj.transform.Position;
-        newSourceNode.MaxRange = KSCMaxRange;
+        newSourceNode.MaxRange = PluginSettings.KSCRange.Value switch
+        {
+            PluginSettings.KSCRangeMode.G2 => 2_000_000_000, // 2Gm
+            PluginSettings.KSCRangeMode.G10 => 10_000_000_000, // 10Gm
+            PluginSettings.KSCRangeMode.G50 => 50_000_000_000, // 50Gm
+            _ => KSCFallbackMaxRange
+        };
 
         NetworkManager.Instance.Nodes[newSourceNode.Owner].DebugVesselName = LocalizedStrings.KSCCommNet;
     }

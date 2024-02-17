@@ -60,7 +60,7 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         MessageListener.StartListening();
 
         // Settings
-        Settings.SetupConfig();
+        PluginSettings.SetupConfig();
 
         // Providers
         var providers = new GameObject("CommNext_Providers");

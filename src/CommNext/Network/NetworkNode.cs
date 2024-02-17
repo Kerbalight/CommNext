@@ -40,7 +40,7 @@ public class NetworkNode
 
         DebugVesselName = vessel.Name;
         HasEnoughResources = DifficultyUtils.HasInfinitePower ||
-                             !Settings.RelaysRequirePower.Value ||
+                             !PluginSettings.RelaysRequirePower.Value ||
                              vessel.ControlStatus != VesselControlState.NoControl;
     }
 }
