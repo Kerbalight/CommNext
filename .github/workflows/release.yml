@@ -2,6 +2,12 @@ name: Upload release
 
 env:
   SPACEDOCK_MOD_ID: 3560
+  SPACEDOCK_URL: https://spacedock.info/mod/3560/CommNext#changelog
+  DISCORD_THREAD_ID: "1208437501807566888"
+  DISCORD_AUTHOR: "CommNext"
+  DISCORD_AVATAR: "https://avatars.githubusercontent.com/u/98559431?s=200&v=4"
+  FORUM_URL: https://forum.kerbalspaceprogram.com/topic/223732-commnext-v050-for-ksp2-v021/
+  FORUM_TITLE: "CommNext [v{version} for KSP2 v{ksp2_version}]"
 
 on:
   release:
@@ -71,3 +77,36 @@ jobs:
           version: ${{ env.version }}
           zipball: ${{ env.zip }}
           changelog: ./changelog.md
+
+      - name: Update mod topic
+        uses: Kerbalight/ksp2-forum-post-action@latest
+        with:
+          username: ${{ secrets.KSP_FORUM_USERNAME }}
+          password: ${{ secrets.KSP_FORUM_PASSWORD }}
+          forum_topic_url: ${{ env.FORUM_URL }}
+          forum_topic_title: ${{ env.FORUM_TITLE }}
+          spacedock_url: ${{ env.SPACEDOCK_URL }}
+          version: ${{ env.version }}
+          changelog: ./changelog.md
+
+      - name: Prepare content for discord
+        shell: bash
+        run: |
+          echo -e "## Release v${version}\n" > ./content.md
+          cat ./changelog.md >> ./content.md
+          {
+            echo 'discord_message<<EOF'
+            cat ./content.md
+            echo EOF
+          } >> "$GITHUB_ENV"
+
+      - name: Publish update to Discord
+        uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_KMS_WEBHOOK_URL }}
+          content: ${{ env.discord_message }}
+          thread-id: ${{ env.DISCORD_THREAD_ID }}
+          username: ${{ env.DISCORD_AUTHOR }}
+          avatar-url: ${{ env.DISCORD_AVATAR }}
+
+
