@@ -1,4 +1,5 @@
 ﻿using BepInEx.Logging;
+using CommNext.Managers;
 using CommNext.Network;
 using CommNext.Rendering;
 using CommNext.UI.Components;
@@ -52,6 +53,16 @@ public class VesselReportWindowController : MonoBehaviour
 
     private VesselComponent? _vessel;
 
+    public VesselComponent? Vessel
+    {
+        get => _vessel;
+        set
+        {
+            _vessel = value;
+            ConnectionsRenderer.Instance.ReportVessel = _vessel;
+        }
+    }
+
     // Refresh
     private const float RefreshRate = 0.2f; // 0.2 second
     private float _lastRefresh = 0f;
@@ -79,9 +90,8 @@ public class VesselReportWindowController : MonoBehaviour
 
     public void OpenForVessel(VesselComponent vessel)
     {
-        _vessel = vessel;
+        Vessel = vessel;
         AlignWindowToToolbar();
-        ConnectionsRenderer.Instance.ReportVessel = vessel;
         IsWindowOpen = true;
     }
 

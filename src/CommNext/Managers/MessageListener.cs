@@ -20,6 +20,7 @@ public static class MessageListener
         messageCenter.PersistentSubscribe<MapViewLeftMessage>(OnMapViewLeft);
         messageCenter.PersistentSubscribe<GameStateChangedMessage>(OnGameStateChanged);
         messageCenter.PersistentSubscribe<GameLoadFinishedMessage>(OnGameLoadFinished);
+        messageCenter.PersistentSubscribe<VesselChangedMessage>(OnVesselChangedMessage);
 
         NetworkManager.Instance.SetupListeners();
     }
@@ -65,5 +66,16 @@ public static class MessageListener
     {
         IsInMapView = false;
         MainUIManager.Instance.MapToolbarWindow!.IsWindowOpen = false;
+    }
+
+    /// <summary>
+    /// Updates the vessel in the VesselReportWindow when the vessel changes,
+    /// only if the VesselReportWindow is open.
+    /// </summary>
+    private static void OnVesselChangedMessage(MessageCenterMessage message)
+    {
+        var vesselChangedMessage = (VesselChangedMessage)message;
+        if (MainUIManager.Instance.VesselReportWindow!.Vessel != null)
+            MainUIManager.Instance.VesselReportWindow!.Vessel = vesselChangedMessage.Vessel;
     }
 }
