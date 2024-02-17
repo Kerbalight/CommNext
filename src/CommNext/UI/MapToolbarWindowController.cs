@@ -58,7 +58,7 @@ public class MapToolbarWindowController : MonoBehaviour
         }
     }
 
-    private void UpdateButtonState()
+    public void UpdateButtonState()
     {
         _linesButton.RemoveFromClassList("toolbar-comm-icon--none");
         _linesButton.RemoveFromClassList("toolbar-comm-icon--lines");
@@ -74,6 +74,9 @@ public class MapToolbarWindowController : MonoBehaviour
 
         if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
         else _rulersButton.RemoveFromClassList("toggled");
+
+        if (MainUIManager.Instance.VesselReportWindow!.IsWindowOpen) _vesselReportButton.AddToClassList("toggled");
+        else _vesselReportButton.RemoveFromClassList("toggled");
     }
 
     /// <summary>
