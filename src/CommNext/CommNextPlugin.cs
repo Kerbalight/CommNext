@@ -75,6 +75,9 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         // UI
         MainUIManager.Instance.Initialize();
 
+        // Save
+        SaveManager.Instance.Register();
+
         // Load Assets
         ConnectionsRenderer.RulerSpherePrefab = AssetManager.GetAsset<GameObject>(
             $"{ModGuid}/commnext_ui/meshes/rulersphere.prefab");

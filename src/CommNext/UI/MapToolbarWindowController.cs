@@ -47,6 +47,18 @@ public class MapToolbarWindowController : MonoBehaviour
     public float Width => _root.resolvedStyle.width;
     public float Height => _root.resolvedStyle.height;
 
+    private bool _isWindowPositionInitialized;
+
+    public Vector3 Position
+    {
+        get => _root.transform.position;
+        set
+        {
+            _isWindowPositionInitialized = true;
+            _root.transform.position = value;
+        }
+    }
+
     private bool _isWindowOpen;
 
     public bool IsWindowOpen
@@ -63,10 +75,13 @@ public class MapToolbarWindowController : MonoBehaviour
 
     public void UpdateButtonState()
     {
+        // TODO Move the _state_ inside a separate object like `ConnectionsRenderState`, which is not tied to MonoBehaviour lifecycle.
+        var currentDisplayMode = ConnectionsRenderer.Instance?.ConnectionsDisplayMode ?? ConnectionsDisplayMode.None;
+
         _linesButton.RemoveFromClassList("toolbar__icon--comm-none");
         _linesButton.RemoveFromClassList("toolbar__icon--comm-lines");
         _linesButton.RemoveFromClassList("toolbar__icon--comm-active");
-        var selectedClassName = ConnectionsRenderer.Instance.ConnectionsDisplayMode switch
+        var selectedClassName = currentDisplayMode switch
         {
             ConnectionsDisplayMode.None => "toolbar__icon--comm-none",
             ConnectionsDisplayMode.Lines => "toolbar__icon--comm-lines",
@@ -75,7 +90,7 @@ public class MapToolbarWindowController : MonoBehaviour
         };
         _linesButton.AddToClassList(selectedClassName);
 
-        _linesTooltip.TooltipText = ConnectionsRenderer.Instance.ConnectionsDisplayMode switch
+        _linesTooltip.TooltipText = currentDisplayMode switch
         {
             ConnectionsDisplayMode.None => LocalizedStrings.ConnectionsDisplayModeNone,
             ConnectionsDisplayMode.Lines => LocalizedStrings.ConnectionsDisplayModeLines,
@@ -83,10 +98,12 @@ public class MapToolbarWindowController : MonoBehaviour
             _ => "N/A"
         };
 
-        if (ConnectionsRenderer.Instance.IsRulersEnabled) _rulersButton.AddToClassList("toggled");
+        if (ConnectionsRenderer.Instance?.IsRulersEnabled == true) _rulersButton.AddToClassList("toggled");
         else _rulersButton.RemoveFromClassList("toggled");
 
-        if (MainUIManager.Instance.VesselReportWindow!.IsWindowOpen) _vesselReportButton.AddToClassList("toggled");
+        // ReSharper disable once Unity.NoNullPropagation
+        if (MainUIManager.Instance.VesselReportWindow?.IsWindowOpen == true)
+            _vesselReportButton.AddToClassList("toggled");
         else _vesselReportButton.RemoveFromClassList("toggled");
     }
 
@@ -99,10 +116,13 @@ public class MapToolbarWindowController : MonoBehaviour
         _window = GetComponent<UIDocument>();
 
         _root = _window.rootVisualElement[0];
-        _root.SetDefaultPosition(size => new Vector2(
-            UIScreenUtils.GetReferenceScreenScaledWidth() - size.x - UIScreenUtils.GetScaledReferenceCoordinate(28f),
-            UIScreenUtils.GetScaledReferenceCoordinate(300f)
-        ));
+        _root.SetDefaultPosition(size => _isWindowPositionInitialized
+            ? _root.transform.position
+            : new Vector2(
+                UIScreenUtils.GetReferenceScreenScaledWidth() - size.x -
+                UIScreenUtils.GetScaledReferenceCoordinate(28f),
+                UIScreenUtils.GetScaledReferenceCoordinate(300f)
+            ));
 
         // Content
         _linesButton = _root.Q<Button>("lines-button");

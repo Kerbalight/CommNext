@@ -12,7 +12,7 @@ public class MainUIManager
 
     private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.MainUIManager");
 
-    public MapToolbarWindowController? MapToolbarWindow { get; set; }
+    public MapToolbarWindowController MapToolbarWindow { get; set; } = null!;
     private UIDocument _mapToolbarDocument = null!;
 
     public VesselReportWindowController? VesselReportWindow { get; set; }

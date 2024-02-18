@@ -31,6 +31,9 @@ public static class MessageListener
 
         // Delete previous connections
         ConnectionsRenderer.Instance.Initialize();
+
+        // Load game data
+        SaveManager.Instance.LoadDataIntoUI();
     }
 
     private static void OnMapInitialized(MessageCenterMessage _)

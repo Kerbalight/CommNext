@@ -64,7 +64,8 @@ public class VesselReportWindowController : MonoBehaviour
         set
         {
             _vessel = value;
-            ConnectionsRenderer.Instance.ReportVessel = _vessel;
+            var instance = ConnectionsRenderer.Instance;
+            if (instance != null) instance.ReportVessel = _vessel;
         }
     }
 
