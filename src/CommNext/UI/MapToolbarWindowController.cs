@@ -63,15 +63,15 @@ public class MapToolbarWindowController : MonoBehaviour
 
     public void UpdateButtonState()
     {
-        _linesButton.RemoveFromClassList("toolbar-comm-icon--none");
-        _linesButton.RemoveFromClassList("toolbar-comm-icon--lines");
-        _linesButton.RemoveFromClassList("toolbar-comm-icon--active");
+        _linesButton.RemoveFromClassList("toolbar__icon--comm-none");
+        _linesButton.RemoveFromClassList("toolbar__icon--comm-lines");
+        _linesButton.RemoveFromClassList("toolbar__icon--comm-active");
         var selectedClassName = ConnectionsRenderer.Instance.ConnectionsDisplayMode switch
         {
-            ConnectionsDisplayMode.None => "toolbar-comm-icon--none",
-            ConnectionsDisplayMode.Lines => "toolbar-comm-icon--lines",
-            ConnectionsDisplayMode.Active => "toolbar-comm-icon--active",
-            _ => "toolbar-comm-icon--none"
+            ConnectionsDisplayMode.None => "toolbar__icon--comm-none",
+            ConnectionsDisplayMode.Lines => "toolbar__icon--comm-lines",
+            ConnectionsDisplayMode.Active => "toolbar__icon--comm-active",
+            _ => "toolbar__icon--comm-none"
         };
         _linesButton.AddToClassList(selectedClassName);
 
