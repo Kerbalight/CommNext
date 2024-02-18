@@ -9,6 +9,8 @@ using CommNext.UI.Tooltip;
 using CommNext.UI.Utils;
 using CommNext.Unity.Runtime.Controls;
 using I2.Loc;
+using KSP;
+using KSP.Sim;
 using KSP.Sim.impl;
 using UitkForKsp2.API;
 using UnityEngine;
@@ -39,6 +41,7 @@ public class VesselReportWindowController : MonoBehaviour
     // The elements of the window that we need to access
     private VisualElement _root = null!;
     private Label _nameLabel = null!;
+    private Label _rangeLabel = null!;
     private ScrollView _connectionsList = null!;
     private DropdownField _filterDropdown = null!;
     private DropdownField _sortDropdown = null!;
@@ -125,6 +128,7 @@ public class VesselReportWindowController : MonoBehaviour
 
         // Content
         _nameLabel = _root.Q<Label>("name-label");
+        _rangeLabel = _root.Q<Label>("range-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
         _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
         _filterDropdown.AddTooltip(LocalizedStrings.FilterLabel);
@@ -154,7 +158,13 @@ public class VesselReportWindowController : MonoBehaviour
             return;
         }
 
+        var vesselMaxRange = _vessel.SimulationObject.Telemetry.CommNetRangeMeters;
+
         _nameLabel.text = _vessel!.Name;
+        _rangeLabel.text = LocalizationManager.GetTranslation(LocalizedStrings.RangeLabelKey, [
+            Units.PrintSI(vesselMaxRange, Units.SymbolMeters)
+                .UIColored("#E7CA76")
+        ]);
 
         var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
         _query.ApplySort(networkNode, connections);

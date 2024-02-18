@@ -37,6 +37,11 @@ public class NetworkManager : ILateUpdate
     public void SetupListeners()
     {
         MessageListener.Messages.PersistentSubscribe<VesselControlStateChangedMessage>(OnVesselControlStateChanged);
+
+        // Handle vessel undocked and docked messages
+        MessageListener.Messages.PersistentSubscribe<VesselUndockedMessage>(OnVesselUndocked);
+        MessageListener.Messages.PersistentSubscribe<VesselDockedMessage>(OnVesselDocked);
+        MessageListener.Messages.PersistentSubscribe<DecoupleMessage>(OnDecouple);
     }
 
     public void Initialize(CommNetManager commNetManager)
@@ -69,12 +74,44 @@ public class NetworkManager : ILateUpdate
         Nodes.Remove(owner);
     }
 
+    /// <summary>
+    /// We want to update node properties (like Flags, etc) when the vessel
+    /// is updated.
+    /// </summary>
     private void OnVesselControlStateChanged(MessageCenterMessage message)
     {
         var controlMessage = (VesselControlStateChangedMessage)message;
         var networkNode = Nodes[controlMessage.Vessel.GlobalId];
 
         networkNode.UpdateFromVessel(controlMessage.Vessel);
+    }
+
+    /// <summary>
+    /// We want to update the CommNet node when a vessel is undocked, since
+    /// new parts may have been added or removed for each vessel.
+    /// 
+    /// It seems that `RefreshCommNetNode` is not being called by the game,
+    /// so we do it here.
+    /// </summary>
+    private static void OnVesselUndocked(MessageCenterMessage message)
+    {
+        var undockMessage = (VesselUndockedMessage)message;
+        undockMessage.VesselOne.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+        undockMessage.VesselTwo.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+    }
+
+    private static void OnVesselDocked(MessageCenterMessage message)
+    {
+        var dockMessage = (VesselDockedMessage)message;
+        dockMessage.VesselOne.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+        dockMessage.VesselTwo.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+    }
+
+    private static void OnDecouple(MessageCenterMessage message)
+    {
+        var decoupleMessage = (DecoupleMessage)message;
+        var vessel = GameManager.Instance.Game.UniverseModel.FindVesselComponent(decoupleMessage.VesselGuid);
+        vessel?.SimulationObject.Telemetry.RefreshCommNetNode();
     }
 
     #endregion

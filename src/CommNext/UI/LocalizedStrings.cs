@@ -34,6 +34,7 @@ public static class LocalizedStrings
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";
     public const string OccludedByKey = "CommNext/UI/OccludedBy";
+    public const string RangeLabelKey = "CommNext/UI/RangeLabel";
     public const string BandKey = "PartModules/NextRelay/Band";
 
     public static string GetTranslationWithParams(string localizationKey, Dictionary<string, string>? parameters)
