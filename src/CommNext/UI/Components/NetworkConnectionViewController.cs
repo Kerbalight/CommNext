@@ -14,6 +14,7 @@ using UnityEngine.UIElements;
 namespace CommNext.UI.Components;
 
 public class NetworkConnectionViewController : UIToolkitElement
+public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
 {
     private Label _nameLabel;
     private Label _detailsLabel;

@@ -97,8 +97,46 @@ public static class UIToolkitExtensions
     /// <summary>
     /// Creates a colored string for UI.
     /// </summary>
-    public static string UIColored(this string text, string color)
+    public static string RTEColor(this string text, string color)
     {
         return $"<color={color}>{text}</color>";
+    }
+
+    /// <summary>
+    /// Replace the VisualElement children with the provided items, using the binder to
+    /// bind the item to the VisualElement.
+    /// If some items are already present, they are reused, avoiding the cost of creating
+    /// new VisualElements.
+    /// </summary>
+    /// <param name="parent">The parent element</param>
+    /// <param name="items">items data source</param>
+    /// <param name="binder">Binds an item to its visual element</param>
+    /// <typeparam name="TItem"></typeparam>
+    /// <typeparam name="TElement"></typeparam>
+    public static void PoolChildren<TItem, TElement>(
+        this VisualElement parent,
+        IEnumerable<TItem> items,
+        Action<TItem, TElement> binder) where TElement : IPoolingElement, new()
+    {
+        var children = parent.Children().ToList();
+        var itemsArray = items as TItem[] ?? items.ToArray();
+        for (var i = 0; i < itemsArray.Length; i++)
+        {
+            TElement itemElement;
+            if (i < itemsArray.Length)
+            {
+                itemElement = (TElement)children[i].userData;
+            }
+            else
+            {
+                itemElement = new TElement();
+                parent.Add(itemElement.Root);
+            }
+
+            binder(itemsArray[i], itemElement);
+        }
+
+        for (var i = itemsArray.Length; i < children.Count; i++)
+            parent.Remove(children[i]);
     }
 }
