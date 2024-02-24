@@ -178,6 +178,11 @@
     padding-right: 6px;
     padding-top: 6px;
     padding-bottom: 6px;
+    transition: background-color 0.18s;
+}
+
+.row__container:hover {
+    background-color: rgb(67, 72, 155);
 }
 
 .icon__small {

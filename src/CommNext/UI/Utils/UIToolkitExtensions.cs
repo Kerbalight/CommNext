@@ -118,12 +118,12 @@ public static class UIToolkitExtensions
         IEnumerable<TItem> items,
         Action<TItem, TElement> binder) where TElement : IPoolingElement, new()
     {
-        var children = parent.Children().ToList();
+        var children = parent.Children().ToArray();
         var itemsArray = items as TItem[] ?? items.ToArray();
         for (var i = 0; i < itemsArray.Length; i++)
         {
             TElement itemElement;
-            if (i < itemsArray.Length)
+            if (i < children.Length)
             {
                 itemElement = (TElement)children[i].userData;
             }
@@ -136,7 +136,7 @@ public static class UIToolkitExtensions
             binder(itemsArray[i], itemElement);
         }
 
-        for (var i = itemsArray.Length; i < children.Count; i++)
+        for (var i = itemsArray.Length; i < children.Length; i++)
             parent.Remove(children[i]);
     }
 }

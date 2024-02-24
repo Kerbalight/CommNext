@@ -164,7 +164,7 @@ public class VesselReportWindowController : MonoBehaviour
         _nameLabel.text = _vessel!.Name;
         _rangeLabel.text = LocalizationManager.GetTranslation(LocalizedStrings.RangeLabelKey, [
             Units.PrintSI(vesselMaxRange, Units.SymbolMeters)
-                .UIColored("#E7CA76")
+                .RTEColor("#E7CA76")
         ]);
 
         var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
@@ -173,24 +173,14 @@ public class VesselReportWindowController : MonoBehaviour
         // Cache the connections for MapView
         ReportVesselConnections = connections;
 
-        var connectionElements = _connectionsList.Children().ToList();
-
-        // Some basic pooling
-        for (var i = 0; i < connections.Count; i++)
-            if (i < connectionElements.Count)
+        // Pool the connections
+        _connectionsList.PoolChildren<NetworkConnection, NetworkConnectionViewController>(connections,
+            (connection, connectionRow) =>
             {
-                var connectionRow = (NetworkConnectionViewController)connectionElements[i].userData;
-                connectionRow.Bind(networkNode, connections[i]);
-            }
-            else
-            {
-                var connectionRow = new NetworkConnectionViewController();
-                connectionRow.Bind(networkNode, connections[i]);
-                _connectionsList.Add(connectionRow.Root);
-            }
+                // Link the connection to the row
+                connectionRow.Bind(networkNode, connection);
+            });
 
-        for (var i = connections.Count; i < connectionElements.Count; i++)
-            _connectionsList.Remove(connectionElements[i]);
     }
 
     private void Update()

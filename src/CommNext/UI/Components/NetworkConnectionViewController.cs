@@ -13,7 +13,6 @@ using UnityEngine.UIElements;
 
 namespace CommNext.UI.Components;
 
-public class NetworkConnectionViewController : UIToolkitElement
 public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
 {
     private Label _nameLabel;
@@ -25,7 +24,10 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
     private VisualElement _powerIcon;
     private SignalStrengthIcon _signalStrengthIcon;
     private TooltipManipulator _signalStrengthTooltip;
+    private VisualElement _rowContainer;
 
+    private NetworkNode _currentNode = null!;
+    private NetworkConnection _connection = null!;
 
     private static Color ActiveColor => new(0f, 1f, 0.4f, 1f);
     private static Color InactiveColor => new(1f, 0.36f, 0.28f, 1f);
@@ -43,10 +45,37 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         _signalStrengthIcon = _root.Q<SignalStrengthIcon>("signal-strength-icon");
         _signalStrengthTooltip = new TooltipManipulator("");
         _signalStrengthIcon.AddManipulator(_signalStrengthTooltip);
+        _rowContainer = _root.Q<VisualElement>("row__container");
+        _rowContainer.AddManipulator(new Clickable(OnClick));
     }
+
+    /// <summary>
+    /// See `MapUISelectableItem.HandleVesselControl`. This implementation
+    /// is pretty much the same (except for the 3D Map view part).
+    /// </summary>
+    private void OnClick()
+    {
+        var game = GameManager.Instance.Game;
+        if (!game.ViewController.CanObserverLeaveTheActiveVessel()) return;
+
+        game.UI.SetCurtainContext(CurtainContext.EnterGamePlay);
+        game.UI.SetCurtainVisibility(true, () =>
+        {
+            game.GlobalGameState.SetState(GameState.Map3DView);
+            Mouse.EnableVirtualCursor(false);
+
+            var targetVessel = game.UniverseModel.FindVesselComponent(_connection.GetOther(_currentNode).Owner);
+            game.ViewController.SetActiveVehicle(targetVessel, true, true);
+            game.UI.SetCurtainVisibility(false);
+        });
+    }
+
 
     public void Bind(NetworkNode currentNode, NetworkConnection connection)
     {
+        _currentNode = currentNode;
+        _connection = connection;
+
         var otherNode = connection.GetOther(currentNode);
         _nameLabel.text = otherNode.DebugVesselName;
         _directionLabel.text = connection.IsSource(currentNode)
@@ -69,8 +98,8 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         var occludedText = connection.OccludingBody.HasValue
             ? " | " +
               LocalizationManager.GetTranslation(LocalizedStrings.OccludedByKey, [
-                  CelestialBodiesHelper.GetBodyName(connection.OccludingBody).UIColored("#E7CA76")
-              ]).UIColored("#FF5B48")
+                  CelestialBodiesHelper.GetBodyName(connection.OccludingBody).RTEColor("#E7CA76")
+              ]).RTEColor("#FF5B48")
             : "";
 
         _detailsLabel.text = distanceText + occludedText;
