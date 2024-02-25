@@ -4,6 +4,7 @@ using CommNext.Rendering;
 using CommNext.UI;
 using KSP.Game;
 using SpaceWarp.API.SaveGameManager;
+using UnityEngine;
 
 namespace CommNext.Managers;
 
@@ -21,7 +22,9 @@ public class SaveManager
 
     private static void SaveGameData(SaveData dataToSave)
     {
-        dataToSave.MapToolbarPosition = MainUIManager.Instance.MapToolbarWindow!.Position;
+        if (MainUIManager.Instance.MapToolbarWindow!.Position != Vector3.zero)
+            dataToSave.MapToolbarPosition = MainUIManager.Instance.MapToolbarWindow!.Position;
+
         dataToSave.ConnectionsDisplayMode = ConnectionsRenderer.Instance.ConnectionsDisplayMode;
         dataToSave.ShowRulers = ConnectionsRenderer.Instance.IsRulersEnabled;
     }
@@ -39,7 +42,7 @@ public class SaveManager
     {
         if (_loadedSaveData == null) return;
 
-        if (_loadedSaveData.MapToolbarPosition.HasValue)
+        if (_loadedSaveData.MapToolbarPosition.HasValue && _loadedSaveData.MapToolbarPosition != Vector3.zero)
             MainUIManager.Instance.MapToolbarWindow.Position = _loadedSaveData.MapToolbarPosition.Value;
 
         if (_loadedSaveData.ShowRulers != null)
