@@ -36,10 +36,8 @@ public class ConnectionsRenderer : MonoBehaviour
     private static Dictionary<IGGuid, Map3DFocusItem>? AllMapItems => _mapCore.map3D.AllMapSelectableItems;
     private static MapCore _mapCore = null!;
 
-    private GameObject _debugPositionsObject = null!;
-    private GameObject _debugPositionsBodyObject = null!;
-
-    private IEnumerator? _updateTask;
+    // private GameObject _debugPositionsObject = null!;
+    // private GameObject _debugPositionsBodyObject = null!;
 
     private ConnectionsDisplayMode _connectionsDisplayMode = ConnectionsDisplayMode.Lines;
     private RulersDisplayMode _rulersDisplayMode = RulersDisplayMode.Relays;
@@ -62,6 +60,7 @@ public class ConnectionsRenderer : MonoBehaviour
             {
                 _selectedBandColor = NetworkBands.Instance.AllBands[_selectedBandIndex.Value].Color;
                 RulersDisplayMode = RulersDisplayMode.Relays;
+                MarkAsDirty();
             }
             else
             {
@@ -81,8 +80,8 @@ public class ConnectionsRenderer : MonoBehaviour
         {
             Logger.LogInfo("Setting ConnectionsDisplayMode " + value);
             _connectionsDisplayMode = value;
-            ClearConnections();
-            ToggleUpdateTaskIfNeeded();
+            if (value == ConnectionsDisplayMode.None) ClearConnections();
+            else MarkAsDirty();
         }
     }
 
@@ -97,8 +96,8 @@ public class ConnectionsRenderer : MonoBehaviour
         {
             Logger.LogInfo("Setting RulersDisplayMode " + value);
             _rulersDisplayMode = value;
-            ClearRulers();
-            ToggleUpdateTaskIfNeeded();
+            if (value == RulersDisplayMode.None) ClearRulers();
+            else MarkAsDirty();
         }
     }
 
@@ -109,41 +108,15 @@ public class ConnectionsRenderer : MonoBehaviour
         get => _reportVessel;
         set
         {
-            ClearReportConnections();
             _reportVessel = value;
+            if (value == null) ClearReportConnections();
+            else MarkAsDirty();
         }
     }
 
     private void Start()
     {
         Instance = this;
-    }
-
-    private void ToggleUpdateTaskIfNeeded()
-    {
-        // We want to trigger them right away so that UI is updated
-        // right after the UI click.
-        // if (IsConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
-        var shouldBeRunning = IsConnectionsEnabled || IsRulersEnabled || ReportVessel != null;
-
-        switch (shouldBeRunning)
-        {
-            case true when _updateTask == null:
-                Logger.LogInfo("Starting update task");
-                _updateTask = RunUpdateTask();
-                StartCoroutine(_updateTask);
-                break;
-
-            case false when _updateTask != null:
-                Logger.LogInfo("Stopping update task");
-                StopCoroutine(_updateTask);
-                _updateTask = null;
-
-                ClearConnections();
-                ClearReportConnections();
-                ClearRulers();
-                break;
-        }
     }
 
     public void Initialize()
@@ -157,36 +130,46 @@ public class ConnectionsRenderer : MonoBehaviour
         ConnectionsDisplayMode = ConnectionsDisplayMode.Lines;
     }
 
-    public void ClearConnections()
+    private void ClearConnections()
     {
         foreach (var connection in _connections.Values) Destroy(connection.gameObject);
         _connections.Clear();
     }
 
-    public void ClearReportConnections()
+    private void ClearReportConnections()
     {
         foreach (var connection in _reportConnections.Values) Destroy(connection.gameObject);
         _reportConnections.Clear();
     }
 
-    public void ClearRulers()
+    private void ClearRulers()
     {
         foreach (var ruler in _rulers.Values) Destroy(ruler.gameObject);
         _rulers.Clear();
     }
 
-    private IEnumerator? RunUpdateTask()
+    private float _timerRemaining = 0;
+
+    public void MarkAsDirty()
     {
-        while (true)
+        _timerRemaining = 0f;
+    }
+
+    private void Update()
+    {
+        _timerRemaining -= Time.deltaTime;
+        if (_timerRemaining < 0)
         {
+            _timerRemaining = 0.5f;
             UpdateRenderings();
-            yield return new WaitForSeconds(0.25f);
         }
-        // ReSharper disable once IteratorNeverReturns
     }
 
     private void UpdateRenderings()
     {
+        var shouldRun = IsConnectionsEnabled || IsRulersEnabled || ReportVessel != null;
+        if (!shouldRun) return;
+
         if (!MessageListener.IsInMapView ||
             !NetworkManager.Instance.TryGetConnectionGraphNodesAndIndexes(
                 out var nodes,

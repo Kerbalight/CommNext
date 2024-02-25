@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace CommNext.Rendering.Behaviors;
 
+[DisallowMultipleComponent]
 public class MapRulerComponent : MonoBehaviour, IMapComponent
 {
     public string Id { get; set; } = null!;

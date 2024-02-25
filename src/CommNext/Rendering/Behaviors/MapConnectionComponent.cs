@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace CommNext.Rendering.Behaviors;
 
+[DisallowMultipleComponent]
 public class MapConnectionComponent : MonoBehaviour, IMapComponent
 {
     public static Material? LineMaterial;
