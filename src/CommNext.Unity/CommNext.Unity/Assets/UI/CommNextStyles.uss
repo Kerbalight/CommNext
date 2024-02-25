@@ -34,7 +34,6 @@
     --text-color: rgb(192, 199, 213);
     --inbound: rgb(142, 167, 255);
     --outbound: rgb(181, 88, 220);
-
     --band-k: rgb(112, 100, 255);
     --band-ka: rgb(214, 38, 235);
     --band-v: rgb(43, 217, 148);
@@ -553,9 +552,6 @@
     border-radius: 3px;
     width: 16px;
     height: 16px;
-
-    /*background-image: url('project://database/Assets/Images/TooltipBg.png?fileID=21300000&guid=5dc9e7533cd57af4291c5817bb6d671f&type=3#TooltipBg');*/
-    /*-unity-background-image-tint-color: rgb(36, 41, 51);*/
     padding-left: 2px;
     padding-right: 2px;
     padding-top: 2px;
@@ -565,4 +561,14 @@
 
 .band__icon--darker {
     background-color: rgb(20, 24, 31);
+}
+
+.antenna__icon {
+    flex-grow: 0;
+    background-image: url('project://database/Assets/Images/AntennaIcon.png?fileID=21300000&guid=acd0cc9db6229554d9c462be11b8b9d5&type=3#AntennaIcon');
+    -unity-background-scale-mode: scale-to-fit;
+    flex-shrink: 0;
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
 }

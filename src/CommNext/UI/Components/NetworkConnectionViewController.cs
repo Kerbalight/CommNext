@@ -147,5 +147,6 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         _signalStrengthTooltip.TooltipText = signalStrength.ToString("P0");
 
         _connectionIcon.style.unityBackgroundImageTintColor = connection.IsConnected ? ActiveColor : InactiveColor;
+        _connectionIcon.ToggleClassesIf(otherNode.IsRelay, ["relay__icon"], ["antenna__icon"]);
     }
 }
