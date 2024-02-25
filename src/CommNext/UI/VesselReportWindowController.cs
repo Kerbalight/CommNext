@@ -44,6 +44,7 @@ public class VesselReportWindowController : MonoBehaviour
     private Label _rangeLabel = null!;
     private ScrollView _connectionsList = null!;
     private VisualElement _bandsList = null!;
+    private Button _focusButton = null!;
     private DropdownField _filterDropdown = null!;
     private DropdownField _sortDropdown = null!;
     private SortDirectionButton _sortDirectionButton = null!;
@@ -133,6 +134,8 @@ public class VesselReportWindowController : MonoBehaviour
         _rangeLabel = _root.Q<Label>("range-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
         _bandsList = _root.Q<VisualElement>("bands-list");
+        _focusButton = _root.Q<Button>("focus-button");
+        _focusButton.clicked += FocusVessel;
         _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
         _filterDropdown.AddTooltip(LocalizedStrings.FilterLabel);
         _sortDropdown = _root.Q<DropdownField>("sort-dropdown");
@@ -148,6 +151,14 @@ public class VesselReportWindowController : MonoBehaviour
         closeButton.clicked += () => IsWindowOpen = false;
 
         IsWindowOpen = false;
+    }
+
+    private void FocusVessel()
+    {
+        if (!MapViewHelper.IsInMapViewOrNotify()) return;
+        if (_vessel == null) return;
+        var instance = ConnectionsRenderer.Instance;
+        if (instance != null) instance.FocusOnMap(_vessel.GlobalId);
     }
 
     private void BuildUI()

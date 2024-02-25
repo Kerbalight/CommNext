@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
 using KSP.Game;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
@@ -100,6 +101,11 @@ public static class UIToolkitExtensions
     public static string RTEColor(this string text, string color)
     {
         return $"<color={color}>{text}</color>";
+    }
+
+    public static string RTEColor(this string text, Color color)
+    {
+        return RTEColor(text, $"#{ColorUtility.ToHtmlStringRGB(color)}");
     }
 
     /// <summary>

@@ -29,13 +29,18 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         gameObject.layer = LayerMask.NameToLayer("Map");
     }
 
-    public void Track(Map3DFocusItem target, bool isConnected, NetworkNode networkNode,
-        ConnectionGraphNode connectionNode)
+    public void Track(Map3DFocusItem target,
+        bool isConnected,
+        NetworkNode networkNode,
+        ConnectionGraphNode connectionNode,
+        Color? connectedColor,
+        double commRange)
     {
         Id = target.AssociatedMapItem.SimGUID.ToString();
         _networkNode = networkNode;
         _target = target;
         IsConnected = isConnected;
+        ConnectedColor = connectedColor;
 
         // Relay sphere
         var sphereObject = Instantiate(ConnectionsRenderer.RulerSpherePrefab, gameObject.transform);
@@ -43,7 +48,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         sphereObject.transform.localPosition = Vector3.zero;
         _sphereRulerComponent = sphereObject.AddComponent<MapSphereRulerComponent>();
         _sphereRulerComponent.Configure(
-            connectionNode.MaxRange,
+            commRange,
             IsConnected ? ConnectedColor ?? DefaultConnectedColor : DisconnectedColor
         );
 

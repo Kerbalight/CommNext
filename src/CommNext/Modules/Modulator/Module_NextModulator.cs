@@ -33,6 +33,12 @@ public class Module_NextModulator : PartBehaviourModule
             modulator.OmniBand.OnChangedValue += OnOmniBandChangedValue;
             modulator.Band.OnChangedValue += OnBandChangedValue;
             modulator.SecondaryBand.OnChangedValue += OnBandChangedValue;
+
+            if (modulator.OmniBand.GetValue())
+            {
+                modulator.SetVisible(modulator.Band, false);
+                modulator.SetVisible(modulator.SecondaryBand, false);
+            }
         }
     }
 
@@ -42,6 +48,9 @@ public class Module_NextModulator : PartBehaviourModule
     private void OnOmniBandChangedValue(bool isOmniBand)
     {
         part.partOwner.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+
+        dataModulator!.SetVisible(dataModulator!.Band, !isOmniBand);
+        dataModulator!.SetVisible(dataModulator!.SecondaryBand, !isOmniBand);
     }
 
     private void OnBandChangedValue(string band)

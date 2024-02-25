@@ -2,15 +2,17 @@
     <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
     <ui:VisualElement class="row__spacer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
         <ui:VisualElement name="row__container" class="row__container" style="flex-grow: 1; flex-direction: row; align-items: center; padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px; flex-shrink: 0;">
-            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);">
+            <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); align-items: center;">
                 <ui:VisualElement name="connection-icon" class="relay__icon" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);" />
             </ui:VisualElement>
             <ui:VisualElement class="vertical-separator" style="flex-grow: 0; height: 100%;" />
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-shrink: 0;">
                 <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-start; align-items: center; margin-left: 2px;">
+                    <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-start; align-items: center; margin-left: 2px;">
                         <CommNext.Unity.Runtime.Controls.SignalStrengthIcon strength="Full" name="signal-strength-icon" style="margin-top: 0; justify-content: flex-start; align-self: center; margin-right: 3px; margin-bottom: 2px;" />
+                        <CommNext.Unity.Runtime.Controls.BandIcon color="#B325D4FF" code="X" name="band-icon" style="margin-top: 0; margin-right: 2px;" />
                         <ui:Label tabindex="-1" text="Relay Name" display-tooltip-when-elided="true" name="name-label" style="font-size: 13px;" />
+                        <ui:VisualElement name="band-icon--old" class="band__icon" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-shrink: 0; margin-left: 0; margin-top: 1px; display: none;" />
                         <ui:VisualElement name="power-icon" class="icon__small icon--no-power" style="flex-grow: 0; background-color: rgba(207, 79, 79, 0); background-image: url(&apos;project://database/Assets/Images/PowerIcon.png?fileID=21300000&amp;guid=c50a10f38dd04714b94be75e717f92de&amp;type=3#PowerIcon&apos;); border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; visibility: visible; display: flex;" />
                     </ui:VisualElement>
                     <ui:VisualElement name="direction-tag" class="direction__tag--inbound direction__tag" style="background-color: rgb(36, 41, 51);">
@@ -20,6 +22,7 @@
                 </ui:VisualElement>
                 <ui:Label tabindex="-1" text="Distance: &lt;color=#E7CA76&gt;360Gm&lt;/color&gt;" display-tooltip-when-elided="true" name="details-label" style="font-size: 12px; color: rgb(114, 121, 135); padding-top: 0;" />
             </ui:VisualElement>
+            <ui:Button text="Control" display-tooltip-when-elided="true" name="control-button" class="row__button--on-hover" style="position: absolute; right: 5px; padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px; font-size: 11px; height: 24px; bottom: 3px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

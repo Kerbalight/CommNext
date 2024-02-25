@@ -36,7 +36,7 @@ public static class LocalizedStrings
     public static LocalizedString ModulatorKindMonoBand = "PartModules/NextModulator/KindMonoBand";
     public static LocalizedString ModulatorKindDualBand = "PartModules/NextModulator/KindDualBand";
     public static LocalizedString ModulatorKindOmniBand = "PartModules/NextModulator/KindOmniBand";
-
+    public static LocalizedString TooltipActivateBandRulers = "CommNext/UI/TooltipActivateBandRulers";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";
@@ -47,6 +47,7 @@ public static class LocalizedStrings
     public const string EnableRelayKey = "CommNext/UI/EnableRelay";
     public const string OmniBandKey = "CommNext/UI/OmniBand";
     public const string BandMissingRangeKey = "CommNext/UI/BandMissingRange";
+    public const string ActionRequiresMapViewKey = "CommNext/UI/ActionRequiresMapView";
 
     public static string GetTranslationWithParams(string localizationKey, Dictionary<string, string>? parameters)
     {

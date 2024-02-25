@@ -4,6 +4,7 @@ using CommNext.Network.Bands;
 using CommNext.Rendering;
 using CommNext.UI.Tooltip;
 using CommNext.UI.Utils;
+using CommNext.Unity.Runtime.Controls;
 using KSP;
 using UnityEngine.UIElements;
 
@@ -22,6 +23,8 @@ public class BandRowController : UIToolkitElement, IPoolingElement
     private readonly Label _nameLabel;
     private readonly Label _rangeLabel;
     private readonly Toggle _activateToggle;
+    private readonly BandIcon _bandIcon;
+
     private NetworkNode _currentNode = null!;
     private NetworkBand _band = null!;
 
@@ -31,8 +34,9 @@ public class BandRowController : UIToolkitElement, IPoolingElement
     {
         _nameLabel = _root.Q<Label>("name-label");
         _rangeLabel = _root.Q<Label>("range-label");
+        _bandIcon = _root.Q<BandIcon>("band-icon");
         _activateToggle = _root.Q<Toggle>("activate-toggle");
-        _activateToggle.AddManipulator(new TooltipManipulator("Activate or deactivate this band in the map view"));
+        _activateToggle.AddManipulator(new TooltipManipulator(LocalizedStrings.TooltipActivateBandRulers));
         _activateToggle.RegisterValueChangedCallback(OnActivateToggleChanged);
 
         ActivateToggled += OnOtherBandActivated;
@@ -51,6 +55,7 @@ public class BandRowController : UIToolkitElement, IPoolingElement
 
         _nameLabel.text = band.DisplayName;
         _rangeLabel.text = Units.PrintSI(nodeBandRange, Units.SymbolMeters).RTEColor("#E7CA76");
+        _bandIcon.SetBand(band.Code, band.Color);
     }
 
     // ReSharper disable Unity.PerformanceAnalysis

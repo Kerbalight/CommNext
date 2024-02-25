@@ -2,6 +2,7 @@
 using CommNext.Modules.Relay;
 using CommNext.Network.Bands;
 using CommNext.UI;
+using CommNext.UI.Utils;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using KSP.UI.Binding;
@@ -45,8 +46,21 @@ public class Data_NextModulator : ModuleData
         foreach (var band in NetworkBands.Instance.AllBands)
         {
             // TODO Add image? Sprite is supported, should test it
-            bandOptions.Add(band.Code, new DropdownItem() { key = band.Code, text = band.DisplayName });
-            secondaryBandOptions.Add(band.Code, new DropdownItem() { key = band.Code, text = band.DisplayName });
+            bandOptions.Add(band.Code,
+                new DropdownItem()
+                {
+                    key = band.Code,
+                    text = band.DisplayName.RTEColor(band.Color)
+                    // image = NetworkBands.Instance.GetIconSprite(band.Code)
+                });
+
+            secondaryBandOptions.Add(band.Code,
+                new DropdownItem()
+                {
+                    key = band.Code,
+                    text = band.DisplayName.RTEColor(band.Color)
+                    // image = NetworkBands.Instance.GetIconSprite(band.Code)
+                });
         }
 
         SetDropdownData(Band, bandOptions);

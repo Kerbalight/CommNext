@@ -12,7 +12,10 @@
         <ui:VisualElement name="vessel-row" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; margin-bottom: 8px; margin-top: 2px;">
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center; justify-content: space-between;">
                 <ui:Label tabindex="-1" text="Vessel Name" display-tooltip-when-elided="true" name="name-label" style="margin-left: 2px; color: rgb(125, 142, 176);" />
-                <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="range-label" style="-unity-text-align: upper-right;" />
+                <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-end; align-items: center;">
+                    <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="range-label" style="-unity-text-align: upper-right;" />
+                    <ui:Button text="Focus" display-tooltip-when-elided="true" name="focus-button" style="margin-left: 4px; height: 26px; margin-top: 2px;" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; flex-shrink: 0; margin-bottom: 6px;">

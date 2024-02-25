@@ -34,6 +34,10 @@
     --text-color: rgb(192, 199, 213);
     --inbound: rgb(142, 167, 255);
     --outbound: rgb(181, 88, 220);
+
+    --band-k: rgb(112, 100, 255);
+    --band-ka: rgb(214, 38, 235);
+    --band-v: rgb(43, 217, 148);
 }
 
 #close-button {
@@ -183,6 +187,14 @@
 
 .row__container:hover {
     background-color: rgb(67, 72, 155);
+}
+
+.row__container .row__button--on-hover {
+    display: none;
+}
+
+.row__container:hover .row__button--on-hover {
+    display: flex;
 }
 
 .icon__small {
@@ -512,4 +524,45 @@
 
 .unity-toggle.pixel-toggle:hover .unity-toggle__input {
     -unity-background-image-tint-color: white;
+}
+
+.band__icon--old {
+    flex-grow: 0;
+    background-color: rgba(0, 0, 0, 0);
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    background-image: url('project://database/Assets/Images/TooltipBg.png?fileID=21300000&guid=5dc9e7533cd57af4291c5817bb6d671f&type=3#TooltipBg');
+    margin-right: 6px;
+}
+
+.band__code {
+    font-size: 10px;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    -unity-text-align: middle-center;
+}
+
+.band__icon {
+    flex-grow: 1;
+    background-color: rgb(36, 41, 51);
+    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+
+    /*background-image: url('project://database/Assets/Images/TooltipBg.png?fileID=21300000&guid=5dc9e7533cd57af4291c5817bb6d671f&type=3#TooltipBg');*/
+    /*-unity-background-image-tint-color: rgb(36, 41, 51);*/
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-top: 4px;
+}
+
+.band__icon--darker {
+    background-color: rgb(20, 24, 31);
 }

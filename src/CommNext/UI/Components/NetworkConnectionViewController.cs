@@ -1,6 +1,7 @@
 ﻿using CommNext.Managers;
 using CommNext.Network;
 using CommNext.Network.Bands;
+using CommNext.Rendering;
 using CommNext.UI.Tooltip;
 using CommNext.UI.Utils;
 using CommNext.Unity.Runtime.Controls;
@@ -26,6 +27,9 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
     private SignalStrengthIcon _signalStrengthIcon;
     private TooltipManipulator _signalStrengthTooltip;
     private VisualElement _rowContainer;
+    private BandIcon _bandIcon;
+    private TooltipManipulator _bandTooltip;
+    private Button _controlButton;
 
     private NetworkNode _currentNode = null!;
     private NetworkConnection _connection = null!;
@@ -41,36 +45,47 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         _nameLabel = _root.Q<Label>("name-label");
         _detailsLabel = _root.Q<Label>("details-label");
         _directionLabel = _root.Q<Label>("direction-label");
+        _bandIcon = _root.Q<BandIcon>("band-icon");
+        _bandTooltip = new TooltipManipulator("");
+        _bandIcon.AddManipulator(_bandTooltip);
+        _controlButton = _root.Q<Button>("control-button");
+        _controlButton.clicked += OnControl;
         _powerIcon = _root.Q<VisualElement>("power-icon");
         _powerIcon.AddTooltip(LocalizedStrings.NoPower);
         _signalStrengthIcon = _root.Q<SignalStrengthIcon>("signal-strength-icon");
         _signalStrengthTooltip = new TooltipManipulator("");
         _signalStrengthIcon.AddManipulator(_signalStrengthTooltip);
         _rowContainer = _root.Q<VisualElement>("row__container");
-        _rowContainer.AddManipulator(new Clickable(OnClick));
+        _rowContainer.AddManipulator(new Clickable(OnFocus));
     }
 
-    /// <summary>
-    /// See `MapUISelectableItem.HandleVesselControl`. This implementation
-    /// is pretty much the same (except for the 3D Map view part).
-    /// </summary>
-    private void OnClick()
+    private void OnFocus()
     {
-        var game = GameManager.Instance.Game;
-        if (!game.ViewController.CanObserverLeaveTheActiveVessel()) return;
+        if (!MapViewHelper.IsInMapViewOrNotify()) return;
 
-        game.UI.SetCurtainContext(CurtainContext.EnterGamePlay);
-        game.UI.SetCurtainVisibility(true, () =>
+        var otherNode = _connection.GetOther(_currentNode);
+        ConnectionsRenderer.Instance.FocusOnMap(otherNode.Owner);
+    }
+
+    private void OnControl()
+    {
+        if (!MapViewHelper.IsInMapViewOrNotify()) return;
+
+        var otherNode = _connection.GetOther(_currentNode);
+        ConnectionsRenderer.Instance.ControlVesselOnMap(otherNode);
+    }
+
+    private void NotifyRequiresMapView()
+    {
+        GameManager.Instance.Game.Notifications.ProcessNotification(new NotificationData()
         {
-            game.GlobalGameState.SetState(GameState.Map3DView);
-            Mouse.EnableVirtualCursor(false);
-
-            var targetVessel = game.UniverseModel.FindVesselComponent(_connection.GetOther(_currentNode).Owner);
-            game.ViewController.SetActiveVehicle(targetVessel, true, true);
-            game.UI.SetCurtainVisibility(false);
+            Tier = NotificationTier.Passive,
+            Primary = new NotificationLineItemData()
+            {
+                LocKey = LocalizedStrings.ActionRequiresMapViewKey
+            }
         });
     }
-
 
     public void Bind(NetworkNode currentNode, NetworkConnection connection)
     {
@@ -104,15 +119,19 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
             : "";
 
         var bandText = "";
+        _bandIcon.style.display = DisplayStyle.None;
         if (connection.SelectedBand.HasValue)
         {
-            bandText = " | ";
             var networkBand = NetworkBands.Instance.AllBands[connection.SelectedBand.Value];
 
-            if (!connection.IsBandMissingRange)
-                bandText += networkBand.DisplayName.RTEColor("#" + ColorUtility.ToHtmlStringRGB(networkBand.Color));
-            else
-                bandText += LocalizationManager.GetTranslation(LocalizedStrings.BandMissingRangeKey, [
+            _bandIcon.style.display = DisplayStyle.Flex;
+            _bandIcon.SetBand(networkBand.Code, networkBand.Color);
+            _bandTooltip.TooltipText = networkBand.DisplayName;
+
+            // if (!connection.IsBandMissingRange)
+            //     bandText += networkBand.DisplayName.RTEColor("#" + ColorUtility.ToHtmlStringRGB(networkBand.Color));
+            if (connection.IsBandMissingRange)
+                bandText = " | " + LocalizationManager.GetTranslation(LocalizedStrings.BandMissingRangeKey, [
                     networkBand.Code.RTEColor("#E7CA76")
                 ]).RTEColor("#FF5B48");
         }
