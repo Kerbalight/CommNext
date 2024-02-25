@@ -49,7 +49,7 @@ public static class TelemetryComponentPatches
         foreach (var part in partOwner.Parts)
         {
             if (part.TryGetModuleData<PartComponentModule_NextRelay, Data_NextRelay>(out var data))
-                isRelay = data.EnableRelay.GetValue();
+                isRelay |= data.EnableRelay.GetValue();
 
             if (!part.TryGetModule<PartComponentModule_DataTransmitter>(out var transmitterModule))
                 continue;

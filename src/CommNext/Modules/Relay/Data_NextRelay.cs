@@ -21,6 +21,9 @@ public class Data_NextRelay : ModuleData
     // public string ModeValue;
 
     [KSPState]
+    [LocalizedField(LocalizedStrings.EnableRelayKey)]
+    [PAMDisplayControl(SortIndex = 0)]
+    public ModuleProperty<bool> EnableRelay = new(true);
 
     public override void OnPartBehaviourModuleInit() { }
 
@@ -45,6 +48,7 @@ public class Data_NextRelay : ModuleData
     {
         var dataRelay = (Data_NextRelay?)sourceModuleData;
         if (dataRelay == null) return;
+        EnableRelay.SetValue(dataRelay.EnableRelay.GetValue());
     }
 
     #endregion
