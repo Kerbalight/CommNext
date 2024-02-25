@@ -230,7 +230,18 @@ public struct GetNextConnectedNodesJob : IJob
                     break;
                 }
 
-                if (matchingBand == -1) continue;
+                if (matchingBand == -1)
+                {
+                    Connections[connectionIndex] = Connections[connectionIndex] with
+                    {
+                        HasMatchingBand = false,
+                        // We set this to -1, since we don't have a matching band; this
+                        // will be used to tell the UI that there's no matching band and
+                        // this is the reason why the connection failed.
+                        SelectedBand = -1
+                    };
+                    continue;
+                }
 
                 // Skip if line intersects a celestial body
                 var sourcePosition = Nodes[sourceIndex].Position;

@@ -3,6 +3,8 @@ using System.Reflection;
 using BepInEx.Logging;
 using CommNext.Managers;
 using CommNext.Network;
+using CommNext.Network.Bands;
+using CommNext.Network.Compute;
 using CommNext.Patches;
 using CommNext.Rendering.Behaviors;
 using CommNext.UI;
@@ -11,6 +13,7 @@ using KSP.Game;
 using KSP.Map;
 using KSP.Sim;
 using KSP.Sim.impl;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -42,6 +45,29 @@ public class ConnectionsRenderer : MonoBehaviour
     private bool _isRulersEnabled = true;
 
     public bool IsConnectionsEnabled => _connectionsDisplayMode != ConnectionsDisplayMode.None;
+
+    private int? _selectedBandIndex;
+    private Color? _selectedBandColor;
+
+    public int? SelectedBandIndex
+    {
+        get => _selectedBandIndex;
+        set
+        {
+            if (_selectedBandIndex == value) return;
+
+            _selectedBandIndex = value;
+            if (_selectedBandIndex.HasValue)
+            {
+                _selectedBandColor = NetworkBands.Instance.AllBands[_selectedBandIndex.Value].Color;
+                IsRulersEnabled = true;
+            }
+            else
+            {
+                _selectedBandColor = null;
+            }
+        }
+    }
 
     /// <summary>
     /// Connections are the lines between the nodes (vessels, ground stations, etc).
@@ -163,12 +189,12 @@ public class ConnectionsRenderer : MonoBehaviour
             !NetworkManager.Instance.TryGetConnectionGraphNodesAndIndexes(
                 out var nodes,
                 out var prevIndexes,
-                out var connectedNodes) ||
-            nodes == null) return;
+                out var networkJobConnections) ||
+            nodes == null || !networkJobConnections.HasValue) return;
 
         try
         {
-            if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+            if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes, networkJobConnections.Value);
             if (ReportVessel != null) UpdateReportConnections();
             if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
         }
@@ -178,7 +204,8 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
-    private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes)
+    private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes,
+        NativeArray<NetworkJobConnection> networkJobConnections)
     {
         // TODO Add some events-based logic.
         if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
@@ -221,12 +248,10 @@ public class ConnectionsRenderer : MonoBehaviour
             var targetItem = GetMapItem(targetNode);
             if (sourceItem == null || targetItem == null) continue;
 
+            var networkJobConnection = networkJobConnections[targetIndex * nodes.Count + sourceIndex];
+
             var connectionId = MapConnectionComponent.GetID(sourceItem, targetItem);
-            if (_connections.TryGetValue(connectionId, out var connection))
-            {
-                keepIds.Add(connectionId);
-            }
-            else
+            if (!_connections.TryGetValue(connectionId, out var connection))
             {
                 var sourceNetworkNode = NetworkManager.Instance.Nodes[sourceNode.Owner];
                 var targetNetworkNode = NetworkManager.Instance.Nodes[targetNode.Owner];
@@ -240,8 +265,12 @@ public class ConnectionsRenderer : MonoBehaviour
                     sourceNode, targetNode
                 );
                 _connections.Add(connectionId, connection);
-                keepIds.Add(connectionId);
             }
+
+            keepIds.Add(connectionId);
+            connection.Band = networkJobConnection.HasMatchingBand
+                ? NetworkBands.Instance.AllBands[networkJobConnection.SelectedBand]
+                : null;
         }
 
         var removeIds = _connections.Keys.Except(keepIds).ToList();
@@ -334,6 +363,10 @@ public class ConnectionsRenderer : MonoBehaviour
 
             keepIds.Add(ruler.Id);
             ruler.IsConnected = prevIndexes[i] >= 0;
+            ruler.ConnectedColor = _selectedBandColor;
+            ruler.CommRange = _selectedBandIndex.HasValue
+                ? networkNode.BandRanges[_selectedBandIndex.Value]
+                : node.MaxRange;
         }
 
         var removeIds = _rulers.Keys.Except(keepIds).ToList();

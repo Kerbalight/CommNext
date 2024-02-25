@@ -1,5 +1,6 @@
 ﻿using CommNext.Managers;
 using CommNext.Network;
+using CommNext.Network.Bands;
 using CommNext.UI.Tooltip;
 using CommNext.UI.Utils;
 using CommNext.Unity.Runtime.Controls;
@@ -102,7 +103,25 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
               ]).RTEColor("#FF5B48")
             : "";
 
-        _detailsLabel.text = distanceText + occludedText;
+        var bandText = "";
+        if (connection.SelectedBand.HasValue)
+        {
+            bandText = " | ";
+            var networkBand = NetworkBands.Instance.AllBands[connection.SelectedBand.Value];
+
+            if (!connection.IsBandMissingRange)
+                bandText += networkBand.DisplayName.RTEColor("#" + ColorUtility.ToHtmlStringRGB(networkBand.Color));
+            else
+                bandText += LocalizationManager.GetTranslation(LocalizedStrings.BandMissingRangeKey, [
+                    networkBand.Code.RTEColor("#E7CA76")
+                ]).RTEColor("#FF5B48");
+        }
+        else if (connection is { IsConnected: false, IsBandNotAvailable: true })
+        {
+            bandText = " | " + LocalizationManager.GetTranslation(LocalizedStrings.NoAvailableBand).RTEColor("#FF5B48");
+        }
+
+        _detailsLabel.text = distanceText + bandText + occludedText;
 
         var signalStrength = connection.SignalStrength();
         _signalStrengthIcon.SetStrengthPercentage(signalStrength);

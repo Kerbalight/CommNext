@@ -13,6 +13,12 @@ public class MapSphereRulerComponent : MonoBehaviour
 
     private static readonly int ColorID = Shader.PropertyToID("_Color");
 
+    public double Range
+    {
+        get => _range;
+        set => _range = value;
+    }
+
     public void Start()
     {
         gameObject.layer = LayerMask.NameToLayer("Map");

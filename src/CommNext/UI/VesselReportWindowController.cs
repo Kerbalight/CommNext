@@ -43,6 +43,7 @@ public class VesselReportWindowController : MonoBehaviour
     private Label _nameLabel = null!;
     private Label _rangeLabel = null!;
     private ScrollView _connectionsList = null!;
+    private VisualElement _bandsList = null!;
     private DropdownField _filterDropdown = null!;
     private DropdownField _sortDropdown = null!;
     private SortDirectionButton _sortDirectionButton = null!;
@@ -131,6 +132,7 @@ public class VesselReportWindowController : MonoBehaviour
         _nameLabel = _root.Q<Label>("name-label");
         _rangeLabel = _root.Q<Label>("range-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
+        _bandsList = _root.Q<VisualElement>("bands-list");
         _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
         _filterDropdown.AddTooltip(LocalizedStrings.FilterLabel);
         _sortDropdown = _root.Q<DropdownField>("sort-dropdown");
@@ -181,6 +183,16 @@ public class VesselReportWindowController : MonoBehaviour
                 connectionRow.Bind(networkNode, connection);
             });
 
+        // Same pooling for the bands
+        var nodeBandIndexes = networkNode.BandRanges
+            .Select((range, index) => range > 0 ? index : -1)
+            .Where(index => index >= 0)
+            .ToArray();
+        _bandsList.PoolChildren<int, BandRowController>(nodeBandIndexes, (bandIndex, bandRow) =>
+        {
+            var bandRange = networkNode.BandRanges[bandIndex];
+            bandRow.Bind(networkNode, bandIndex, bandRange);
+        });
     }
 
     private void Update()

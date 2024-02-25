@@ -17,7 +17,9 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
 
     private MapSphereRulerComponent _sphereRulerComponent = null!;
 
-    private static Color ConnectedColor = new(1.433962f, 0.8418202f, 0.1826273f, 0f);
+    public Color? ConnectedColor;
+
+    private static Color DefaultConnectedColor = new(1.433962f, 0.8418202f, 0.1826273f, 0f);
     private static Color DisconnectedColor = new(0.06603771f, 0.01445956f, 0.01090245f, 1f);
 #if SHOW_RELAY_PLACEHOLDER
     private MapSphereRulerComponent? _placeholder;
@@ -42,7 +44,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         _sphereRulerComponent = sphereObject.AddComponent<MapSphereRulerComponent>();
         _sphereRulerComponent.Configure(
             connectionNode.MaxRange,
-            IsConnected ? ConnectedColor : DisconnectedColor
+            IsConnected ? ConnectedColor ?? DefaultConnectedColor : DisconnectedColor
         );
 
 #if SHOW_RELAY_PLACEHOLDER
@@ -61,6 +63,12 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
         _isTracking = true;
     }
 
+    public double CommRange
+    {
+        get => _sphereRulerComponent.Range;
+        set => _sphereRulerComponent.Range = value;
+    }
+
     private void Update()
     {
         if (!_isTracking) return;
@@ -70,7 +78,7 @@ public class MapRulerComponent : MonoBehaviour, IMapComponent
             return;
         }
 
-        _sphereRulerComponent.SetColor(IsConnected ? ConnectedColor : DisconnectedColor);
+        _sphereRulerComponent.SetColor(IsConnected ? ConnectedColor ?? DefaultConnectedColor : DisconnectedColor);
 
         transform.position = _target.transform.position;
     }

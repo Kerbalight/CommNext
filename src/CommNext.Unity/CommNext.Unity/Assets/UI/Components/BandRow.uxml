@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
+    <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-shrink: 0; padding-left: 2px; padding-right: 2px; padding-top: 1px; padding-bottom: 1px;">
+        <ui:VisualElement class="band-row" style="padding-left: 4px; padding-right: 4px;">
+            <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="name-label" style="width: 35%; font-size: 12px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+            <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="range-label" style="flex-grow: 1; -unity-text-align: upper-left; margin-left: 3px; margin-right: 3px; font-size: 12px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+            <ui:Toggle name="activate-toggle" value="false" class="pixel-toggle" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
