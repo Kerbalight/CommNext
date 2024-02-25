@@ -30,7 +30,11 @@ public static class ConnectionGraphPatches
         BepInEx.Logging.Logger.CreateLogSource("CommNext.ConnectionGraphPatches");
 
     private static GameInstance Game => GameManager.Instance.Game;
+
     private static IGGuid _kscId;
+
+    // 1km tolerance for under sea level terrain 
+    private const double SeaLevelTerrainTolerance = 1000;
 
     // Since we have only one `ConnectionGraph` instance, we store
     // the additional infos here.
@@ -226,7 +230,8 @@ public static class ConnectionGraphPatches
             bodyInfos[i] = new CommNextBodyInfo
             {
                 position = sourceTransform.celestialFrame.ToLocalPosition(body.transform.Position),
-                radius = body.radius,
+                radius = body.radius * PluginSettings.OcclusionRadiusFactor.Value -
+                         SeaLevelTerrainTolerance,
                 name = body.bodyName
             };
         }

@@ -2,7 +2,7 @@
 
 namespace CommNext.Managers;
 
-public class CelestialBodiesHelper
+public static class CelestialBodiesHelper
 {
     public static string GetBodyName(int? index)
     {
