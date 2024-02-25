@@ -37,6 +37,10 @@
     --band-k: rgb(112, 100, 255);
     --band-ka: rgb(214, 38, 235);
     --band-v: rgb(43, 217, 148);
+    --toolbar-off: rgb(213, 222, 255);
+    --toolbar-off-hover: rgb(128, 134, 153);
+    --toolbar-on: rgb(0, 255, 102);
+    --toolbar-on-hover: rgb(17, 152, 73);
 }
 
 #close-button {
@@ -100,51 +104,78 @@
     width: 24px;
     border-width: 0;
     background-color: var(--black);
-    -unity-background-image-tint-color: rgb(213, 222, 255);
+    -unity-background-image-tint-color: var(--toolbar-off);
     transition: all 0.2s;
 }
 
 .toolbar__icon.toolbar__icon--comm-none {
-    -unity-background-image-tint-color: rgb(213, 222, 255);
+    -unity-background-image-tint-color: var(--toolbar-off);
     background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
 }
 
 .toolbar__icon.toolbar__icon--comm-lines {
-    -unity-background-image-tint-color: rgb(0, 255, 102);
+    -unity-background-image-tint-color: var(--toolbar-on);
     background-image: url('project://database/Assets/Images/CommIcon.png?fileID=21300000&guid=44fde49e8d63c944d8546059ff442eda&type=3#CommIcon');
 }
 
 .toolbar__icon.toolbar__icon--comm-active {
-    -unity-background-image-tint-color: rgb(0, 255, 102);
+    -unity-background-image-tint-color: var(--toolbar-on);
     background-image: url('project://database/Assets/Images/CommActiveIcon.png?fileID=21300000&guid=65ee5addc1a687148add89fab0312eee&type=3#CommActiveIcon');
 }
 
 .toolbar__icon.toolbar__icon--comm-none:hover {
-    -unity-background-image-tint-color: rgb(128, 134, 153);
+    -unity-background-image-tint-color: var(--toolbar-off-hover);
 }
 
 .toolbar__icon.toolbar__icon--comm-lines:hover {
-    -unity-background-image-tint-color: rgb(17, 152, 73);
+    -unity-background-image-tint-color: var(--toolbar-on-hover);
 }
 
 .toolbar__icon.toolbar__icon--comm-active:hover {
-    -unity-background-image-tint-color: rgb(17, 152, 73);
+    -unity-background-image-tint-color: var(--toolbar-on-hover);
 }
 
 .toolbar__icon {
-    -unity-background-image-tint-color: rgb(213, 222, 255);
+    -unity-background-image-tint-color: var(--toolbar-off);
 }
 
 .toolbar__icon:hover {
-    -unity-background-image-tint-color: rgb(128, 134, 153);
+    -unity-background-image-tint-color: var(--toolbar-off-hover);
 }
 
 .toolbar__icon.toggled {
-    -unity-background-image-tint-color: rgb(0, 255, 102);
+    -unity-background-image-tint-color: var(--toolbar-on);
 }
 
 .toolbar__icon.toggled:hover {
-    -unity-background-image-tint-color: rgb(17, 152, 73);
+    -unity-background-image-tint-color: var(--toolbar-on-hover);
+}
+
+.toolbar__icon--rulers-none {
+    -unity-background-image-tint-color: var(--toolbar-off);
+    background-image: url('project://database/Assets/Images/RulerIcon.png?fileID=21300000&guid=3b9ca3009b51d014a9e7fa9131114060&type=3#RulerIcon');
+}
+
+.toolbar__icon--rulers-relays {
+    -unity-background-image-tint-color: var(--toolbar-on);
+    background-image: url('project://database/Assets/Images/RulerIcon.png?fileID=21300000&guid=3b9ca3009b51d014a9e7fa9131114060&type=3#RulerIcon');
+}
+
+.toolbar__icon--rulers-all {
+    -unity-background-image-tint-color: var(--toolbar-on);
+    background-image: url('project://database/Assets/Images/RulerAllIcon.png?fileID=21300000&guid=f51980a60b7a2da4a81bf5c1ac0f1d5b&type=3#RulerAllIcon');
+}
+
+.toolbar__icon--rulers-none:hover {
+    -unity-background-image-tint-color: var(--toolbar-off-hover);
+}
+
+.toolbar__icon--rulers-relays:hover {
+    -unity-background-image-tint-color: var(--toolbar-on-hover);
+}
+
+.toolbar__icon--rulers-all:hover {
+    -unity-background-image-tint-color: var(--toolbar-on-hover);
 }
 
 .app-comm-icon {

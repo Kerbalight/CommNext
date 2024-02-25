@@ -26,7 +26,7 @@ public class SaveManager
             dataToSave.MapToolbarPosition = MainUIManager.Instance.MapToolbarWindow!.Position;
 
         dataToSave.ConnectionsDisplayMode = ConnectionsRenderer.Instance.ConnectionsDisplayMode;
-        dataToSave.ShowRulers = ConnectionsRenderer.Instance.IsRulersEnabled;
+        dataToSave.RulersDisplayMode = ConnectionsRenderer.Instance.RulersDisplayMode;
     }
 
     private void LoadGameData(SaveData dataToLoad)
@@ -45,8 +45,8 @@ public class SaveManager
         if (_loadedSaveData.MapToolbarPosition.HasValue && _loadedSaveData.MapToolbarPosition != Vector3.zero)
             MainUIManager.Instance.MapToolbarWindow.Position = _loadedSaveData.MapToolbarPosition.Value;
 
-        if (_loadedSaveData.ShowRulers != null)
-            ConnectionsRenderer.Instance.IsRulersEnabled = _loadedSaveData.ShowRulers.Value;
+        if (_loadedSaveData.RulersDisplayMode != null)
+            ConnectionsRenderer.Instance.RulersDisplayMode = _loadedSaveData.RulersDisplayMode.Value;
         if (_loadedSaveData.ConnectionsDisplayMode != null)
             ConnectionsRenderer.Instance.ConnectionsDisplayMode = _loadedSaveData.ConnectionsDisplayMode.Value;
 

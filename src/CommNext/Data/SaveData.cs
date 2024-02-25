@@ -7,5 +7,5 @@ public class SaveData
 {
     public Vector3? MapToolbarPosition;
     public ConnectionsDisplayMode? ConnectionsDisplayMode;
-    public bool? ShowRulers;
+    public RulersDisplayMode? RulersDisplayMode;
 }

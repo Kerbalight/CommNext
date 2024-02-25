@@ -39,6 +39,9 @@ public static class LocalizedStrings
     public static LocalizedString ModulatorKindOmniBand = "PartModules/NextModulator/KindOmniBand";
     public static LocalizedString TooltipActivateBandRulers = "CommNext/UI/TooltipActivateBandRulers";
     public static LocalizedString TooltipNoPowerCurrentVessel = "CommNext/UI/TooltipNoPowerCurrentVessel";
+    public static LocalizedString RulersDisplayModeNone = "CommNext/UI/RulersDisplayModeNone";
+    public static LocalizedString RulersDisplayModeRelays = "CommNext/UI/RulersDisplayModeRelays";
+    public static LocalizedString RulersDisplayModeAll = "CommNext/UI/RulersDisplayModeAll";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";

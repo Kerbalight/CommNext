@@ -42,9 +42,10 @@ public class ConnectionsRenderer : MonoBehaviour
     private IEnumerator? _updateTask;
 
     private ConnectionsDisplayMode _connectionsDisplayMode = ConnectionsDisplayMode.Lines;
-    private bool _isRulersEnabled = true;
+    private RulersDisplayMode _rulersDisplayMode = RulersDisplayMode.Relays;
 
     public bool IsConnectionsEnabled => _connectionsDisplayMode != ConnectionsDisplayMode.None;
+    public bool IsRulersEnabled => _rulersDisplayMode != RulersDisplayMode.None;
 
     private int? _selectedBandIndex;
     private Color? _selectedBandColor;
@@ -60,12 +61,12 @@ public class ConnectionsRenderer : MonoBehaviour
             if (_selectedBandIndex.HasValue)
             {
                 _selectedBandColor = NetworkBands.Instance.AllBands[_selectedBandIndex.Value].Color;
-                IsRulersEnabled = true;
+                RulersDisplayMode = RulersDisplayMode.Relays;
             }
             else
             {
                 _selectedBandColor = null;
-                IsRulersEnabled = false;
+                RulersDisplayMode = RulersDisplayMode.None;
             }
         }
     }
@@ -89,13 +90,13 @@ public class ConnectionsRenderer : MonoBehaviour
     /// Rulers are the spheres that show the range of the nodes
     /// (vessels, ground stations, etc).
     /// </summary>
-    public bool IsRulersEnabled
+    public RulersDisplayMode RulersDisplayMode
     {
-        get => _isRulersEnabled;
+        get => _rulersDisplayMode;
         set
         {
-            Logger.LogInfo("Setting IsRulersEnabled to " + value);
-            _isRulersEnabled = value;
+            Logger.LogInfo("Setting RulersDisplayMode " + value);
+            _rulersDisplayMode = value;
             ClearRulers();
             ToggleUpdateTaskIfNeeded();
         }
@@ -123,7 +124,7 @@ public class ConnectionsRenderer : MonoBehaviour
         // We want to trigger them right away so that UI is updated
         // right after the UI click.
         // if (IsConnectionsEnabled || _isRulersEnabled) UpdateRenderings();
-        var shouldBeRunning = IsConnectionsEnabled || _isRulersEnabled || ReportVessel != null;
+        var shouldBeRunning = IsConnectionsEnabled || IsRulersEnabled || ReportVessel != null;
 
         switch (shouldBeRunning)
         {
@@ -197,7 +198,7 @@ public class ConnectionsRenderer : MonoBehaviour
         {
             if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes, networkJobConnections.Value);
             if (ReportVessel != null) UpdateReportConnections();
-            if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
+            if (IsRulersEnabled) UpdateRulers(nodes!, prevIndexes);
         }
         catch (Exception e)
         {
@@ -348,9 +349,9 @@ public class ConnectionsRenderer : MonoBehaviour
             var item = GetMapItem(node);
             if (item == null) continue;
 
-            // We want to show only relays as rulers.
+            // We want to show only relays as rulers if the mode is set to relays.
             var networkNode = NetworkManager.Instance.Nodes.GetValueOrDefault(node.Owner);
-            if (networkNode is not { IsRelay: true }) continue;
+            if (networkNode is not { IsRelay: true } && _rulersDisplayMode == RulersDisplayMode.Relays) continue;
 
             if (_selectedBandIndex.HasValue && networkNode.BandRanges[_selectedBandIndex.Value] <= 0) continue;
 

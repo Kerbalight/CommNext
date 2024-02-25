@@ -41,6 +41,7 @@ public class MapToolbarWindowController : MonoBehaviour
     private Button _linesButton = null!;
     private TooltipManipulator _linesTooltip = null!;
     private Button _rulersButton = null!;
+    private TooltipManipulator _rulersTooltip = null!;
     private Button _vesselReportButton = null!;
     public VisualElement Root => _root;
 
@@ -75,13 +76,15 @@ public class MapToolbarWindowController : MonoBehaviour
 
     public void UpdateButtonState()
     {
+        // 1. Connections
         // TODO Move the _state_ inside a separate object like `ConnectionsRenderState`, which is not tied to MonoBehaviour lifecycle.
-        var currentDisplayMode = ConnectionsRenderer.Instance?.ConnectionsDisplayMode ?? ConnectionsDisplayMode.None;
+        var connectionsDisplayMode =
+            ConnectionsRenderer.Instance?.ConnectionsDisplayMode ?? ConnectionsDisplayMode.None;
 
         _linesButton.RemoveFromClassList("toolbar__icon--comm-none");
         _linesButton.RemoveFromClassList("toolbar__icon--comm-lines");
         _linesButton.RemoveFromClassList("toolbar__icon--comm-active");
-        var selectedClassName = currentDisplayMode switch
+        var selectedClassName = connectionsDisplayMode switch
         {
             ConnectionsDisplayMode.None => "toolbar__icon--comm-none",
             ConnectionsDisplayMode.Lines => "toolbar__icon--comm-lines",
@@ -90,7 +93,7 @@ public class MapToolbarWindowController : MonoBehaviour
         };
         _linesButton.AddToClassList(selectedClassName);
 
-        _linesTooltip.TooltipText = currentDisplayMode switch
+        _linesTooltip.TooltipText = connectionsDisplayMode switch
         {
             ConnectionsDisplayMode.None => LocalizedStrings.ConnectionsDisplayModeNone,
             ConnectionsDisplayMode.Lines => LocalizedStrings.ConnectionsDisplayModeLines,
@@ -98,9 +101,30 @@ public class MapToolbarWindowController : MonoBehaviour
             _ => "N/A"
         };
 
-        if (ConnectionsRenderer.Instance?.IsRulersEnabled == true) _rulersButton.AddToClassList("toggled");
-        else _rulersButton.RemoveFromClassList("toggled");
 
+        // 2. Rulers
+        var rulersDisplayMode = ConnectionsRenderer.Instance?.RulersDisplayMode ?? RulersDisplayMode.None;
+        _rulersButton.RemoveFromClassList("toolbar__icon--rulers-none");
+        _rulersButton.RemoveFromClassList("toolbar__icon--rulers-relays");
+        _rulersButton.RemoveFromClassList("toolbar__icon--rulers-all");
+        var rulersSelectedClassName = rulersDisplayMode switch
+        {
+            RulersDisplayMode.None => "toolbar__icon--rulers-none",
+            RulersDisplayMode.Relays => "toolbar__icon--rulers-relays",
+            RulersDisplayMode.All => "toolbar__icon--rulers-all",
+            _ => "toolbar__icon--rulers-none"
+        };
+        _rulersButton.AddToClassList(rulersSelectedClassName);
+
+        _rulersTooltip.TooltipText = rulersDisplayMode switch
+        {
+            RulersDisplayMode.None => LocalizedStrings.RulersDisplayModeNone,
+            RulersDisplayMode.Relays => LocalizedStrings.RulersDisplayModeRelays,
+            RulersDisplayMode.All => LocalizedStrings.RulersDisplayModeAll,
+            _ => "N/A"
+        };
+
+        // 3. Vessel report
         // ReSharper disable once Unity.NoNullPropagation
         if (MainUIManager.Instance.VesselReportWindow?.IsWindowOpen == true)
             _vesselReportButton.AddToClassList("toggled");
@@ -136,10 +160,11 @@ public class MapToolbarWindowController : MonoBehaviour
         };
 
         _rulersButton = _root.Q<Button>("rulers-button");
-        _rulersButton.AddManipulator(new TooltipManipulator(LocalizedStrings.RulersTooltip));
+        _rulersTooltip = new TooltipManipulator(LocalizedStrings.RulersTooltip);
+        _rulersButton.AddManipulator(_rulersTooltip);
         _rulersButton.clicked += () =>
         {
-            ConnectionsRenderer.Instance.IsRulersEnabled = !ConnectionsRenderer.Instance.IsRulersEnabled;
+            ConnectionsRenderer.Instance.RulersDisplayMode = ConnectionsRenderer.Instance.RulersDisplayMode.Next();
             UpdateButtonState();
         };
 
