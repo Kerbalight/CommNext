@@ -1,9 +1,13 @@
-﻿using CommNext.Modules.Relay;
+﻿using CommNext.Modules.Modulator;
+using CommNext.Modules.Relay;
 using CommNext.Network;
+using CommNext.Network.Bands;
 using HarmonyLib;
 using KSP.Game;
+using KSP.Modules;
 using KSP.Sim.Definitions;
 using KSP.Sim.impl;
+using Unity.Mathematics;
 
 namespace CommNext.Patches;
 
@@ -36,18 +40,55 @@ public static class TelemetryComponentPatches
     public static void RefreshCommNetNode(TelemetryComponent __instance)
     {
         var networkNode = NetworkManager.Instance.Nodes[__instance.GlobalId];
-        var isRelay = false;
         var partOwner = __instance.SimulationObject.PartOwner;
         if (partOwner == null) return;
 
+        var isRelay = false;
+        Dictionary<int, double> bandRanges = new();
+
         foreach (var part in partOwner.Parts)
         {
-            if (!part.TryGetModule<PartComponentModule_NextRelay>(out var module)) continue;
-            isRelay = true;
+            if (part.TryGetModuleData<PartComponentModule_NextRelay, Data_NextRelay>(out var data))
+                isRelay = data.EnableRelay.GetValue();
+
+            if (!part.TryGetModule<PartComponentModule_DataTransmitter>(out var transmitterModule))
+                continue;
+
+            if (!part.TryGetModule<PartComponentModule_NextModulator>(out var modulatorModule))
+                continue;
+
+            if (!transmitterModule.IsTransmitterActive()) continue;
+
+            // Bands processing
+            var modulator = modulatorModule.DataModulator;
+
+            // 1. Omni-bands
+            if (modulator.OmniBand.GetValue())
+            {
+                for (var i = 0; i < NetworkBands.Instance.AllBands.Count; i++)
+                    bandRanges[i] = math.max(bandRanges.GetValueOrDefault(i, 0),
+                        transmitterModule.CommunicationRangeMeters);
+                continue;
+            }
+
+            // 2. Specific bands
+            var bandIndex = NetworkBands.Instance.GetBandIndex(modulator.Band.GetValue());
+            var secondaryBandIndex = NetworkBands.Instance.GetBandIndex(modulator.SecondaryBand.GetValue());
+
+            if (bandIndex >= 0)
+                bandRanges[bandIndex] =
+                    math.max(bandRanges.GetValueOrDefault(bandIndex, 0),
+                        transmitterModule.CommunicationRangeMeters);
+
+
+            if (secondaryBandIndex >= 0)
+                bandRanges[secondaryBandIndex] =
+                    math.max(bandRanges.GetValueOrDefault(secondaryBandIndex, 0),
+                        transmitterModule.CommunicationRangeMeters);
         }
 
         networkNode.IsRelay = isRelay;
-
         networkNode.UpdateFromVessel(__instance.SimulationObject.Vessel);
+        networkNode.SetBandRanges(bandRanges);
     }
 }

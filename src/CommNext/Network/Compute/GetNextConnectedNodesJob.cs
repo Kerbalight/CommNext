@@ -34,6 +34,9 @@ public struct GetNextConnectedNodesJob : IJob
     public int StartIndex;
 
     [ReadOnly]
+    public int BandsCount;
+
+    [ReadOnly]
     public NativeArray<ConnectionGraph.ConnectionGraphJobNode> Nodes;
 
     [ReadOnly]
@@ -41,6 +44,9 @@ public struct GetNextConnectedNodesJob : IJob
 
     [ReadOnly]
     public NativeArray<NetworkJobNode> NetworkNodes;
+
+    [ReadOnly]
+    public NativeArray<double> BandsRanges;
 
     [WriteOnly]
     public NativeArray<int> PrevIndices;
@@ -185,6 +191,46 @@ public struct GetNextConnectedNodesJob : IJob
 
                 // Skip if target has not enough resources
                 if ((NetworkNodes[targetIndex].Flags & HasEnoughResources) == None) continue;
+
+                // Skip if source and target have no matching bands for communication
+                short matchingBand = -1;
+                for (short bandIndex = 0; bandIndex < BandsCount; bandIndex++)
+                {
+                    var connectionBands = NetworkNodes[sourceIndex].BandsFlags & NetworkNodes[targetIndex].BandsFlags;
+                    // Skip if source or target don't have the band
+                    if ((connectionBands & (1 << bandIndex)) == 0) continue;
+
+                    // 1. We save the band as missing, before checking if the range is enough
+                    Connections[connectionIndex] = Connections[connectionIndex] with
+                    {
+                        HasMatchingBand = true,
+                        SelectedBand = bandIndex,
+                        IsBandMissingRange = true
+                    };
+
+
+                    var sourceBandRange = BandsRanges[sourceIndex * BandsCount + bandIndex];
+                    var targetBandRange = BandsRanges[targetIndex * BandsCount + bandIndex];
+
+                    // Skip if source or target band range is not sufficient
+                    if (!(distance < sourceBandRange * sourceBandRange) ||
+                        !(distance < targetBandRange * targetBandRange)) continue;
+
+                    // 2. We save the band as not missing, since the range is enough
+                    Connections[connectionIndex] = Connections[connectionIndex] with
+                    {
+                        HasMatchingBand = true,
+                        SelectedBand = bandIndex,
+                        // Technically, this is the only bit we need to set,
+                        // since the other ones are already set on point 1.
+                        IsBandMissingRange = false
+                    };
+
+                    matchingBand = bandIndex;
+                    break;
+                }
+
+                if (matchingBand == -1) continue;
 
                 // Skip if line intersects a celestial body
                 var sourcePosition = Nodes[sourceIndex].Position;

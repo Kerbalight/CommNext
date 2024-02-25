@@ -3,38 +3,23 @@
 
 // Setup relays
 
-@stage "CommNext:SetupRelays"
+@stage "setup-relays"
 :parts #antenna_0v_dish_ra-2 {
     @include override-range($commnext-RANGE-RA2)
-
-    +Module_NextRelay {
-        +Data_NextRelay {
-            
-        }
-    }
-    @include add-next-relay-visuals()
+    @include add-next-relay()
+    @include add-next-modulator("OmniBand")
 }
 
-@stage "CommNext:SetupRelays"
+@stage "setup-relays"
 :parts #antenna_0v_dish_ra-15 {
     @include override-range($commnext-RANGE-RA15)
-    
-    +Module_NextRelay {
-        +Data_NextRelay {
-            
-        }
-    }
-    @include add-next-relay-visuals()
+    @include add-next-relay()
+    @include add-next-modulator("OmniBand")
 }
 
-@stage "CommNext:SetupRelays"
+@stage "setup-relays"
 :parts #antenna_1v_dish_ra-100 {
     @include override-range($commnext-RANGE-RA100)
-    
-    +Module_NextRelay {
-        +Data_NextRelay {
-            
-        }
-    }
-    @include add-next-relay-visuals()
+    @include add-next-relay()
+    @include add-next-modulator("OmniBand")
 }

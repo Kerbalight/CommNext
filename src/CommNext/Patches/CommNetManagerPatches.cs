@@ -49,7 +49,15 @@ public static class CommNetManagerPatches
             _ => KSCFallbackMaxRange
         };
 
-        NetworkManager.Instance.Nodes[newSourceNode.Owner].DebugVesselName = LocalizedStrings.KSCCommNet;
+        var sourceNetworkNode = NetworkManager.Instance.Nodes[newSourceNode.Owner];
+        sourceNetworkNode.DebugVesselName = LocalizedStrings.KSCCommNet;
+        // KSC communicate always on the first band
+        sourceNetworkNode.SetBandRanges(
+            new Dictionary<int, double>
+            {
+                { 0, newSourceNode.MaxRange }
+            }
+        );
     }
 
     /// <summary>

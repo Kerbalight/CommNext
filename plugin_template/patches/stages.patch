@@ -1,6 +1,6 @@
 // We want to run our relay setup before the orbital survey, otherwise the small
 // relay OAB part info will be moved to second page of the Part Details window
-@define-stage "CommNext:SetupRelays":
+@define-stage "setup-relays":
 {
     @before "falki.orbital_survey";
 };

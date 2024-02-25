@@ -21,6 +21,8 @@ public class NetworkConnection
     public bool IsActive { get; private set; }
     public bool IsConnected { get; private set; }
     public int? OccludingBody { get; private set; }
+    public short? SelectedBand { get; private set; }
+    public bool IsBandMissingRange { get; private set; }
 
     public NetworkConnection(
         NetworkNode source,
@@ -37,7 +39,9 @@ public class NetworkConnection
         DistanceSquared = math.distancesq(sourceNode.Position, targetNode.Position);
         Distance = math.sqrt(DistanceSquared);
         IsConnected = jobConnection.IsConnected;
+        SelectedBand = jobConnection.HasMatchingBand ? jobConnection.SelectedBand : null;
         OccludingBody = jobConnection.IsOccluded ? jobConnection.OccludingBody : null;
+        IsBandMissingRange = jobConnection.IsBandMissingRange;
         IsActive = isActive;
     }
 

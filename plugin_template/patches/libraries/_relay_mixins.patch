@@ -6,11 +6,33 @@
     }
 }
 
-@mixin add-next-relay-visuals() {
+@mixin add-next-relay() {
+    +Module_NextRelay {
+        +Data_NextRelay {        
+        }
+    }
+
     PAMModuleVisualsOverride +: [
         {
             PartComponentModuleName: "PartComponentModule_NextRelay",
             ModuleDisplayName: "PartModules/NextRelay/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}
+
+@mixin add-next-modulator($kind) {
+    +Module_NextModulator {
+        +Data_NextModulator {  
+            ModulatorKind: $kind;      
+        }
+    }
+    
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_NextModulator",
+            ModuleDisplayName: "PartModules/NextModulator/Name",
             ShowHeader: true,
             ShowFooter: true
         }
