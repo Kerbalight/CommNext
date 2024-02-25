@@ -10,8 +10,7 @@ public class ConnectionsQuery
     public enum ConnectionsSort
     {
         Distance,
-
-        // Band,
+        Band,
         SignalStrength,
         Name
     }
@@ -29,6 +28,7 @@ public class ConnectionsQuery
             var compared = Sort switch
             {
                 ConnectionsSort.Distance => a.Distance.CompareTo(b.Distance),
+                ConnectionsSort.Band => a.SelectedBand?.CompareTo(b.SelectedBand) ?? 0,
                 ConnectionsSort.SignalStrength => a.SignalStrength().CompareTo(b.SignalStrength()),
                 ConnectionsSort.Name => string.Compare(a.GetOther(current).DebugVesselName,
                     b.GetOther(current).DebugVesselName, StringComparison.Ordinal),
@@ -69,6 +69,7 @@ public class ConnectionsQuery
 
     private static readonly List<(VesselNodesFilter, string)> AllFilters =
     [
+        (VesselNodesFilter.Active, LocalizedStrings.FilterActive),
         (VesselNodesFilter.Connected, LocalizedStrings.FilterConnected),
         (VesselNodesFilter.InRange, LocalizedStrings.FilterInRange),
         (VesselNodesFilter.All, LocalizedStrings.FilterAll)
@@ -80,7 +81,8 @@ public class ConnectionsQuery
     [
         (ConnectionsSort.Distance, LocalizedStrings.SortByDistance),
         (ConnectionsSort.SignalStrength, LocalizedStrings.SortBySignalStrength),
-        (ConnectionsSort.Name, LocalizedStrings.SortByName)
+        (ConnectionsSort.Name, LocalizedStrings.SortByName),
+        (ConnectionsSort.Band, LocalizedStrings.SortByBand)
     ];
 
     private static List<string> SortChoices => AllSorts.Select(x => x.Item2).ToList();

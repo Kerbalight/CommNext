@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/CommNextStyles.uss?fileID=7433441132597879392&amp;guid=a2dd25c9df311c044b3d4c1d0b58a080&amp;type=3#CommNextStyles" />
-    <ui:VisualElement name="root" class="root" style="flex-grow: 0; width: 400px; height: 480px; flex-shrink: 0; padding-top: 4px;">
+    <ui:VisualElement name="root" class="root" style="flex-grow: 0; width: 400px; height: 500px; flex-shrink: 0; padding-top: 4px;">
         <ui:VisualElement name="toolbar" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center; justify-content: space-between; flex-shrink: 0; margin-bottom: 4px; margin-top: 2px;">
             <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center;">
                 <ui:VisualElement class="icon__small" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); justify-content: flex-start; align-items: center; background-image: url(&apos;project://database/Assets/Images/ReportIcon.png?fileID=21300000&amp;guid=ccbe3209822b1a64482fbbef6e8d590a&amp;type=3#ReportIcon&apos;);" />
@@ -14,7 +14,7 @@
                 <ui:Label tabindex="-1" text="Vessel Name" display-tooltip-when-elided="true" name="name-label" style="margin-left: 2px; color: rgb(125, 142, 176);" />
                 <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-end; align-items: center;">
                     <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="range-label" style="-unity-text-align: upper-right;" />
-                    <ui:Button text="Focus" display-tooltip-when-elided="true" name="focus-button" style="margin-left: 4px; height: 26px; margin-top: 2px;" />
+                    <ui:Button text="Focus" display-tooltip-when-elided="true" name="focus-button" style="margin-left: 4px; height: 26px; margin-top: 2px; font-size: 12px;" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

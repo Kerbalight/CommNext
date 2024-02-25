@@ -18,6 +18,7 @@ CommNext/UI/ConnectionInbound,Text,,Inbound,In entrata,Eingehend,Entrant,Entrant
 CommNext/UI/ConnectionOutbound,Text,,Outbound,In uscita,Ausgehend,Sortant,Saliente,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
 CommNext/UI/In,Text,In (direction),In,In,In,In,In,入站,입방향,Przychodzące,Входящий,入站,Entrada,入站
 CommNext/UI/Out,Text,Out (direction),Out,Out,Out,Out,Out,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
+CommNext/UI/FilterActive,Text,Filter only active (in use) connections,Active,Attive,Aktiv,Actif,Activo,活动,활성,Aktywne,Активные,活动,Ativo,活动
 CommNext/UI/FilterConnected,Text,Filter only connected vessels,Connected,Connesse,Verbunden,Connecté,Conectado,已连接,연결된,Podłączone,Подключенные,已连接,Conectado,已连接
 CommNext/UI/FilterInRange,Text,Filter only in range vessels,In Range,Nel Raggio,Im Bereich,À Portée,En Rango,在范围内,범위 내,Zasięg,В радиусе,在范围内,Alcance,在范围内
 CommNext/UI/FilterAll,Text,Filter all vessels,All,Tutti,Alle,Tous,Todos,全部,모두,Wszystkie,Все,全部,Todos,全部

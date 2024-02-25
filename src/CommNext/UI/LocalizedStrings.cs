@@ -14,6 +14,7 @@ public static class LocalizedStrings
     public static LocalizedString ConnectionOutbound = "CommNext/UI/ConnectionOutbound";
     public static LocalizedString InDirection = "CommNext/UI/In";
     public static LocalizedString OutDirection = "CommNext/UI/Out";
+    public static LocalizedString FilterActive = "CommNext/UI/FilterActive";
     public static LocalizedString FilterConnected = "CommNext/UI/FilterConnected";
     public static LocalizedString FilterInRange = "CommNext/UI/FilterInRange";
     public static LocalizedString FilterAll = "CommNext/UI/FilterAll";
