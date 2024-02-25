@@ -1,4 +1,5 @@
-﻿using CommNext.Managers;
+﻿using BepInEx.Logging;
+using CommNext.Managers;
 using CommNext.Network.Compute;
 using CommNext.Patches;
 using KSP.Game;
@@ -8,6 +9,7 @@ using KSP.Sim.Definitions;
 using KSP.Sim.impl;
 using Unity.Collections;
 using UnityEngine;
+using Logger = UnityEngine.Logger;
 
 namespace CommNext.Network;
 
@@ -21,6 +23,8 @@ namespace CommNext.Network;
 /// </summary>
 public class NetworkManager : ILateUpdate
 {
+    private static readonly ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("CommNext.NetworkManager");
+
     public static NetworkManager Instance { get; private set; } = new();
 
     private bool _isInitialized;
@@ -31,6 +35,8 @@ public class NetworkManager : ILateUpdate
     // This is the time in seconds that the CommNetManager will wait
     // before rebuilding the graph.
     private const float RebuildGraphTimerSeconds = 0.2f;
+
+    private const float UpdateNoPowerVesselsTimerSeconds = 10f;
 
     public Dictionary<IGGuid, NetworkNode> Nodes { get; private set; } = new();
 
@@ -116,6 +122,25 @@ public class NetworkManager : ILateUpdate
 
     #endregion
 
+    private float _noPowerTimerRemaining = 0f;
+
+    /// <summary>
+    /// I didn't find the point where the CommNetManager is not updating the
+    /// single Node state when the vessel has no power, so I'm doing it here
+    /// in a Routine so that we can keep the nodes in sync.
+    /// </summary>
+    private void UpdateAllVesselsStateWithNoPower()
+    {
+        foreach (var node in Nodes.Values)
+        {
+            if (node.HasEnoughResources) continue;
+            var vessel = GameManager.Instance.Game.UniverseModel.FindVesselComponent(node.Owner);
+            node.UpdateFromVessel(vessel);
+            if (node.HasEnoughResources)
+                Logger.LogInfo($"Vessel {node.Owner} has enough power now, but ControlState didn't update");
+        }
+    }
+
     /// <summary>
     /// We re-implement here the `CommNetManager`'s `Update` method since we
     /// want it to be executed on _LateUpdate_. This way, we can be sure all
@@ -132,6 +157,13 @@ public class NetworkManager : ILateUpdate
         var spaceSimulation = commNetManager._game.SpaceSimulation;
         if (spaceSimulation is not { IsEnabled: true })
             return;
+
+        _noPowerTimerRemaining -= Time.deltaTime;
+        if (_noPowerTimerRemaining <= 0f)
+        {
+            UpdateAllVesselsStateWithNoPower();
+            _noPowerTimerRemaining = UpdateNoPowerVesselsTimerSeconds; // 10 seconds
+        }
 
         commNetManager._timerRemaining -= Time.deltaTime;
         if ((double)commNetManager._timerRemaining < 0.0)
