@@ -65,11 +65,13 @@ public class BandRowController : UIToolkitElement, IPoolingElement
         if (evt.newValue == false)
         {
             ConnectionsRenderer.Instance.SelectedBandIndex = null;
+            MainUIManager.Instance.MapToolbarWindow.UpdateButtonState();
             return;
         }
 
         var bandIndex = NetworkBands.Instance.BandIndexByCode[_band.Code];
         ConnectionsRenderer.Instance.SelectedBandIndex = bandIndex;
+        MainUIManager.Instance.MapToolbarWindow.UpdateButtonState();
     }
 
     private void OnOtherBandActivated(NetworkNode node, NetworkBand band, bool active)

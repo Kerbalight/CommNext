@@ -42,6 +42,7 @@ public class VesselReportWindowController : MonoBehaviour
     private VisualElement _root = null!;
     private Label _nameLabel = null!;
     private Label _rangeLabel = null!;
+    private VisualElement _powerIcon = null!;
     private ScrollView _connectionsList = null!;
     private VisualElement _bandsList = null!;
     private Button _focusButton = null!;
@@ -134,6 +135,8 @@ public class VesselReportWindowController : MonoBehaviour
         _rangeLabel = _root.Q<Label>("range-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
         _bandsList = _root.Q<VisualElement>("bands-list");
+        _powerIcon = _root.Q<VisualElement>("power-icon");
+        _powerIcon.AddTooltip(LocalizedStrings.NoPower);
         _focusButton = _root.Q<Button>("focus-button");
         _focusButton.clicked += FocusVessel;
         _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
@@ -179,6 +182,7 @@ public class VesselReportWindowController : MonoBehaviour
             Units.PrintSI(vesselMaxRange, Units.SymbolMeters)
                 .RTEColor("#E7CA76")
         ]);
+        _powerIcon.style.display = networkNode.HasEnoughResources ? DisplayStyle.None : DisplayStyle.Flex;
 
         var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
         _query.ApplySort(networkNode, connections);

@@ -11,7 +11,8 @@
         </ui:VisualElement>
         <ui:VisualElement name="vessel-row" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; margin-bottom: 8px; margin-top: 2px;">
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; align-items: center; justify-content: space-between;">
-                <ui:Label tabindex="-1" text="Vessel Name" display-tooltip-when-elided="true" name="name-label" style="margin-left: 2px; color: rgb(125, 142, 176);" />
+                <ui:Label tabindex="-1" text="Vessel Name Test" display-tooltip-when-elided="true" name="name-label" style="margin-left: 2px; color: rgb(125, 142, 176);" />
+                <ui:VisualElement name="power-icon" class="icon__small icon--no-power" style="flex-grow: 0; background-color: rgba(207, 79, 79, 0); background-image: url(&apos;project://database/Assets/Images/PowerIcon.png?fileID=21300000&amp;guid=c50a10f38dd04714b94be75e717f92de&amp;type=3#PowerIcon&apos;); border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; visibility: visible; display: flex; margin-top: 3px; margin-left: -3px;" />
                 <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; justify-content: flex-end; align-items: center;">
                     <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" name="range-label" style="-unity-text-align: upper-right;" />
                     <ui:Button text="Focus" display-tooltip-when-elided="true" name="focus-button" style="margin-left: 4px; height: 26px; margin-top: 2px; font-size: 12px;" />

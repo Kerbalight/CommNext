@@ -229,6 +229,11 @@
     -unity-background-image-tint-color: var(--red);
 }
 
+.icon--no-power-active {
+    -unity-background-image-tint-color: var(--red);
+    opacity: 0.3;
+}
+
 .direction__tag {
     flex-grow: 0;
     flex-direction: row;

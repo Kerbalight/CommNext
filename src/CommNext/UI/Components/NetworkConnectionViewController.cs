@@ -24,6 +24,7 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
     private VisualElement _directionTag;
     private Label _directionLabel;
     private VisualElement _powerIcon;
+    private TooltipManipulator _powerTooltip;
     private SignalStrengthIcon _signalStrengthIcon;
     private TooltipManipulator _signalStrengthTooltip;
     private VisualElement _rowContainer;
@@ -51,7 +52,8 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         _controlButton = _root.Q<Button>("control-button");
         _controlButton.clicked += OnControl;
         _powerIcon = _root.Q<VisualElement>("power-icon");
-        _powerIcon.AddTooltip(LocalizedStrings.NoPower);
+        _powerTooltip = new TooltipManipulator(LocalizedStrings.NoPower);
+        _powerIcon.AddManipulator(_powerTooltip);
         _signalStrengthIcon = _root.Q<SignalStrengthIcon>("signal-strength-icon");
         _signalStrengthTooltip = new TooltipManipulator("");
         _signalStrengthIcon.AddManipulator(_signalStrengthTooltip);
@@ -106,6 +108,11 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         );
 
         _powerIcon.style.display = connection.IsPowered() ? DisplayStyle.None : DisplayStyle.Flex;
+        // We want to fade out the no-power icon if the problem is in _this_ vessel
+        _powerIcon.ToggleClassesIf(currentNode.HasEnoughResources, ["icon--no-power"], ["icon--no-power-active"]);
+        _powerTooltip.TooltipText = currentNode.HasEnoughResources
+            ? LocalizedStrings.NoPower
+            : LocalizedStrings.TooltipNoPowerCurrentVessel;
 
         var distanceText = LocalizationManager.GetTranslation(LocalizedStrings.DistanceLabelKey, [
             $"<color=#E7CA76>{Units.PrintSI(connection.Distance, Units.SymbolMeters)}</color>"

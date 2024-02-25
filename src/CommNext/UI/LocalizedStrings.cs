@@ -38,6 +38,7 @@ public static class LocalizedStrings
     public static LocalizedString ModulatorKindDualBand = "PartModules/NextModulator/KindDualBand";
     public static LocalizedString ModulatorKindOmniBand = "PartModules/NextModulator/KindOmniBand";
     public static LocalizedString TooltipActivateBandRulers = "CommNext/UI/TooltipActivateBandRulers";
+    public static LocalizedString TooltipNoPowerCurrentVessel = "CommNext/UI/TooltipNoPowerCurrentVessel";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";
