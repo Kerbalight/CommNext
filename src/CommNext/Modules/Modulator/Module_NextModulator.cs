@@ -41,13 +41,23 @@ public class Module_NextModulator : PartBehaviourModule
     /// </summary>
     private void OnOmniBandChangedValue(bool isOmniBand)
     {
-        dataModulator!.SetInteractable(dataModulator!.Band, !isOmniBand);
-        dataModulator!.SetInteractable(dataModulator!.SecondaryBand, !isOmniBand);
         part.partOwner.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
     }
 
     private void OnBandChangedValue(string band)
     {
         part.partOwner.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+    }
+
+    public override void OnShutdown()
+    {
+        base.OnShutdown();
+        var modulator = dataModulator;
+        if (modulator != null)
+        {
+            modulator.OmniBand.OnChangedValue -= OnOmniBandChangedValue;
+            modulator.Band.OnChangedValue -= OnBandChangedValue;
+            modulator.SecondaryBand.OnChangedValue -= OnBandChangedValue;
+        }
     }
 }

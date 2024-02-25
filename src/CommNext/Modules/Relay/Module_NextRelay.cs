@@ -36,4 +36,11 @@ public class Module_NextRelay : PartBehaviourModule
     {
         part.partOwner.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
     }
+
+    public override void OnShutdown()
+    {
+        base.OnShutdown();
+        var relay = dataRelay;
+        if (relay != null) relay.EnableRelay.OnChangedValue -= OnEnableRelayChange;
+    }
 }
