@@ -14,6 +14,7 @@ public static class LocalizedStrings
     public static LocalizedString ConnectionOutbound = "CommNext/UI/ConnectionOutbound";
     public static LocalizedString InDirection = "CommNext/UI/In";
     public static LocalizedString OutDirection = "CommNext/UI/Out";
+    public static LocalizedString FilterActive = "CommNext/UI/FilterActive";
     public static LocalizedString FilterConnected = "CommNext/UI/FilterConnected";
     public static LocalizedString FilterInRange = "CommNext/UI/FilterInRange";
     public static LocalizedString FilterAll = "CommNext/UI/FilterAll";
@@ -30,12 +31,24 @@ public static class LocalizedStrings
     public static LocalizedString FilterLabel = "CommNext/UI/FilterLabel";
     public static LocalizedString SortLabel = "CommNext/UI/SortLabel";
     public static LocalizedString NoPower = "CommNext/UI/NoPower";
+    public static LocalizedString NoneBand = "CommNext/UI/NoneBand";
+    public static LocalizedString NoAvailableBand = "CommNext/UI/CommNext/UI/NoAvailableBand";
+    public static LocalizedString ModulatorKind = "PartModules/NextModulator/Kind";
+    public static LocalizedString ModulatorKindMonoBand = "PartModules/NextModulator/KindMonoBand";
+    public static LocalizedString ModulatorKindDualBand = "PartModules/NextModulator/KindDualBand";
+    public static LocalizedString ModulatorKindOmniBand = "PartModules/NextModulator/KindOmniBand";
+    public static LocalizedString TooltipActivateBandRulers = "CommNext/UI/TooltipActivateBandRulers";
 
     // Only keys
     public const string DistanceLabelKey = "CommNext/UI/DistanceLabel";
     public const string OccludedByKey = "CommNext/UI/OccludedBy";
     public const string RangeLabelKey = "CommNext/UI/RangeLabel";
     public const string BandKey = "PartModules/NextRelay/Band";
+    public const string SecondaryBandKey = "PartModules/NextRelay/SecondaryBand";
+    public const string EnableRelayKey = "CommNext/UI/EnableRelay";
+    public const string OmniBandKey = "CommNext/UI/OmniBand";
+    public const string BandMissingRangeKey = "CommNext/UI/BandMissingRange";
+    public const string ActionRequiresMapViewKey = "CommNext/UI/ActionRequiresMapView";
 
     public static string GetTranslationWithParams(string localizationKey, Dictionary<string, string>? parameters)
     {

@@ -2,6 +2,7 @@
 
 using BepInEx.Logging;
 using CommNext.Network;
+using CommNext.Network.Bands;
 using CommNext.Network.Compute;
 using CommNext.Utils;
 using HarmonyLib;
@@ -36,6 +37,7 @@ public static class ConnectionGraphPatches
     private static NativeArray<CommNextBodyInfo> _bodyInfos;
 
     private static NativeArray<NetworkJobNode> _networkNodes;
+    private static NativeArray<double> _bandsRanges;
 
     /// <summary>
     /// We want to store the connections between nodes, so we can use an
@@ -95,16 +97,29 @@ public static class ConnectionGraphPatches
         ____allNodes.Clear();
         ____allNodes.AddRange((IEnumerable<ConnectionGraphNode>)nodes);
         ____allNodeCount = nodes.Count;
+
+
+        // Custom: set up our bands ranges array
+        var nodeBandsCount = NetworkBands.Instance.AllBands.Count * ____allNodeCount;
+
+        if (!____nodes.IsCreated || ____allNodeCount != ____nodes.Length ||
+            !_bandsRanges.IsCreated || nodeBandsCount != _bandsRanges.Length)
+        {
+            if (_bandsRanges.IsCreated) _bandsRanges.Dispose();
+            _bandsRanges = new NativeArray<double>(nodeBandsCount, Allocator.Persistent);
+        }
+
         if (!____nodes.IsCreated || ____allNodeCount != ____nodes.Length)
         {
             __instance.ResizeCollections(____allNodeCount);
+
             // Custom: resizing our custom array
             if (_networkNodes.IsCreated) _networkNodes.Dispose();
             _networkNodes = new NativeArray<NetworkJobNode>(____allNodeCount, Allocator.Persistent);
 
             if (_connections.IsCreated) _connections.Dispose();
-            _connections =
-                new NativeArray<NetworkJobConnection>(____allNodeCount * ____allNodeCount, Allocator.Persistent);
+            _connections = new NativeArray<NetworkJobConnection>(____allNodeCount * ____allNodeCount,
+                Allocator.Persistent);
         }
 
         // Custom: We assume Bodies count never changes.
@@ -120,14 +135,16 @@ public static class ConnectionGraphPatches
 
         UpdateComputedBodiesPositions(_bodyInfos);
 
+        // TODO Cache this and update only when needed
+        var allBands = NetworkBands.Instance.AllBands.ToArray();
         for (var index = 0; index < ____nodes.Length; ++index)
         {
             var flagsFrom = ConnectionGraph.GetFlagsFrom(nodes[index]);
             ____nodes[index] =
                 new ConnectionGraph.ConnectionGraphJobNode(nodes[index].Position, nodes[index].MaxRange, flagsFrom);
 
-            // Custom: Extra flags
-            _networkNodes[index] = GetNetworkNodeFrom(nodes[index]);
+            // Custom: Extra flags and bands
+            _networkNodes[index] = GetNetworkNodeAndUpdateBandsFrom(nodes[index], index);
         }
 
         ____jobHandle = new GetNextConnectedNodesJob()
@@ -138,6 +155,8 @@ public static class ConnectionGraphPatches
             PrevIndices = ____previousIndices,
             // Custom: Extra data
             BodyInfos = _bodyInfos,
+            BandsCount = allBands.Length,
+            BandsRanges = _bandsRanges,
             NetworkNodes = _networkNodes,
             Connections = _connections
 #if DEBUG_MAP_POSITIONS
@@ -150,7 +169,13 @@ public static class ConnectionGraphPatches
         return false;
     }
 
-    private static NetworkJobNode GetNetworkNodeFrom(ConnectionGraphNode node)
+    /// <summary>
+    /// 1. Return the JobNode for the corresponding ConnectionGraphNode.
+    /// 2. Update the bands ranges from the NetworkNode.
+    /// </summary>
+    private static NetworkJobNode GetNetworkNodeAndUpdateBandsFrom(
+        ConnectionGraphNode node,
+        int nodeIndex)
     {
         var networkJobNode = new NetworkJobNode();
 
@@ -165,6 +190,16 @@ public static class ConnectionGraphPatches
             flagsFrom |= NetworkNodeFlags.IsRelay;
         if (networkNode.HasEnoughResources)
             flagsFrom |= NetworkNodeFlags.HasEnoughResources;
+
+        var allBands = NetworkBands.Instance.AllBandsCache;
+        networkJobNode.BandsFlags = 0;
+        for (var i = 0; i < allBands.Length; i++)
+        {
+            var bandRange = networkNode.BandRanges[i];
+            _bandsRanges[nodeIndex * allBands.Length + i] = bandRange;
+            if (bandRange > 0)
+                networkJobNode.BandsFlags |= (int)(1 << i);
+        }
 
         networkJobNode.Flags = flagsFrom;
         networkJobNode.Name = PluginSettings.EnableProfileLogs.Value ? networkNode.DebugVesselName : string.Empty;

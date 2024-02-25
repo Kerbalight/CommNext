@@ -228,6 +228,9 @@ public class NetworkManager : ILateUpdate
             var inboundConnection = jobConnections[nodeIndex * length + i];
             var isConnected = outboundConnection.IsConnected || inboundConnection.IsConnected;
 
+            var isOutboundActive = previousIndices[i] == nodeIndex;
+            var isInboundActive = previousIndices[nodeIndex] == i;
+
             // Keep the occlusion state in sync
             if (outboundConnection.IsOccluded && !inboundConnection.IsOccluded)
             {
@@ -244,7 +247,9 @@ public class NetworkManager : ILateUpdate
             var shouldAdd = nodesFilter switch
             {
                 VesselNodesFilter.All => true,
-                VesselNodesFilter.InRange => outboundConnection.IsInRange || inboundConnection.IsInRange,
+                VesselNodesFilter.Active => isInboundActive || isOutboundActive,
+                VesselNodesFilter.InRange
+                    => outboundConnection.IsInRange || inboundConnection.IsInRange,
                 VesselNodesFilter.Connected => isConnected,
                 _ => false
             };
@@ -261,7 +266,7 @@ public class NetworkManager : ILateUpdate
                         networkNode, targetNetworkNode,
                         allNodes[nodeIndex], targetNode,
                         outboundConnection,
-                        previousIndices[i] == nodeIndex
+                        isOutboundActive
                     ));
             }
 
@@ -278,7 +283,7 @@ public class NetworkManager : ILateUpdate
                         sourceNetworkNode, networkNode,
                         sourceNode, allNodes[nodeIndex],
                         inboundConnection,
-                        previousIndices[nodeIndex] == i
+                        isInboundActive
                     ));
             }
         }

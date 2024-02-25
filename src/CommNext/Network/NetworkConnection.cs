@@ -21,6 +21,19 @@ public class NetworkConnection
     public bool IsActive { get; private set; }
     public bool IsConnected { get; private set; }
     public int? OccludingBody { get; private set; }
+    public short? SelectedBand { get; private set; }
+
+    /// <summary>
+    /// Set to true if the band is not present in both nodes, and the
+    /// connection failed because of that.
+    /// </summary>
+    public bool IsBandMissingRange { get; private set; }
+
+    /// <summary>
+    /// Set to true if the band is not present in both nodes, and the
+    /// connection failed because of that.
+    /// </summary>
+    public bool IsBandNotAvailable { get; private set; }
 
     public NetworkConnection(
         NetworkNode source,
@@ -37,7 +50,10 @@ public class NetworkConnection
         DistanceSquared = math.distancesq(sourceNode.Position, targetNode.Position);
         Distance = math.sqrt(DistanceSquared);
         IsConnected = jobConnection.IsConnected;
+        SelectedBand = jobConnection.HasMatchingBand ? jobConnection.SelectedBand : null;
         OccludingBody = jobConnection.IsOccluded ? jobConnection.OccludingBody : null;
+        IsBandMissingRange = jobConnection.IsBandMissingRange;
+        IsBandNotAvailable = jobConnection.SelectedBand == -1;
         IsActive = isActive;
     }
 
@@ -54,6 +70,19 @@ public class NetworkConnection
     public bool IsPowered()
     {
         return this is { Source.HasEnoughResources: true, Target.HasEnoughResources: true };
+    }
+
+    /// <summary>
+    /// Checks if the connection has a band in common.
+    /// </summary>
+    /// <returns></returns>
+    public bool HasMatchingBand()
+    {
+        for (var i = 0; i < Source.BandRanges.Length; i++)
+            if (Source.BandRanges[i] > 0 && Target.BandRanges[i] > 0)
+                return true;
+
+        return false;
     }
 
     public NetworkNode GetOther(NetworkNode node)

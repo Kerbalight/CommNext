@@ -23,4 +23,24 @@ public class Module_NextRelay : PartBehaviourModule
         dataRelay ??= new Data_NextRelay();
         DataModules.TryAddUnique(dataRelay, out dataRelay);
     }
+
+    public override void OnInitialize()
+    {
+        base.OnInitialize();
+
+        var relay = dataRelay;
+        if (relay != null) relay.EnableRelay.OnChangedValue += OnEnableRelayChange;
+    }
+
+    private void OnEnableRelayChange(bool isEnabled)
+    {
+        part.partOwner.SimObjectComponent.SimulationObject.Telemetry.RefreshCommNetNode();
+    }
+
+    public override void OnShutdown()
+    {
+        base.OnShutdown();
+        var relay = dataRelay;
+        if (relay != null) relay.EnableRelay.OnChangedValue -= OnEnableRelayChange;
+    }
 }

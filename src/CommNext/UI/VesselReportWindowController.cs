@@ -43,6 +43,8 @@ public class VesselReportWindowController : MonoBehaviour
     private Label _nameLabel = null!;
     private Label _rangeLabel = null!;
     private ScrollView _connectionsList = null!;
+    private VisualElement _bandsList = null!;
+    private Button _focusButton = null!;
     private DropdownField _filterDropdown = null!;
     private DropdownField _sortDropdown = null!;
     private SortDirectionButton _sortDirectionButton = null!;
@@ -131,6 +133,9 @@ public class VesselReportWindowController : MonoBehaviour
         _nameLabel = _root.Q<Label>("name-label");
         _rangeLabel = _root.Q<Label>("range-label");
         _connectionsList = _root.Q<ScrollView>("connections-list");
+        _bandsList = _root.Q<VisualElement>("bands-list");
+        _focusButton = _root.Q<Button>("focus-button");
+        _focusButton.clicked += FocusVessel;
         _filterDropdown = _root.Q<DropdownField>("filter-dropdown");
         _filterDropdown.AddTooltip(LocalizedStrings.FilterLabel);
         _sortDropdown = _root.Q<DropdownField>("sort-dropdown");
@@ -146,6 +151,14 @@ public class VesselReportWindowController : MonoBehaviour
         closeButton.clicked += () => IsWindowOpen = false;
 
         IsWindowOpen = false;
+    }
+
+    private void FocusVessel()
+    {
+        if (!MapViewHelper.IsInMapViewOrNotify()) return;
+        if (_vessel == null) return;
+        var instance = ConnectionsRenderer.Instance;
+        if (instance != null) instance.FocusOnMap(_vessel.GlobalId);
     }
 
     private void BuildUI()
@@ -164,7 +177,7 @@ public class VesselReportWindowController : MonoBehaviour
         _nameLabel.text = _vessel!.Name;
         _rangeLabel.text = LocalizationManager.GetTranslation(LocalizedStrings.RangeLabelKey, [
             Units.PrintSI(vesselMaxRange, Units.SymbolMeters)
-                .UIColored("#E7CA76")
+                .RTEColor("#E7CA76")
         ]);
 
         var connections = NetworkManager.Instance.GetNodeConnections(networkNode, _query.Filter);
@@ -173,24 +186,24 @@ public class VesselReportWindowController : MonoBehaviour
         // Cache the connections for MapView
         ReportVesselConnections = connections;
 
-        var connectionElements = _connectionsList.Children().ToList();
-
-        // Some basic pooling
-        for (var i = 0; i < connections.Count; i++)
-            if (i < connectionElements.Count)
+        // Pool the connections
+        _connectionsList.PoolChildren<NetworkConnection, NetworkConnectionViewController>(connections,
+            (connection, connectionRow) =>
             {
-                var connectionRow = (NetworkConnectionViewController)connectionElements[i].userData;
-                connectionRow.Bind(networkNode, connections[i]);
-            }
-            else
-            {
-                var connectionRow = new NetworkConnectionViewController();
-                connectionRow.Bind(networkNode, connections[i]);
-                _connectionsList.Add(connectionRow.Root);
-            }
+                // Link the connection to the row
+                connectionRow.Bind(networkNode, connection);
+            });
 
-        for (var i = connections.Count; i < connectionElements.Count; i++)
-            _connectionsList.Remove(connectionElements[i]);
+        // Same pooling for the bands
+        var nodeBandIndexes = networkNode.BandRanges
+            .Select((range, index) => range > 0 ? index : -1)
+            .Where(index => index >= 0)
+            .ToArray();
+        _bandsList.PoolChildren<int, BandRowController>(nodeBandIndexes, (bandIndex, bandRow) =>
+        {
+            var bandRange = networkNode.BandRanges[bandIndex];
+            bandRow.Bind(networkNode, bandIndex, bandRange);
+        });
     }
 
     private void Update()

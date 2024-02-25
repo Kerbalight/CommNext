@@ -1,5 +1,6 @@
 Key,Type,Desc,English,Italian,German,French,Spanish,Japanese,Korean,Polish,Russian,Chinese (Simplified),Portuguese (Brazil),Chinese (Traditional)
-PartModules/NextRelay/Band,Text,,Band,Banda,,,,,,,,频段,,
+PartModules/NextRelay/Band,Text,,Band,Banda,Band,Bande,Banda,频段,대역,Przepustka,Диапазон,频段,Banda,频段
+PartModules/NextRelay/SecondaryBand,Text,,Secondary Band,Banda Secondaria,Sekundärband,Bande secondaire,Banda secundaria,次要频段,보조 대역,Druga przepustka,Вторичный диапазон,次要频段,Banda secundária,次要频段
 PartModules/NextRelay/Name,Text,,Signal Relay,Ripetitore di Segnale,,,,,,,,信号中继,,
 PartModules/NextRelay/RelayDescription,Text,,This antenna behaves as a relay,,,,,,,,,这款天线能够中继信号,,
 CommNext/UI/DistanceLabel,Text,,Distance {0},Distanza {0},Entfernung {0},Distance {0},Distancia {0},距离 {0},거리 {0},Odległość {0},Расстояние {0},距离 {0},Distância {0},距离 {0}
@@ -17,6 +18,7 @@ CommNext/UI/ConnectionInbound,Text,,Inbound,In entrata,Eingehend,Entrant,Entrant
 CommNext/UI/ConnectionOutbound,Text,,Outbound,In uscita,Ausgehend,Sortant,Saliente,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
 CommNext/UI/In,Text,In (direction),In,In,In,In,In,入站,입방향,Przychodzące,Входящий,入站,Entrada,入站
 CommNext/UI/Out,Text,Out (direction),Out,Out,Out,Out,Out,出站,발신,Wychodzące,Исходящий,出站,Saída,出站
+CommNext/UI/FilterActive,Text,Filter only active (in use) connections,Active,Attive,Aktiv,Actif,Activo,活动,활성,Aktywne,Активные,活动,Ativo,活动
 CommNext/UI/FilterConnected,Text,Filter only connected vessels,Connected,Connesse,Verbunden,Connecté,Conectado,已连接,연결된,Podłączone,Подключенные,已连接,Conectado,已连接
 CommNext/UI/FilterInRange,Text,Filter only in range vessels,In Range,Nel Raggio,Im Bereich,À Portée,En Rango,在范围内,범위 내,Zasięg,В радиусе,在范围内,Alcance,在范围内
 CommNext/UI/FilterAll,Text,Filter all vessels,All,Tutti,Alle,Tous,Todos,全部,모두,Wszystkie,Все,全部,Todos,全部
@@ -34,3 +36,15 @@ CommNext/UI/FilterLabel,Text,Tooltip for filter dropdown,Filter,Filtra,Filter,Fi
 CommNext/UI/SortLabel,Text,Tooltip for sort dropdown,Sort,Ordina,Sortieren,Trier,Ordenar,排序,정렬,Sortuj,Сортировать,排序,Ordenar,排序
 CommNext/UI/NoPower,Text,Relay has no power,No power,Nessuna alimentazione,Keine Stromversorgung,Aucune alimentation,Sin alimentación,无电源,전원 없음,Brak zasilania,Нет питания,无电源,Sem energia,无电源
 CommNext/UI/RangeLabel,Text,Max Range for current vessel,Range {0},Raggio {0},Reichweite {0},Portée {0},Alcance {0},范围 {0},범위 {0},Zasięg {0},Дальность {0},范围 {0},Alcance {0},范围 {0}
+CommNext/UI/EnableRelay,Text,Enable relay,Enable relay,Abilita ripetitore,Relais aktivieren,Activer le relais,Activar relé,启用中继,릴레이 활성화,Włącz przekaźnik,Включить реле,启用中继,Ativar relé,启用中继
+CommNext/UI/OmniBand,Text,Omni-band,Omni-band,Omni-Band,Omni-bande,Omni-banda,全频段,옴니밴드,Omni-band,Омни-диапазон,全频段,Omni-banda,全频段
+CommNext/UI/NoneBand,Text,None,None,Nessuna,Keine,Aucune,Ninguna,无,없음,Brak,Нет,无,Nenhum,无
+CommNext/UI/BandMissingRange,Text,This band is outside range and no other is available,Band {0} out of range,Banda {0} fuori portata,Band {0} außerhalb der Reichweite,Bande {0} hors de portée,Banda {0} fuera de rango,{0}频段超出范围,{0} 대역이 범위를 벗어남,Band {0} poza zasięgiem,Диапазон {0} вне зоны действия,{0}频段超出范围,Banda {0} fora de alcance,{0}频段超出范围
+CommNext/UI/NoAvailableBand,Text,No band matching between source and target vessels,No available band,Banda non disponibile,Keine passende Bandbreite,La bande n'est pas disponible,No hay banda disponible,无可用频段,사용 가능한 대역 없음,Brak pasującej przepustki,Нет подходящего диапазона,无可用频段,Nenhuma banda disponível,无可用频段
+PartModules/NextModulator/Kind,Text,,Modulation kind,Tipo di modulazione,Modulationsart,Type de modulation,Tipo de modulación,调制类型,변조 종류,Rodzaj modulacji,Вид модуляции,调制类型,Tipo de modulação,调制类型
+PartModules/NextModulator/KindMonoBand,Text,,Mono-band,Mono-banda,Mono-Band,Mono-bande,Mono-banda,单频段,단일 대역,Jednozakresowy,Моно-диапазон,单频段,Mono-banda,单频段
+PartModules/NextModulator/KindDualBand,Text,,Dual-band,Dual-banda,Dual-Band,Dual-bande,Dual-banda,双频段,듀얼 대역,Dwuzakresowy,Двойной диапазон,双频段,Dual-banda,双频段
+PartModules/NextModulator/KindOmniBand,Text,,Omni-band,Omni-banda,Omni-Band,Omni-bande,Omni-banda,全频段,옴니밴드,Omni-band,Омни-диапазон,全频段,Omni-banda,全频段
+PartModules/NextModulator/Name,Text,,Signal Modulator,Modulatore di Segnale,Signalmodulator,Modulateur de signal,Modulador de señal,信号调制器,신호 변조기,Modulator sygnału,Модулятор сигнала,信号调制器,Modulador de sinal,信号调制器
+CommNext/UI/ActionRequiresMapView,Text,,Action is enabled only in Map View,L'azione è abilitata solo nella vista mappa,Aktion ist nur in der Kartenansicht aktivée,Action activée uniquement dans la vue carte,La acción solo está habilitada en la vista de mapa,此操作仅在地图视图中启用,작업은 맵 뷰에서만 활성화됩니다,Akcja jest aktywna tylko w widoku mapy,Действие доступно только в режиме карты,此操作仅在地图视图中启用,A ação só está habilitada na visualização de mapa,此操作仅在地图视图中启用
+CommNext/UI/TooltipActivateBandRulers,Text,,Toggle this band rulers in Map View,Abilita/disabilita i righelli di questa banda nella vista mappa,Aktivieren/Deaktivieren dieser Bandlineale in der Kartenansicht,Activer/désactiver les règles de cette bande dans la vue carte,Alternar reglas de esta banda en la vista de mapa,在地图视图中切换此频段标尺,맵 뷰에서 이 대역 눈금자를 토글합니다,Przełącz tę przepustkę w widoku mapy,Переключить эту шкалу в режиме карты,在地图视图中切换此频段标尺,Alternar réguas desta banda na visualização de mapa,在地图视图中切换此频段标尺

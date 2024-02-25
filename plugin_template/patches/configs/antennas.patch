@@ -4,31 +4,50 @@
 // We patch stock antennas ranges.
 
 // First we want to reset all pods
+@stage "setup-relays"
 :parts .Module_DataTransmitter .Module_CommandPod {
     @include override-range($commnext-RANGE-POD)
 }
 
 // Specific antennas
+@stage "setup-relays"
 :parts #antenna_0v_16 {
     @include override-range($commnext-RANGE-C16)
+    @include add-next-modulator("MonoBand")
 }
 
+@stage "setup-relays"
 :parts #antenna_0v_16s {
     @include override-range($commnext-RANGE-C16S)
+    @include add-next-modulator("MonoBand")
 }
 
+@stage "setup-relays"
 :parts #antenna_1v_dish_hg5 {
     @include override-range($commnext-RANGE-HG5)
+    @include add-next-modulator("DualBand")
 }
 
+@stage "setup-relays"
 :parts #antenna_1v_dish_hg55s {
     @include override-range($commnext-RANGE-HG55S)
+    @include add-next-modulator("DualBand")
 }
 
+@stage "setup-relays"
 :parts #antenna_1v_parabolic_dts-m1 {
     @include override-range($commnext-RANGE-DTS-M1)
+    @include add-next-modulator("DualBand")
 }
 
+@stage "setup-relays"
 :parts #antenna_1v_dish_88-88 {
     @include override-range($commnext-RANGE-C88)
+    @include add-next-modulator("OmniBand")
+}
+
+// Add modulator to every module missing them
+@stage "setup-relays"
+:parts .Module_DataTransmitter ~.Module_NextModulator {
+    @include add-next-modulator("MonoBand")
 }

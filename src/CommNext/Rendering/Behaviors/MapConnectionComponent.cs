@@ -1,6 +1,7 @@
 ﻿//#define INGAME_COLOR_UPDATE
 
 using CommNext.Network;
+using CommNext.Network.Bands;
 using KSP.Map;
 using KSP.Sim;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
     private bool _isReportConnection;
     private NetworkConnection? _networkConnection;
     private bool _isSource;
+
+    public NetworkBand? Band { get; set; }
+    private bool _isRelay;
 
     public string Id { get; set; } = null!;
 
@@ -64,6 +68,10 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
         TargetItem = target;
         Id = GetID(source, target);
 
+        // If both nodes are relays, then this connection is a relay connection.
+        // We use this information to determine the color of the connection.
+        _isRelay = sourceNetworkNode.IsRelay && targetNetworkNode.IsRelay;
+
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
         _lineRenderer.positionCount = 10;
         _lineRenderer.startWidth = 0.045f;
@@ -90,7 +98,7 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
         InternalConfigure(source, target, sourceNetworkNode, targetNetworkNode, sourceNode, targetNode);
 
         _materialPropertyBlock = new MaterialPropertyBlock();
-        var color = sourceNetworkNode.IsRelay && targetNetworkNode.IsRelay ? RelayColor : LinkColor;
+        var color = _isRelay ? RelayColor : LinkColor;
         _materialPropertyBlock.SetColor(MainColor, color);
         _lineRenderer.SetPropertyBlock(_materialPropertyBlock);
 
@@ -177,6 +185,12 @@ public class MapConnectionComponent : MonoBehaviour, IMapComponent
             _materialPropertyBlock.SetColor(MainColor, color);
             _materialPropertyBlock.SetFloat(ConnectedProperty, _networkConnection.IsConnected ? 1.0f : 0.0f);
             _materialPropertyBlock.SetFloat(LengthProperty, distance / adjustedScalingFactor);
+            _lineRenderer.SetPropertyBlock(_materialPropertyBlock);
+        }
+        else
+        {
+            var color = Band?.Color ?? (_isRelay ? RelayColor : LinkColor);
+            _materialPropertyBlock.SetColor(MainColor, color);
             _lineRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
     }

@@ -20,22 +20,12 @@ public class Data_NextRelay : ModuleData
     // [KSPDefinition] 
     // public string ModeValue;
 
-    // TODO Link this in NetworkManager / NetworkNode
     [KSPState]
-    [LocalizedField(LocalizedStrings.BandKey)]
-    [PAMDisplayControl(SortIndex = 1)]
-    public ModuleProperty<string> Band = new("X", band => $"{band}");
+    [LocalizedField(LocalizedStrings.EnableRelayKey)]
+    [PAMDisplayControl(SortIndex = 0)]
+    public ModuleProperty<bool> EnableRelay = new(true);
 
-
-    public override void OnPartBehaviourModuleInit()
-    {
-        // Setup the Dropdown for Band
-        var bandOptions = new DropdownItemList();
-        foreach (var band in NetworkBands.Instance.AllBands)
-            // TODO Add image? Sprite is supported, should test it
-            bandOptions.Add(band.Code, new DropdownItem() { key = band.Code, text = band.DisplayName });
-        SetDropdownData(Band, bandOptions);
-    }
+    public override void OnPartBehaviourModuleInit() { }
 
     public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(
         Type partBehaviourModuleType,
@@ -58,7 +48,7 @@ public class Data_NextRelay : ModuleData
     {
         var dataRelay = (Data_NextRelay?)sourceModuleData;
         if (dataRelay == null) return;
-        Band.SetValue(dataRelay.Band.GetValue());
+        EnableRelay.SetValue(dataRelay.EnableRelay.GetValue());
     }
 
     #endregion

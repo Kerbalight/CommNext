@@ -1,4 +1,5 @@
-﻿using CommNext.Utils;
+﻿using CommNext.Network.Bands;
+using CommNext.Utils;
 using KSP.Game;
 using KSP.Sim.Definitions;
 using KSP.Sim.impl;
@@ -12,11 +13,14 @@ public class NetworkNode
     public bool IsRelay { get; set; }
     public bool HasEnoughResources { get; set; }
 
-    public string Band { get; set; } = "X";
-
     /// <summary>
-    /// Used only for debugging purposes.
+    /// We keep the band ranges in an array, for performance reasons.
+    /// For each band, the value is the maximum range on that frequency.
+    /// If the band is not present, the value is 0.
     /// </summary>
+    public double[] BandRanges { get; private set; } = [];
+
+    // TODO Rename without the "Debug" prefix
     public string DebugVesselName { get; set; } = "N/A";
 
     public NetworkNode(IGGuid owner)
@@ -42,5 +46,16 @@ public class NetworkNode
         HasEnoughResources = DifficultyUtils.HasInfinitePower ||
                              !PluginSettings.RelaysRequirePower.Value ||
                              vessel.ControlStatus != VesselControlState.NoControl;
+    }
+
+    /// <summary>
+    /// We set the band ranges for this node, converting the dictionary to
+    /// a plain array.
+    /// </summary>
+    public void SetBandRanges(Dictionary<int, double> bandRanges)
+    {
+        BandRanges = new double[NetworkBands.Instance.AllBands.Count];
+        for (var i = 0; i < NetworkBands.Instance.AllBands.Count; i++)
+            BandRanges[i] = bandRanges.GetValueOrDefault(i, 0);
     }
 }

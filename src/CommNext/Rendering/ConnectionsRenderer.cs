@@ -3,6 +3,8 @@ using System.Reflection;
 using BepInEx.Logging;
 using CommNext.Managers;
 using CommNext.Network;
+using CommNext.Network.Bands;
+using CommNext.Network.Compute;
 using CommNext.Patches;
 using CommNext.Rendering.Behaviors;
 using CommNext.UI;
@@ -11,6 +13,7 @@ using KSP.Game;
 using KSP.Map;
 using KSP.Sim;
 using KSP.Sim.impl;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -42,6 +45,30 @@ public class ConnectionsRenderer : MonoBehaviour
     private bool _isRulersEnabled = true;
 
     public bool IsConnectionsEnabled => _connectionsDisplayMode != ConnectionsDisplayMode.None;
+
+    private int? _selectedBandIndex;
+    private Color? _selectedBandColor;
+
+    public int? SelectedBandIndex
+    {
+        get => _selectedBandIndex;
+        set
+        {
+            if (_selectedBandIndex == value) return;
+
+            _selectedBandIndex = value;
+            if (_selectedBandIndex.HasValue)
+            {
+                _selectedBandColor = NetworkBands.Instance.AllBands[_selectedBandIndex.Value].Color;
+                IsRulersEnabled = true;
+            }
+            else
+            {
+                _selectedBandColor = null;
+                IsRulersEnabled = false;
+            }
+        }
+    }
 
     /// <summary>
     /// Connections are the lines between the nodes (vessels, ground stations, etc).
@@ -163,12 +190,12 @@ public class ConnectionsRenderer : MonoBehaviour
             !NetworkManager.Instance.TryGetConnectionGraphNodesAndIndexes(
                 out var nodes,
                 out var prevIndexes,
-                out var connectedNodes) ||
-            nodes == null) return;
+                out var networkJobConnections) ||
+            nodes == null || !networkJobConnections.HasValue) return;
 
         try
         {
-            if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes);
+            if (IsConnectionsEnabled) UpdateConnections(nodes!, prevIndexes, networkJobConnections.Value);
             if (ReportVessel != null) UpdateReportConnections();
             if (_isRulersEnabled) UpdateRulers(nodes!, prevIndexes);
         }
@@ -178,7 +205,8 @@ public class ConnectionsRenderer : MonoBehaviour
         }
     }
 
-    private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes)
+    private void UpdateConnections(List<ConnectionGraphNode> nodes, int[] prevIndexes,
+        NativeArray<NetworkJobConnection> networkJobConnections)
     {
         // TODO Add some events-based logic.
         if (!GameManager.Instance.Game.Map.TryGetMapCore(out _mapCore))
@@ -221,12 +249,10 @@ public class ConnectionsRenderer : MonoBehaviour
             var targetItem = GetMapItem(targetNode);
             if (sourceItem == null || targetItem == null) continue;
 
+            var networkJobConnection = networkJobConnections[targetIndex * nodes.Count + sourceIndex];
+
             var connectionId = MapConnectionComponent.GetID(sourceItem, targetItem);
-            if (_connections.TryGetValue(connectionId, out var connection))
-            {
-                keepIds.Add(connectionId);
-            }
-            else
+            if (!_connections.TryGetValue(connectionId, out var connection))
             {
                 var sourceNetworkNode = NetworkManager.Instance.Nodes[sourceNode.Owner];
                 var targetNetworkNode = NetworkManager.Instance.Nodes[targetNode.Owner];
@@ -240,8 +266,12 @@ public class ConnectionsRenderer : MonoBehaviour
                     sourceNode, targetNode
                 );
                 _connections.Add(connectionId, connection);
-                keepIds.Add(connectionId);
             }
+
+            keepIds.Add(connectionId);
+            connection.Band = networkJobConnection.HasMatchingBand
+                ? NetworkBands.Instance.AllBands[networkJobConnection.SelectedBand]
+                : null;
         }
 
         var removeIds = _connections.Keys.Except(keepIds).ToList();
@@ -322,18 +352,34 @@ public class ConnectionsRenderer : MonoBehaviour
             var networkNode = NetworkManager.Instance.Nodes.GetValueOrDefault(node.Owner);
             if (networkNode is not { IsRelay: true }) continue;
 
+            if (_selectedBandIndex.HasValue && networkNode.BandRanges[_selectedBandIndex.Value] <= 0) continue;
+
+            var isConnected = prevIndexes[i] >= 0;
+            var connectedColor = _selectedBandColor;
+            var commRange = _selectedBandIndex.HasValue
+                ? networkNode.BandRanges[_selectedBandIndex.Value]
+                : node.MaxRange;
+
             if (!_rulers.TryGetValue(item.AssociatedMapItem.SimGUID.ToString(), out var ruler))
             {
                 var rulerObject =
                     new GameObject($"Ruler_{item.AssociatedMapItem.ItemName}_{item.AssociatedMapItem.SimGUID}");
                 rulerObject.transform.SetParent(_mapCore.map3D.transform);
                 ruler = rulerObject.AddComponent<MapRulerComponent>();
-                ruler.Track(item, prevIndexes[i] >= 0, networkNode, node);
+                // We need to pass all the available data to the ruler right now,
+                // to avoid glitches when the ruler is rendered
+                ruler.Track(item, isConnected, networkNode, node, connectedColor, commRange);
                 _rulers.Add(ruler.Id, ruler);
+            }
+            else
+            {
+                // Update the ruler
+                ruler.IsConnected = isConnected;
+                ruler.ConnectedColor = connectedColor;
+                ruler.CommRange = commRange;
             }
 
             keepIds.Add(ruler.Id);
-            ruler.IsConnected = prevIndexes[i] >= 0;
         }
 
         var removeIds = _rulers.Keys.Except(keepIds).ToList();
@@ -382,13 +428,47 @@ public class ConnectionsRenderer : MonoBehaviour
 
     private static Map3DFocusItem? GetMapItem(ConnectionGraphNode sourceNode)
     {
+        return GetMapItem(sourceNode.Owner);
+    }
+
+    private static Map3DFocusItem? GetMapItem(IGGuid sourceGuid)
+    {
         if (AllMapItems == null) return null;
-        var sourceGuid = sourceNode.Owner;
         // Replace the source GUID with the KSC GUID. 
         // Control Center is the source of all connections, but it's not a map item.
         if (sourceGuid == NetworkManager.Instance.CommNetManager.GetSourceNode().Owner)
             sourceGuid = _mapCore.KSCGUID;
         return AllMapItems.GetValueOrDefault(sourceGuid);
+    }
+
+    /// <summary>
+    /// Focus the vessel node in the Map view.
+    /// </summary>
+    public void FocusOnMap(IGGuid nodeOwner)
+    {
+        var item = GetMapItem(nodeOwner);
+        if (item == null)
+        {
+            Logger.LogWarning($"Map item not found for {nodeOwner}");
+            return;
+        }
+
+        item.FocusSimObject();
+    }
+
+    /// <summary>
+    /// See `MapUISelectableItem.HandleVesselControl`.
+    /// </summary>
+    public void ControlVesselOnMap(NetworkNode node)
+    {
+        var item = GetMapItem(node.Owner);
+        if (item == null)
+        {
+            Logger.LogWarning($"Map item not found for {node.Owner}");
+            return;
+        }
+
+        item.ControlVessel();
     }
 
 #if DEBUG_MAP_POSITIONS

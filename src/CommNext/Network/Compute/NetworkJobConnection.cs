@@ -9,4 +9,7 @@ public struct NetworkJobConnection
     public bool IsConnected;
     public bool IsOccluded;
     public short OccludingBody;
+    public bool HasMatchingBand;
+    public short SelectedBand;
+    public bool IsBandMissingRange;
 }
