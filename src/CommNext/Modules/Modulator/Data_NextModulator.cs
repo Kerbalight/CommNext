@@ -21,16 +21,17 @@ public class Data_NextModulator : ModuleData
     // ReSharper disable once InconsistentNaming
     public ModulatorKind ModulatorKind;
 
-    [KSPState]
+    [KSPState(CopyToSymmetrySet = false)]
     [LocalizedField(LocalizedStrings.OmniBandKey)]
     [PAMDisplayControl(SortIndex = 1)]
     public ModuleProperty<bool> OmniBand = new(false);
 
-    [KSPState]
+    [KSPState(CopyToSymmetrySet = false)]
     [LocalizedField(LocalizedStrings.BandKey)]
     [PAMDisplayControl(SortIndex = 2)]
     public ModuleProperty<string> Band = new(NetworkBands.DefaultBand, band => $"{band}");
 
+    [KSPState(CopyToSymmetrySet = false)]
     [LocalizedField(LocalizedStrings.SecondaryBandKey)]
     [PAMDisplayControl(SortIndex = 3)]
     public ModuleProperty<string> SecondaryBand = new("", band => $"{band}");
