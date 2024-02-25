@@ -224,6 +224,8 @@ public class NetworkManager : ILateUpdate
 
         for (var i = 0; i < length; i++)
         {
+            if (i == nodeIndex) continue;
+
             var outboundConnection = jobConnections[i * length + nodeIndex];
             var inboundConnection = jobConnections[nodeIndex * length + i];
             var isConnected = outboundConnection.IsConnected || inboundConnection.IsConnected;
