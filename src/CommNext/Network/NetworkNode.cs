@@ -20,8 +20,7 @@ public class NetworkNode
     /// </summary>
     public double[] BandRanges { get; private set; } = [];
 
-    // TODO Rename without the "Debug" prefix
-    public string DebugVesselName { get; set; } = "N/A";
+    public string VesselName { get; set; } = "N/A";
 
     public NetworkNode(IGGuid owner)
     {
@@ -42,7 +41,7 @@ public class NetworkNode
             return;
         }
 
-        DebugVesselName = vessel.Name;
+        VesselName = vessel.Name;
         HasEnoughResources = DifficultyUtils.HasInfinitePower ||
                              !PluginSettings.RelaysRequirePower.Value ||
                              vessel.ControlStatus != VesselControlState.NoControl;

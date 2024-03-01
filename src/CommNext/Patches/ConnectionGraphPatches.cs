@@ -206,7 +206,7 @@ public static class ConnectionGraphPatches
         }
 
         networkJobNode.Flags = flagsFrom;
-        networkJobNode.Name = PluginSettings.EnableProfileLogs.Value ? networkNode.DebugVesselName : string.Empty;
+        networkJobNode.Name = PluginSettings.EnableProfileLogs.Value ? networkNode.VesselName : string.Empty;
         return networkJobNode;
     }
 

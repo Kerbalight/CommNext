@@ -71,6 +71,7 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         Harmony.CreateAndPatchAll(typeof(CommNetManagerPatches));
         Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
         Harmony.CreateAndPatchAll(typeof(TelemetryComponentPatches));
+        Harmony.CreateAndPatchAll(typeof(SimulationObjectModelPatches));
 
         // UI
         MainUIManager.Instance.Initialize();

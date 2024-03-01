@@ -30,8 +30,8 @@ public class ConnectionsQuery
                 ConnectionsSort.Distance => a.Distance.CompareTo(b.Distance),
                 ConnectionsSort.Band => a.SelectedBand?.CompareTo(b.SelectedBand) ?? 0,
                 ConnectionsSort.SignalStrength => a.SignalStrength().CompareTo(b.SignalStrength()),
-                ConnectionsSort.Name => string.Compare(a.GetOther(current).DebugVesselName,
-                    b.GetOther(current).DebugVesselName, StringComparison.Ordinal),
+                ConnectionsSort.Name => string.Compare(a.GetOther(current).VesselName,
+                    b.GetOther(current).VesselName, StringComparison.Ordinal),
                 _ => 0
             };
             return Direction == SortDirection.Ascending ? compared : -compared;

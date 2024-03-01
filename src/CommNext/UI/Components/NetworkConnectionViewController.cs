@@ -95,7 +95,7 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         _connection = connection;
 
         var otherNode = connection.GetOther(currentNode);
-        _nameLabel.text = otherNode.DebugVesselName;
+        _nameLabel.text = otherNode.VesselName;
         _directionLabel.text = connection.IsSource(currentNode)
             ? LocalizedStrings.OutDirection
             : LocalizedStrings.InDirection;
