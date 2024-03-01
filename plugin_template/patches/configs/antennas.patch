@@ -5,7 +5,7 @@
 
 // First we want to reset all pods
 @stage "setup-relays"
-:parts .Module_DataTransmitter .Module_CommandPod {
+:parts .Module_DataTransmitter .Module_Command {
     @include override-range($commnext-RANGE-POD)
 }
 
@@ -20,12 +20,6 @@
 :parts #antenna_0v_16s {
     @include override-range($commnext-RANGE-C16S)
     @include add-next-modulator("MonoBand")
-}
-
-@stage "setup-relays"
-:parts #antenna_1v_dish_hg5 {
-    @include override-range($commnext-RANGE-HG5)
-    @include add-next-modulator("DualBand")
 }
 
 @stage "setup-relays"
@@ -47,7 +41,7 @@
 }
 
 // Add modulator to every module missing them
-@stage "setup-relays"
+@stage "cleanup-relays"
 :parts .Module_DataTransmitter ~.Module_NextModulator {
     @include add-next-modulator("MonoBand")
 }

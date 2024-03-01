@@ -4,6 +4,13 @@
 // Setup relays
 
 @stage "setup-relays"
+:parts #antenna_1v_dish_hg5 {
+    @include override-range($commnext-RANGE-HG5)
+    @include add-next-relay()
+    @include add-next-modulator("DualBand")
+}
+
+@stage "setup-relays"
 :parts #antenna_0v_dish_ra-2 {
     @include override-range($commnext-RANGE-RA2)
     @include add-next-relay()

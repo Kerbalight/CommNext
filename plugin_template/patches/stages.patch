@@ -5,3 +5,8 @@
     @before "falki.orbital_survey";
 };
 
+
+@define-stage "cleanup-relays":
+{
+    @after "setup-relays";
+};
