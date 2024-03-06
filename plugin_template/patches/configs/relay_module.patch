@@ -6,27 +6,27 @@
 @stage "setup-relays"
 :parts #antenna_1v_dish_hg5 {
     @include override-range($commnext-RANGE-HG5)
-    @include add-next-relay()
+    @include add-next-relay($commnext-EC-HG5)
     @include add-next-modulator("DualBand")
 }
 
 @stage "setup-relays"
 :parts #antenna_0v_dish_ra-2 {
     @include override-range($commnext-RANGE-RA2)
-    @include add-next-relay()
+    @include add-next-relay($commnext-EC-RA2)
     @include add-next-modulator("OmniBand")
 }
 
 @stage "setup-relays"
 :parts #antenna_0v_dish_ra-15 {
     @include override-range($commnext-RANGE-RA15)
-    @include add-next-relay()
+    @include add-next-relay($commnext-EC-RA15)
     @include add-next-modulator("OmniBand")
 }
 
 @stage "setup-relays"
 :parts #antenna_1v_dish_ra-100 {
     @include override-range($commnext-RANGE-RA100)
-    @include add-next-relay()
+    @include add-next-relay($commnext-EC-RA100)
     @include add-next-modulator("OmniBand")
 }

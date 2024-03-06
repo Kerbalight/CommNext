@@ -1,9 +1,12 @@
 ﻿using BepInEx.Logging;
 using CommNext.Network.Bands;
 using CommNext.UI;
+using CommNext.Utils;
 using I2.Loc;
+using KSP.Game;
 using KSP.Sim;
 using KSP.Sim.Definitions;
+using KSP.Sim.ResourceSystem;
 using KSP.UI.Binding;
 using UnityEngine;
 
@@ -36,6 +39,26 @@ public class Data_NextRelay : ModuleData
         delegateList.Add(new OABPartData.PartInfoModuleEntry(
             "",
             s => LocalizedStrings.RelayDescription));
+
+        // Add resource consumption info (EC/s)
+        if (PluginSettings.RelaysRequirePower.Value)
+            delegateList.Add(new OABPartData.PartInfoModuleEntry(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources"),
+                _ =>
+                {
+                    var subEntries = new List<OABPartData.PartInfoModuleSubEntry>
+                    {
+                        new(
+                            LocalizedStrings.ElectricCharge,
+                            PartModuleTooltipLocalization.FormatResourceRate(
+                                RequiredResource.Rate,
+                                PartModuleTooltipLocalization.GetTooltipResourceUnits(RequiredResource.ResourceName)
+                            )
+                        )
+                    };
+                    return subEntries;
+                }));
+
         return delegateList;
     }
 
@@ -50,6 +73,48 @@ public class Data_NextRelay : ModuleData
         if (dataRelay == null) return;
         EnableRelay.SetValue(dataRelay.EnableRelay.GetValue());
     }
+
+    #endregion
+
+    #region Resources
+
+    public override void SetupResourceRequest(ResourceFlowRequestBroker resourceFlowRequestBroker)
+    {
+        if (!PluginSettings.RelaysRequirePower.Value) return;
+
+        var resourceIDFromName =
+            GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(RequiredResource.ResourceName);
+        if (resourceIDFromName == ResourceDefinitionID.InvalidID)
+        {
+            Logger.LogError($"There are no resources with name {RequiredResource.ResourceName}");
+            return;
+        }
+
+        RequestConfig = new ResourceFlowRequestCommandConfig
+        {
+            FlowResource = resourceIDFromName,
+            FlowDirection = FlowDirection.FLOW_OUTBOUND,
+            FlowUnits = 0.0
+        };
+        RequestHandle = resourceFlowRequestBroker.AllocateOrGetRequest("ModuleCommNextRelay", default);
+        resourceFlowRequestBroker.SetCommands(
+            RequestHandle,
+            1.0,
+            [RequestConfig]
+        );
+    }
+
+    // [KSPDefinition]
+    // [Tooltip("Whether the module consumes resources")]
+    // public bool UseResources = true;
+
+    public bool HasResourcesToOperate = true;
+
+    [KSPDefinition]
+    [Tooltip("Resource required to operate this module if it consumes resources")]
+    public PartModuleResourceSetting RequiredResource;
+
+    public ResourceFlowRequestCommandConfig RequestConfig;
 
     #endregion
 }

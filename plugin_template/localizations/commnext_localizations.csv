@@ -1,8 +1,8 @@
 Key,Type,Desc,English,Italian,German,French,Spanish,Japanese,Korean,Polish,Russian,Chinese (Simplified),Portuguese (Brazil),Chinese (Traditional)
 PartModules/NextRelay/Band,Text,,Band,Banda,Band,Bande,Banda,频段,대역,Przepustka,Диапазон,频段,Banda,频段
 PartModules/NextRelay/SecondaryBand,Text,,Secondary Band,Banda Secondaria,Sekundärband,Bande secondaire,Banda secundaria,次要频段,보조 대역,Druga przepustka,Вторичный диапазон,次要频段,Banda secundária,次要频段
-PartModules/NextRelay/Name,Text,,Signal Relay,Ripetitore di Segnale,,,,,,,,信号中继,,
-PartModules/NextRelay/RelayDescription,Text,,This antenna behaves as a relay,,,,,,,,,这款天线能够中继信号,,
+PartModules/NextRelay/Name,Text,,Signal Relay,Ripetitore di Segnale,Signalrelais,Relais de signal,Relé de señal,信号中继,신호 중계기,Przekaźnik sygnału,Ретранслятор,信号中继,Relé de sinal,信号中继
+PartModules/NextRelay/RelayDescription,Text,,This antenna behaves as a relay,Questa antenna si comporta da ripetitore,Diese Antenne verhält sich wie ein Relais,Cette antenne se comporte comme un relais,Esta antena se comporta como un relé,此天线作为中继,이 안테나는 중계기로 작동합니다,Ta antena działa jako przekaźnik,Эта антенна работает как реле,这款天线能够中继信号,Esta antena se comporta como um relé,此天线作为中继
 CommNext/UI/DistanceLabel,Text,,Distance {0},Distanza {0},Entfernung {0},Distance {0},Distancia {0},距离 {0},거리 {0},Odległość {0},Расстояние {0},距离 {0},Distância {0},距离 {0}
 CommNext/UI/Powered,Text,,Powered,Alimentato,Betrieben,Alimenté,Alimentado,供电,전원 공급됨,Zasilany,Питание,供电,Alimentado,供电
 CommNext/UI/SignalStrength,Text,,Signal Strength,Intensità del Segnale,Signalstärke,Force du Signal,Potencia de la Señal,信号强度,신호 세기,Siła Sygnału,Уровень сигнала,信号强度,Força do Sinal,信号强度
@@ -52,3 +52,4 @@ CommNext/UI/TooltipNoPowerCurrentVessel,Text,,Active vessel has no power,Il veic
 CommNext/UI/RulersDisplayModeNone,Text,Rulers display mode: None,Disabled,Disabilitato,Deaktiviert,Désactivé,Desactivado,禁用,비활성화,Dezaktywowane,Отключено,禁用,Desativado,禁用
 CommNext/UI/RulersDisplayModeRelays,Text,Rulers display mode: Relays,Only relays,Solo ripetitori,Nur Relais,Seulement les relais,Solo relés,只有中继,릴레이만,Tylko przekaźniki,Только реле,只有中继,Apenas relés,只有中继
 CommNext/UI/RulersDisplayModeAll,Text,Rulers display mode: All,All,Tutti,Alle,Tous,Todos,全部,모두,Wszystkie,Все,全部,Todos,全部
+PartModules/NextRelay/ElectricCharge,Text,,Electric charge,Carica elettrica,Strom,Charge électrique,Carga eléctrica,电荷,전기 충전,Załadunek elektryczny,Электрический заряд,电荷,Carga elétrica,电荷

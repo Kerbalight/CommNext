@@ -2,6 +2,7 @@
 using CommNext.Managers;
 using CommNext.Network.Compute;
 using CommNext.Patches;
+using CommNext.Utils;
 using KSP.Game;
 using KSP.Messages;
 using KSP.Sim;
@@ -36,13 +37,13 @@ public class NetworkManager : ILateUpdate
     // before rebuilding the graph.
     private const float RebuildGraphTimerSeconds = 0.2f;
 
-    private const float UpdateNoPowerVesselsTimerSeconds = 10f;
+    // private const float UpdateNoPowerVesselsTimerSeconds = 10f;
 
     public Dictionary<IGGuid, NetworkNode> Nodes { get; private set; } = new();
 
     public void SetupListeners()
     {
-        MessageListener.Messages.PersistentSubscribe<VesselControlStateChangedMessage>(OnVesselControlStateChanged);
+        // MessageListener.Messages.PersistentSubscribe<VesselControlStateChangedMessage>(OnVesselControlStateChanged);
 
         // Handle vessel undocked and docked messages
         MessageListener.Messages.PersistentSubscribe<VesselUndockedMessage>(OnVesselUndocked);
@@ -80,17 +81,19 @@ public class NetworkManager : ILateUpdate
         Nodes.Remove(owner);
     }
 
-    /// <summary>
-    /// We want to update node properties (like Flags, etc) when the vessel
-    /// is updated.
-    /// </summary>
-    private void OnVesselControlStateChanged(MessageCenterMessage message)
-    {
-        var controlMessage = (VesselControlStateChangedMessage)message;
-        var networkNode = Nodes[controlMessage.Vessel.GlobalId];
-
-        networkNode.UpdateFromVessel(controlMessage.Vessel);
-    }
+    // /// <summary>
+    // /// We want to update node properties (like Flags, etc) when the vessel
+    // /// is updated.
+    // /// </summary>
+    // private void OnVesselControlStateChanged(MessageCenterMessage message)
+    // {
+    //     var controlMessage = (VesselControlStateChangedMessage)message;
+    //     var networkNode = Nodes[controlMessage.Vessel.GlobalId];
+    //
+    //     networkNode.HasEnoughResources = DifficultyUtils.HasInfinitePower ||
+    //                                      !PluginSettings.RelaysRequirePower.Value ||
+    //                                      controlMessage.Vessel.ControlStatus != VesselControlState.NoControl;
+    // }
 
     /// <summary>
     /// We want to update the CommNet node when a vessel is undocked, since
@@ -122,25 +125,6 @@ public class NetworkManager : ILateUpdate
 
     #endregion
 
-    private float _noPowerTimerRemaining = 0f;
-
-    /// <summary>
-    /// I didn't find the point where the CommNetManager is not updating the
-    /// single Node state when the vessel has no power, so I'm doing it here
-    /// in a Routine so that we can keep the nodes in sync.
-    /// </summary>
-    private void UpdateAllVesselsStateWithNoPower()
-    {
-        foreach (var node in Nodes.Values)
-        {
-            if (node.HasEnoughResources) continue;
-            var vessel = GameManager.Instance.Game.UniverseModel.FindVesselComponent(node.Owner);
-            node.UpdateFromVessel(vessel);
-            if (node.HasEnoughResources)
-                Logger.LogInfo($"Vessel {node.Owner} has enough power now, but ControlState didn't update");
-        }
-    }
-
     /// <summary>
     /// We re-implement here the `CommNetManager`'s `Update` method since we
     /// want it to be executed on _LateUpdate_. This way, we can be sure all
@@ -157,13 +141,6 @@ public class NetworkManager : ILateUpdate
         var spaceSimulation = commNetManager._game.SpaceSimulation;
         if (spaceSimulation is not { IsEnabled: true })
             return;
-
-        _noPowerTimerRemaining -= Time.deltaTime;
-        if (_noPowerTimerRemaining <= 0f)
-        {
-            UpdateAllVesselsStateWithNoPower();
-            _noPowerTimerRemaining = UpdateNoPowerVesselsTimerSeconds; // 10 seconds
-        }
 
         commNetManager._timerRemaining -= Time.deltaTime;
         if ((double)commNetManager._timerRemaining < 0.0)

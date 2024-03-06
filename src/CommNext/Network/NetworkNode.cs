@@ -11,6 +11,8 @@ public class NetworkNode
     public IGGuid Owner { get; private set; }
 
     public bool IsRelay { get; set; }
+
+    // TODO This is not correctly updated for vessels which are _not_ relays. This is not an issue since we don't care, but it's a bit misleading.
     public bool HasEnoughResources { get; set; }
 
     /// <summary>
@@ -25,6 +27,7 @@ public class NetworkNode
     public NetworkNode(IGGuid owner)
     {
         Owner = owner;
+        HasEnoughResources = true;
     }
 
     /// <summary>
@@ -35,16 +38,12 @@ public class NetworkNode
     /// </summary>
     public void UpdateFromVessel(VesselComponent? vessel)
     {
-        if (vessel == null)
-        {
-            HasEnoughResources = true;
-            return;
-        }
+        if (vessel == null) return;
 
         VesselName = vessel.Name;
-        HasEnoughResources = DifficultyUtils.HasInfinitePower ||
-                             !PluginSettings.RelaysRequirePower.Value ||
-                             vessel.ControlStatus != VesselControlState.NoControl;
+        // HasEnoughResources = DifficultyUtils.HasInfinitePower ||
+        //                      !PluginSettings.RelaysRequirePower.Value ||
+        //                      vessel.ControlStatus != VesselControlState.NoControl;
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public static class PluginSettings
     public static ConfigEntry<BestPathMode> BestPath { get; private set; } = null!;
     public static ConfigEntry<bool> RelaysRequirePower { get; private set; } = null!;
     public static ConfigEntry<KSCRangeMode> KSCRange { get; private set; } = null!;
-    public static ConfigEntry<double> OcclusionRadiusFactor { get; private set; } = null!;
+    public static ConfigEntry<float> OcclusionRadiusFactor { get; private set; } = null!;
 
     // Debug
     public static ConfigEntry<bool> EnableProfileLogs { get; private set; } = null!;
@@ -60,7 +60,7 @@ public static class PluginSettings
             "Network",
             "Relays require power",
             true,
-            "If true, relays will require power to function.\n" +
+            "If true, relays will require power to function.\n \n" +
             "It requires game to be reloaded to take effect."
         );
 
@@ -75,12 +75,12 @@ public static class PluginSettings
         OcclusionRadiusFactor = Plugin.Config.Bind(
             "Network",
             "Occlusion radius",
-            0.98,
+            0.98f,
             new ConfigDescription(
                 "The occlusion body radius multiplier.\n" +
                 "A value of 0 means no occlusion, a value of 1 means full planet radius is considered for occlusion.\n" +
                 "Default value is 0.98. Meaning 98% of planet radius is considered for occlusion.\n" +
-                new AcceptableValueRange<double>(0, 1)
+                new AcceptableValueRange<float>(0, 1)
             )
         );
 

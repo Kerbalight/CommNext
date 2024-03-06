@@ -50,6 +50,7 @@ public static class CommNetManagerPatches
         };
 
         var sourceNetworkNode = NetworkManager.Instance.Nodes[newSourceNode.Owner];
+        sourceNetworkNode.HasEnoughResources = true;
         sourceNetworkNode.VesselName = LocalizedStrings.KSCCommNet;
         // KSC communicate always on the first band
         sourceNetworkNode.SetBandRanges(

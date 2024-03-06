@@ -77,18 +77,6 @@ public class NetworkConnectionViewController : UIToolkitElement, IPoolingElement
         ConnectionsRenderer.Instance.ControlVesselOnMap(otherNode);
     }
 
-    private void NotifyRequiresMapView()
-    {
-        GameManager.Instance.Game.Notifications.ProcessNotification(new NotificationData()
-        {
-            Tier = NotificationTier.Passive,
-            Primary = new NotificationLineItemData()
-            {
-                LocKey = LocalizedStrings.ActionRequiresMapViewKey
-            }
-        });
-    }
-
     public void Bind(NetworkNode currentNode, NetworkConnection connection)
     {
         _currentNode = currentNode;

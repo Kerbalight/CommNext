@@ -1,6 +1,7 @@
 using System.Reflection;
 using BepInEx;
 using CommNext.Managers;
+using CommNext.Modules.Relay;
 using CommNext.Network;
 using CommNext.Patches;
 using CommNext.Rendering;
@@ -72,6 +73,11 @@ public class CommNextPlugin : BaseSpaceWarpPlugin
         Harmony.CreateAndPatchAll(typeof(ConnectionGraphPatches));
         Harmony.CreateAndPatchAll(typeof(TelemetryComponentPatches));
         Harmony.CreateAndPatchAll(typeof(SimulationObjectModelPatches));
+
+        // EC Background Processing
+        if (PluginSettings.RelaysRequirePower.Value)
+            SpaceWarp.API.Parts.PartComponentModuleOverride
+                .RegisterModuleForBackgroundResourceProcessing<PartComponentModule_NextRelay>();
 
         // UI
         MainUIManager.Instance.Initialize();

@@ -5,6 +5,7 @@ namespace CommNext.UI;
 public static class LocalizedStrings
 {
     public static LocalizedString RelayDescription = "PartModules/NextRelay/RelayDescription";
+    public static LocalizedString ElectricCharge = "PartModules/NextRelay/ElectricCharge";
     public static LocalizedString Occluded = "CommNext/UI/Occluded";
     public static LocalizedString Powered = "CommNext/UI/Powered";
     public static LocalizedString Yes = "CommNext/UI/Yes";

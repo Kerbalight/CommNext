@@ -6,9 +6,14 @@
     }
 }
 
-@mixin add-next-relay() {
+@mixin add-next-relay($ec-rate) {
     +Module_NextRelay {
-        +Data_NextRelay {        
+        +Data_NextRelay {
+            RequiredResource: {
+                Rate: $ec-rate,
+                ResourceName: "ElectricCharge",
+                AcceptanceThreshold: 0.1
+            };
         }
     }
 

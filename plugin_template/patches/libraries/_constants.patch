@@ -1,10 +1,16 @@
 // -Relays
 // Was 36G, now 2G
 $commnext-RANGE-RA2: 2000000000.00;
+$commnext-EC-RA2: 0.5;
 // Was 86G, now 15G
 $commnext-RANGE-RA15: 15000000000.00;
+$commnext-EC-RA15: 1.0;
 // Was 130G, now 100G
 $commnext-RANGE-RA100: 100000000000.00;
+$commnext-EC-RA100: 2.0;
+// Stock HG-5 has 200000000.0 (200M) Make it 5M
+$commnext-RANGE-HG5: 5000000.00;
+$commnext-EC-HG5: 0.2;
 
 // -Antennas
 // Stock command pod has 200000000.0 (200M) range. Make it 5K
@@ -13,8 +19,6 @@ $commnext-RANGE-POD: 5000.00;
 $commnext-RANGE-C16: 500000.00;
 // Stock 16S has 200000000.0 (200M) range. Make it 500K
 $commnext-RANGE-C16S: 500000.00;
-// Stock HG-5 has 200000000.0 (200M) Make it 5M
-$commnext-RANGE-HG5: 5000000.00;
 // Stock DTS-M1 has 36000000000.0 (36G) range. Make it 2G
 $commnext-RANGE-DTS-M1: 2000000000.00;
 // Stock HG-55 has 86000000000.0 (86G) range. Make it 15G

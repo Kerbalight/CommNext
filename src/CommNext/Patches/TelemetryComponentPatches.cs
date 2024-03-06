@@ -23,6 +23,7 @@ public static class TelemetryComponentPatches
     public static void OnAdded(SimulationObjectModel simulationObject, double universalTime)
     {
         var networkNode = new NetworkNode(simulationObject.GlobalId);
+        networkNode.HasEnoughResources = true;
         networkNode.UpdateFromVessel(simulationObject.Vessel);
         NetworkManager.Instance.RegisterNode(networkNode);
     }
@@ -44,12 +45,20 @@ public static class TelemetryComponentPatches
         if (partOwner == null) return;
 
         var isRelay = false;
+        // By default, we assume the part has enough resources to operate if it's not a relay
+        var hasEnoughResources = true;
         Dictionary<int, double> bandRanges = new();
 
         foreach (var part in partOwner.Parts)
         {
             if (part.TryGetModuleData<PartComponentModule_NextRelay, Data_NextRelay>(out var data))
-                isRelay |= data.EnableRelay.GetValue();
+            {
+                var isPartRelay = data.EnableRelay.GetValue();
+                isRelay |= isPartRelay;
+
+                if (isPartRelay)
+                    hasEnoughResources &= data.HasResourcesToOperate;
+            }
 
             if (!part.TryGetModule<PartComponentModule_DataTransmitter>(out var transmitterModule))
                 continue;
@@ -88,6 +97,7 @@ public static class TelemetryComponentPatches
         }
 
         networkNode.IsRelay = isRelay;
+        networkNode.HasEnoughResources = hasEnoughResources;
         networkNode.UpdateFromVessel(__instance.SimulationObject.Vessel);
         networkNode.SetBandRanges(bandRanges);
     }
